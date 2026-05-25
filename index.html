@@ -1265,15 +1265,14 @@ async function loadStripe() {
 async function checkSubscription() {
   if (!currentUser) return false;
   try {
-    const { data, error } = await _supabase
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+    const query = _supabase
       .from('subscriptions')
       .select('status')
       .eq('user_id', currentUser.id)
       .single();
-    if (error) {
-      console.warn('Subscription check error:', error);
-      return false;
-    }
+    const { data, error } = await Promise.race([query, timeout]);
+    if (error) return false;
     return data?.status === 'active';
   } catch (e) {
     console.warn('Subscription check failed:', e);
