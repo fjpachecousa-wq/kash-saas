@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KA$H – Microinvest. Macroresults. v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --green-neon: #39ff14;
@@ -926,9 +927,115 @@
   }
 
   .acorns-text strong { color: var(--gold); }
+
+  /* ── LOGIN SCREEN ────────────────────────────── */
+  #loginScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    gap: 32px;
+  }
+  .login-box {
+    background: linear-gradient(135deg, var(--gray-dark) 0%, var(--gray-mid) 100%);
+    border: 1px solid rgba(57,255,20,0.3);
+    border-radius: 20px;
+    padding: 48px 56px;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 60px rgba(57,255,20,0.06);
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green-neon), transparent);
+  }
+  .login-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 4rem;
+    letter-spacing: 6px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .login-tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--silver);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+  .btn-google {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    color: #333;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-google:hover {
+    background: #f0f0f0;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+  }
+  .btn-logout {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(239,68,68,0.4);
+    background: transparent;
+    color: rgba(239,68,68,0.7);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(239,68,68,0.08);
+  }
+  #appContent { display: none; }
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo">
+      <span style="color:var(--green-neon);">KA</span><span style="color:var(--green-neon);text-shadow:0 0 30px #39ff14,0 0 60px #39ff14;">$</span><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
+    </div>
+    <div class="login-tagline">Microinvest. Macroresults.</div>
+    <button class="btn-google" onclick="loginGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Entrar com Google
+    </button>
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;">
+      Seus dados ficam salvos na nuvem · Seguro
+    </div>
+  </div>
+</div>
+
+<!-- APP CONTENT -->
+<div id="appContent">
 
 <!-- PRINT HEADER -->
 <div class="print-header">
@@ -949,6 +1056,7 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
+    <button class="btn-logout no-print" onclick="logoutUser()">Sair</button>
   </div>
 </header>
 
@@ -1096,8 +1204,36 @@
     </div>
   </div>
 </div>
+<!-- /appContent -->
 
 <script>
+// ══════════════════════════════════════════════════
+// SUPABASE INIT
+// ══════════════════════════════════════════════════
+const SUPABASE_URL = 'https://wqrtviggoletikvruvmp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__xYvvfwFqylSmJoMwiQ3Ig_wKCGyH7b';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null;
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+async function loginGoogle() {
+  await _supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+}
+
+async function logoutUser() {
+  await _supabase.auth.signOut();
+  currentUser = null;
+  state = { name: '', interestRate: 7, projects: [] };
+  document.getElementById('appContent').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
 // ══════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════
@@ -1105,22 +1241,71 @@ let state = {
   name: '',
   interestRate: 7,
   projects: []
-  // project: { id, num, name, target, date, fee, passive, color, contributions[] }
 };
 
 let selectedColor = '#39ff14';
 let currentTab = 'overview';
 
 // ══════════════════════════════════════════════════
-// STORAGE
+// CLOUD STORAGE (Supabase)
 // ══════════════════════════════════════════════════
-function save() { localStorage.setItem('kash_v2', JSON.stringify(state)); }
+async function save() {
+  if (!currentUser) return;
+  const { error } = await _supabase
+    .from('kash_data')
+    .upsert({ user_id: currentUser.id, data: state }, { onConflict: 'user_id' });
+  if (error) console.error('Save error:', error);
+}
 
-function load() {
-  const raw = localStorage.getItem('kash_v2');
-  if (raw) { state = JSON.parse(raw); return true; }
+async function load() {
+  if (!currentUser) return false;
+  const { data, error } = await _supabase
+    .from('kash_data')
+    .select('data')
+    .eq('user_id', currentUser.id)
+    .single();
+  if (error && error.code !== 'PGRST116') { console.error('Load error:', error); return false; }
+  if (data && data.data) { state = data.data; return true; }
   return false;
 }
+
+// ══════════════════════════════════════════════════
+// BOOT — check session
+// ══════════════════════════════════════════════════
+async function boot() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    await initApp();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+}
+
+async function initApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
+
+  // Pre-fill name from Google if no saved profile
+  await load();
+  if (!state.name && currentUser?.user_metadata?.full_name) {
+    const parts = currentUser.user_metadata.full_name.split(' ');
+    state.name = currentUser.user_metadata.full_name;
+    document.getElementById('firstName').value = parts[0] || '';
+    document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
+  }
+  renderAll();
+}
+
+// Listen for auth changes (e.g. after OAuth redirect)
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    await initApp();
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null;
+  }
+});
 
 // ══════════════════════════════════════════════════
 // HELPERS
@@ -1209,11 +1394,7 @@ function createProject() {
   const proj = {
     id: Date.now().toString(),
     num: nextProjectNum(),
-    name,
-    target,
-    date,
-    fee,
-    passive,
+    name, target, date, fee, passive,
     color: selectedColor,
     contributions: []
   };
@@ -1232,7 +1413,6 @@ function deleteProject(id) {
   if (!confirm('Excluir este projeto e todos os seus aportes?')) return;
   state.projects = state.projects.filter(p => p.id !== id);
   save();
-  // Remove tab panel and tab button
   const panel = document.getElementById('panel-proj-' + id);
   const tabBtn = document.getElementById('tab-proj-' + id);
   if (panel) panel.remove();
@@ -1489,7 +1669,7 @@ function renderProjectPanel(proj) {
       </div>
     </div>
 
-    <!-- PASSIVE INCOME — always visible -->
+    <!-- PASSIVE INCOME -->
     <div class="card">
       <div class="card-title">🌿 Renda Passiva — ${proj.name}</div>
       <div class="kpi-grid">
@@ -1587,7 +1767,6 @@ function renderProjectPanel(proj) {
 // ══════════════════════════════════════════════════
 function renderTabsNav() {
   const nav = document.getElementById('tabsNav');
-  // Remove all project tabs
   nav.querySelectorAll('.proj-tab-btn').forEach(b => b.remove());
 
   state.projects.forEach(proj => {
@@ -1605,7 +1784,6 @@ function renderTabsNav() {
 // RENDER ALL
 // ══════════════════════════════════════════════════
 function renderAll() {
-  // Update header
   if (state.name) {
     document.getElementById('headerName').textContent = state.name;
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
@@ -1617,7 +1795,6 @@ function renderAll() {
   document.getElementById('headerDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' });
   document.getElementById('printDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
 
-  // Status
   if (state.name && state.projects.length > 0) {
     const totalPct = state.projects.reduce((acc, p) => acc + calcProject(p).pct, 0) / state.projects.length;
     document.getElementById('statusText').textContent =
@@ -1625,10 +1802,7 @@ function renderAll() {
   }
 
   renderTabsNav();
-
-  // Render all project panels
   state.projects.forEach(proj => renderProjectPanel(proj));
-
   renderOverview();
 }
 
@@ -1653,7 +1827,7 @@ function exportCSV(projId) {
 }
 
 // ══════════════════════════════════════════════════
-// UTIL: hex to rgb
+// UTIL
 // ══════════════════════════════════════════════════
 function hexToRgb(hex) {
   const r = parseInt(hex.slice(1,3),16);
@@ -1665,8 +1839,7 @@ function hexToRgb(hex) {
 // ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
-load();
-renderAll();
+boot();
 </script>
 </body>
 </html>
