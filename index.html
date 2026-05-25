@@ -1018,7 +1018,11 @@
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOADING SCREEN -->
+<div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;">
+  <div style="font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:6px;color:var(--green-neon);text-shadow:0 0 30px #39ff14;">KA$H</div>
+  <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:3px;margin-top:8px;">Carregando...</div>
+</div>
 <div id="loginScreen" style="display:none;">
   <div class="login-box">
     <div class="login-logo">
@@ -1350,15 +1354,22 @@ async function load() {
 // ══════════════════════════════════════════════════
 async function boot() {
   try {
+    // Supabase puts tokens in the hash after OAuth redirect
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      await new Promise(r => setTimeout(r, 500)); // wait for supabase to process
+    }
     const { data: { session } } = await _supabase.auth.getSession();
+    document.getElementById('loadingScreen').style.display = 'none';
     if (session) {
       currentUser = session.user;
+      window.history.replaceState({}, document.title, window.location.pathname);
       await initApp();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
     }
   } catch(e) {
     console.error('Boot error:', e);
+    document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
   }
 }
