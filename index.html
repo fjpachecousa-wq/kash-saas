@@ -1013,6 +1013,7 @@
     background: rgba(239,68,68,0.08);
   }
   #appContent { display: none; }
+  #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 </style>
 </head>
 <body>
@@ -1031,6 +1032,30 @@
     <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;">
       Seus dados ficam salvos na nuvem · Seguro
     </div>
+  </div>
+</div>
+
+<!-- PAYWALL SCREEN -->
+<div id="paywallScreen" style="display:none;">
+  <div class="login-box" style="max-width:480px;">
+    <div class="login-logo">
+      <span style="color:var(--green-neon);">KA</span><span style="color:var(--green-neon);text-shadow:0 0 30px #39ff14,0 0 60px #39ff14;">$</span><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
+    </div>
+    <div class="login-tagline" style="margin-bottom:24px;">Pro · $9.99/mês</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;">
+      ✅ Projetos ilimitados<br>
+      ✅ Dados salvos na nuvem<br>
+      ✅ Simulador de renda passiva<br>
+      ✅ Histórico de aportes<br>
+      ✅ Aporte diário recomendado
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.2rem;" onclick="goToCheckout()">
+      💳 Assinar KA$H Pro — $9.99/mês
+    </button>
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;">
+      Cancele quando quiser · Pagamento seguro via Stripe
+    </div>
+    <button class="btn-logout" style="margin-top:16px;width:100%;" onclick="logoutUser()">Sair</button>
   </div>
 </div>
 
@@ -1214,6 +1239,47 @@ const SUPABASE_URL = 'https://wqrtviggoletikvtuvmp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable__xYvvfwFqylSmJoMwiQ3Ig_wKCGyH7b';
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ══════════════════════════════════════════════════
+// STRIPE
+// ══════════════════════════════════════════════════
+const STRIPE_KEY = 'pk_test_51Tb1H5FLs5AxCVp7iTCR3iw7lAQwfomOCcMwQ9zgkJ8b1KAP7bL6vri8eIRyQnzP2tANHnGgcCrhww2hSnrdSnHd00nJJCOV5i';
+const STRIPE_PRICE_ID = 'price_1Tb1acFLs5AxCVp7FWdnqdro';
+let _stripe = null;
+
+async function loadStripe() {
+  if (_stripe) return _stripe;
+  await new Promise((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://js.stripe.com/v3/';
+    script.onload = resolve;
+    document.head.appendChild(script);
+  });
+  _stripe = Stripe(STRIPE_KEY);
+  return _stripe;
+}
+
+async function checkSubscription() {
+  if (!currentUser) return false;
+  const { data } = await _supabase
+    .from('subscriptions')
+    .select('status')
+    .eq('user_id', currentUser.id)
+    .single();
+  return data?.status === 'active';
+}
+
+async function goToCheckout() {
+  const stripe = await loadStripe();
+  const { error } = await stripe.redirectToCheckout({
+    lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
+    mode: 'subscription',
+    successUrl: 'https://kashsolutions.us?subscribed=true',
+    cancelUrl: 'https://kashsolutions.us?canceled=true',
+    customerEmail: currentUser?.email,
+  });
+  if (error) alert('Erro ao abrir checkout: ' + error.message);
+}
+
 let currentUser = null;
 
 // ══════════════════════════════════════════════════
@@ -1231,6 +1297,7 @@ async function logoutUser() {
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
   document.getElementById('appContent').style.display = 'none';
+  document.getElementById('paywallScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
 }
 
@@ -1284,9 +1351,24 @@ async function boot() {
 
 async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appContent').style.display = 'block';
+  document.getElementById('paywallScreen').style.display = 'none';
+  document.getElementById('appContent').style.display = 'none';
 
-  // Pre-fill name from Google if no saved profile
+  // Check URL params for subscription success
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('subscribed') === 'true') {
+    // Give webhook a moment then reload clean
+    setTimeout(() => { window.location.href = 'https://kashsolutions.us'; }, 2000);
+  }
+
+  const hasSub = await checkSubscription();
+
+  if (!hasSub) {
+    document.getElementById('paywallScreen').style.display = 'flex';
+    return;
+  }
+
+  document.getElementById('appContent').style.display = 'block';
   await load();
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
