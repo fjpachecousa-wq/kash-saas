@@ -1260,12 +1260,21 @@ async function loadStripe() {
 
 async function checkSubscription() {
   if (!currentUser) return false;
-  const { data } = await _supabase
-    .from('subscriptions')
-    .select('status')
-    .eq('user_id', currentUser.id)
-    .single();
-  return data?.status === 'active';
+  try {
+    const { data, error } = await _supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', currentUser.id)
+      .single();
+    if (error) {
+      console.warn('Subscription check error:', error);
+      return false;
+    }
+    return data?.status === 'active';
+  } catch (e) {
+    console.warn('Subscription check failed:', e);
+    return false;
+  }
 }
 
 async function goToCheckout() {
@@ -1340,11 +1349,16 @@ async function load() {
 // BOOT — check session
 // ══════════════════════════════════════════════════
 async function boot() {
-  const { data: { session } } = await _supabase.auth.getSession();
-  if (session) {
-    currentUser = session.user;
-    await initApp();
-  } else {
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (session) {
+      currentUser = session.user;
+      await initApp();
+    } else {
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+  } catch(e) {
+    console.error('Boot error:', e);
     document.getElementById('loginScreen').style.display = 'flex';
   }
 }
@@ -1354,14 +1368,17 @@ async function initApp() {
   document.getElementById('paywallScreen').style.display = 'none';
   document.getElementById('appContent').style.display = 'none';
 
-  // Check URL params for subscription success
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
-    // Give webhook a moment then reload clean
     setTimeout(() => { window.location.href = 'https://kashsolutions.us'; }, 2000);
   }
 
-  const hasSub = await checkSubscription();
+  let hasSub = false;
+  try {
+    hasSub = await checkSubscription();
+  } catch(e) {
+    console.error('Subscription check error:', e);
+  }
 
   if (!hasSub) {
     document.getElementById('paywallScreen').style.display = 'flex';
