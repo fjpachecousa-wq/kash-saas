@@ -1281,12 +1281,12 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label>Plano Acorns</label>
+        <label>Taxa / Fee ($/mês)</label>
         <select id="projAcornsPlan">
-          <option value="0">Sem plano / Outro</option>
-          <option value="0.10">🥉 Bronze — $0.10/dia ($3/mês)</option>
-          <option value="0.20">🥈 Silver — $0.20/dia ($6/mês)</option>
-          <option value="0.40">🥇 Gold — $0.40/dia ($12/mês)</option>
+          <option value="0">$0.00/mês — Sem taxa</option>
+          <option value="0.10">$3.00/mês — $0.10/dia</option>
+          <option value="0.20">$6.00/mês — $0.20/dia</option>
+          <option value="0.40">$12.00/mês — $0.40/dia</option>
         </select>
       </div>
       <div class="form-group">
@@ -1930,7 +1930,7 @@ function calcProject(proj) {
     : dailyFeeUSD === 0.10 ? '🥉 Bronze'
     : 'Sem plano';
 
-  return { totalInvested, estimatedBalance, remaining, pct, daysLeft, suggestedDaily, monthlyPassive, neededForPassive, rows, totalAcornsFee, dailyFeeUSD, acornsPlanLabel };
+  return { totalInvested, estimatedBalance, remaining, pct, daysLeft, suggestedDaily, monthlyPassive, neededForPassive, rows, totalAcornsFee, dailyFeeUSD };
 }
 
 // ══════════════════════════════════════════════════
@@ -2060,19 +2060,9 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Acorns: ${st.acornsPlanLabel} ($${st.dailyFeeUSD.toFixed(2)}/dia) · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${(st.dailyFeeUSD * 30).toFixed(2)}/mês ($${st.dailyFeeUSD.toFixed(2)}/dia) · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
       </div>
     </div>
-
-    <!-- ACORNS TIP -->
-    ${st.suggestedDaily > 0 ? `
-    <div class="acorns-box">
-      <div class="acorns-icon">🌱</div>
-      <div class="acorns-text">
-        <strong>Dica Acorns:</strong> Configure um aporte recorrente de <strong>${fmt(st.suggestedDaily)}/dia</strong> (ou <strong>${fmt(st.suggestedDaily * 30)}/mês</strong>) no seu Acorns e este projeto caminha sozinho — mesmo nos dias em que você não lembra.<br>
-        Pequenos valores consistentes constroem patrimônio que a maioria das pessoas acha impossível.
-      </div>
-    </div>` : ''}
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
@@ -2136,7 +2126,7 @@ function renderProjectPanel(proj) {
     <!-- HISTORY TABLE -->
     <div class="card">
       <div class="card-title">📋 Histórico de Aportes
-        ${st.totalAcornsFee > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa Acorns estimada: -${fmt(st.totalAcornsFee)}</span>` : ''}
+        ${st.totalAcornsFee > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa estimada total: -${fmt(st.totalAcornsFee)}</span>` : ''}
       </div>
       <div class="table-wrap">
         <table>
