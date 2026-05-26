@@ -986,19 +986,11 @@ footer {
   </div>
   <div class="nav-right">
     <div class="lang-toggle">
-<<<<<<< HEAD
       <button class="lang-btn" id="landingLangEN" onclick="setLang('en')">EN</button>
       <button class="lang-btn" id="landingLangPT" onclick="setLang('pt')">PT</button>
     </div>
     <a class="btn-nav-login" id="navLoginBtn" href="/app">Login</a>
     <a class="btn-nav" id="navStartBtn" href="/app">Start Now — $9.99</a>
-=======
-      <button class="lang-btn active" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" onclick="setLang('pt')">PT</button>
-    </div>
-    <a class="btn-nav-login" href="/app" data-en="Login" data-pt="Entrar">Login</a>
-    <a class="btn-nav" href="/app" data-en="Start Now — $9.99" data-pt="Começar — $9.99">Start Now — $9.99</a>
->>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
   </div>
 </nav>
 
@@ -1404,12 +1396,7 @@ footer {
 
 <script>
 // ── SIMULATOR ──
-<<<<<<< HEAD
-// Bug 1+2 fix: read from localStorage, default to 'en'
 let currentLang = localStorage.getItem('kash_lang') || 'en';
-=======
-let currentLang = 'en';
->>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
 
 function fmt(n) {
   return '$' + Math.round(n).toLocaleString('en-US');
@@ -1436,44 +1423,38 @@ function calcSim() {
 }
 
 // ── LANGUAGE SWITCHER ──
-<<<<<<< HEAD
-// Bug 5 fix: separate text-only elements from link elements
 const textTranslations = {
   en: {
-    navLogin:    'Login',
-    navStart:    'Start Now — $9.99',
-    simMonthly:  'Monthly Contribution ($)',
-    simRate:     'Annual Return (%)',
-    simYears:    'Years',
-    simBalance:  'Estimated Balance',
+    navLogin:   'Login',
+    navStart:   'Start Now — $9.99',
+    simMonthly: 'Monthly Contribution ($)',
+    simRate:    'Annual Return (%)',
+    simYears:   'Years',
+    simBalance: 'Estimated Balance',
     simPassiveLabel: 'Estimated monthly passive income',
   },
   pt: {
-    navLogin:    'Entrar',
-    navStart:    'Começar — $9.99',
-    simMonthly:  'Aporte Mensal ($)',
-    simRate:     'Retorno Anual (%)',
-    simYears:    'Anos',
-    simBalance:  'Saldo Estimado',
+    navLogin:   'Entrar',
+    navStart:   'Começar — $9.99',
+    simMonthly: 'Aporte Mensal ($)',
+    simRate:    'Retorno Anual (%)',
+    simYears:   'Anos',
+    simBalance: 'Saldo Estimado',
     simPassiveLabel: 'Renda passiva mensal estimada',
   }
 };
 
 function setLang(lang) {
   currentLang = lang;
-  // Bug 2 fix: save to localStorage so /app picks it up
   localStorage.setItem('kash_lang', lang);
 
-  // Bug 3 fix: update active state by id
   document.getElementById('landingLangEN').classList.toggle('active', lang === 'en');
   document.getElementById('landingLangPT').classList.toggle('active', lang === 'pt');
 
-  // Bug 5 fix: update links by id (preserves href)
   const t = textTranslations[lang];
   document.getElementById('navLoginBtn').textContent = t.navLogin;
   document.getElementById('navStartBtn').textContent = t.navStart;
 
-  // Bug 4 fix: translate simulator labels
   const simLabels = document.querySelectorAll('.sim-label');
   if (simLabels[0]) simLabels[0].textContent = t.simMonthly;
   if (simLabels[1]) simLabels[1].textContent = t.simRate;
@@ -1483,9 +1464,7 @@ function setLang(lang) {
   const simPassiveLabel = document.querySelector('.sim-passive-label');
   if (simPassiveLabel) simPassiveLabel.textContent = t.simPassiveLabel;
 
-  // Safe translation for data-en/data-pt elements (text only, no links)
   document.querySelectorAll('[data-en][data-pt]').forEach(el => {
-    // Bug 5 fix: skip elements that are links or contain links
     if (el.tagName === 'A' || el.querySelector('a')) return;
     const text = lang === 'pt' ? el.dataset.pt : el.dataset.en;
     if (text) el.innerHTML = text;
@@ -1494,22 +1473,7 @@ function setLang(lang) {
   calcSim();
 }
 
-// Bug 1+3 fix: apply saved language on page load
 setLang(currentLang);
-=======
-function setLang(lang) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
-  });
-  document.querySelectorAll('[data-en][data-pt]').forEach(el => {
-    const text = lang === 'pt' ? el.dataset.pt : el.dataset.en;
-    if (text) el.innerHTML = text;
-  });
-  calcSim();
-}
-
->>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
 calcSim();
 
 // ── SCROLL ANIMATIONS ──
