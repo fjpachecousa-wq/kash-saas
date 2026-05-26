@@ -1015,102 +1015,66 @@
   #appContent { display: none; }
   #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 
-  /* ── AUTH DIVIDER ────────────────────────────── */
-  .auth-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 20px 0;
+  /* ── LANG TOGGLE ─────────────────────────────── */
+  .lang-toggle-wrap {
+    position: fixed; top: 16px; right: 20px; z-index: 9999;
+    display: flex; background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(57,255,20,0.25); border-radius: 7px;
+    overflow: hidden; backdrop-filter: blur(8px);
   }
-  .auth-divider::before, .auth-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: rgba(57,255,20,0.15);
+  .lang-btn {
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    letter-spacing: 1px; padding: 7px 13px;
+    background: transparent; color: rgba(192,192,192,0.45);
+    border: none; cursor: pointer; transition: all 0.2s;
   }
-  .auth-divider span {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(192,192,192,0.4);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
+  .lang-btn.active { background: rgba(57,255,20,0.15); color: var(--green-neon); }
+  .lang-btn:hover:not(.active) { color: var(--silver); }
+
+  /* ── AUTH EMAIL FORM ─────────────────────────── */
+  .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+  .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(57,255,20,0.15); }
+  .auth-divider span { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(192,192,192,0.4); letter-spacing: 2px; text-transform: uppercase; }
   .auth-input {
-    background: rgba(0,0,0,0.6);
-    border: 1px solid rgba(57,255,20,0.3);
-    border-radius: 8px;
-    color: var(--white);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.85rem;
-    padding: 11px 14px;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-    margin-bottom: 10px;
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(57,255,20,0.3); border-radius: 8px;
+    color: var(--white); font-family: 'Space Mono', monospace; font-size: 0.85rem;
+    padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; margin-bottom: 10px;
   }
-  .auth-input:focus {
-    border-color: var(--green-neon);
-    box-shadow: 0 0 0 3px rgba(57,255,20,0.12);
-  }
+  .auth-input:focus { border-color: var(--green-neon); box-shadow: 0 0 0 3px rgba(57,255,20,0.12); }
   .auth-input::placeholder { color: rgba(192,192,192,0.3); }
   .btn-email {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
-    color: #000;
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1rem;
-    letter-spacing: 3px;
-    padding: 13px 28px;
-    border-radius: 10px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
+    color: #000; font-family: 'Bebas Neue', cursive; font-size: 1rem;
+    letter-spacing: 3px; padding: 13px 28px; border-radius: 10px; border: none;
+    cursor: pointer; transition: all 0.2s; width: 100%;
     box-shadow: 0 4px 20px rgba(57,255,20,0.25);
   }
-  .btn-email:hover {
-    background: linear-gradient(135deg, var(--green-mid), var(--green-neon));
-    box-shadow: 0 6px 30px rgba(57,255,20,0.4);
-    transform: translateY(-1px);
-  }
-  .auth-toggle {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.6rem;
-    color: rgba(192,192,192,0.5);
-    letter-spacing: 1px;
-    margin-top: 12px;
-    cursor: pointer;
-  }
-  .auth-toggle a {
-    color: var(--green-neon);
-    text-decoration: none;
-    cursor: pointer;
-  }
+  .btn-email:hover { background: linear-gradient(135deg, var(--green-mid), var(--green-neon)); box-shadow: 0 6px 30px rgba(57,255,20,0.4); transform: translateY(-1px); }
+  .auth-toggle { font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(192,192,192,0.5); letter-spacing: 1px; margin-top: 12px; }
+  .auth-toggle a { color: var(--green-neon); text-decoration: none; cursor: pointer; }
   .auth-toggle a:hover { text-decoration: underline; }
-  .auth-msg {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 1px;
-    margin-top: 10px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    display: none;
-  }
+  .auth-msg { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 1px; margin-top: 10px; padding: 8px 12px; border-radius: 6px; display: none; }
   .auth-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
   .auth-msg.success { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.25); color: var(--green-neon); }
 </style>
 </head>
 <body>
 
+<!-- LANG TOGGLE — fixed, always visible -->
+<div class="lang-toggle-wrap no-print">
+  <button class="lang-btn active" id="langBtnEN" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" id="langBtnPT" onclick="setLang('pt')">PT</button>
+</div>
+
 <!-- LOADING SCREEN -->
 <div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;">
   <div style="font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:6px;color:var(--green-neon);text-shadow:0 0 30px #39ff14;">KA$H</div>
-  <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:3px;margin-top:8px;">Carregando...</div>
+  <div id="loadingText" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:3px;margin-top:8px;">Loading...</div>
 </div>
+
+<!-- LOGIN SCREEN -->
 <div id="loginScreen" style="display:none;">
   <div class="login-box" style="max-width:440px;">
     <div class="login-logo">
@@ -1121,31 +1085,27 @@
     <!-- Google -->
     <button class="btn-google" onclick="loginGoogle()">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Entrar com Google
+      <span id="googleBtnText">Sign in with Google</span>
     </button>
 
     <!-- Divider -->
-    <div class="auth-divider"><span>ou</span></div>
+    <div class="auth-divider"><span id="orText">or</span></div>
 
-    <!-- Email/Password form -->
+    <!-- Email/Password -->
     <div id="authEmailForm">
-      <input class="auth-input" type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email">
-      <input class="auth-input" type="password" id="authPassword" placeholder="Senha" autocomplete="current-password">
+      <input class="auth-input" type="email" id="authEmail" autocomplete="email">
+      <input class="auth-input" type="password" id="authPassword" autocomplete="current-password">
       <div id="authNameField" style="display:none;">
-        <input class="auth-input" type="text" id="authName" placeholder="Seu nome completo" autocomplete="name">
+        <input class="auth-input" type="text" id="authName" autocomplete="name">
       </div>
       <div id="authMsg" class="auth-msg"></div>
-      <button class="btn-email" id="authSubmitBtn" onclick="handleEmailAuth()">✉ Entrar</button>
-      <div class="auth-toggle" id="authToggleText">
-        Não tem conta? <a onclick="toggleAuthMode()">Criar conta grátis</a>
-      </div>
-      <div class="auth-toggle" id="authForgotText" style="margin-top:8px;">
-        <a onclick="handleForgotPassword()">Esqueci minha senha</a>
-      </div>
+      <button class="btn-email" id="authSubmitBtn" onclick="handleEmailAuth()">✉ <span id="authSubmitText">Sign In</span></button>
+      <div class="auth-toggle" id="authToggleText"></div>
+      <div class="auth-toggle" id="authForgotText" style="margin-top:8px;"></div>
     </div>
 
-    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;">
-      Seus dados ficam salvos na nuvem · Seguro
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;" id="loginFooterText">
+      Your data is saved in the cloud · Secure
     </div>
   </div>
 </div>
@@ -1156,21 +1116,21 @@
     <div class="login-logo">
       <span style="color:var(--green-neon);">KA</span><span style="color:var(--green-neon);text-shadow:0 0 30px #39ff14,0 0 60px #39ff14;">$</span><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
     </div>
-    <div class="login-tagline" style="margin-bottom:24px;">Pro · $9.99/mês</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;">
-      ✅ Projetos ilimitados<br>
-      ✅ Dados salvos na nuvem<br>
-      ✅ Simulador de renda passiva<br>
-      ✅ Histórico de aportes<br>
-      ✅ Aporte diário recomendado
+    <div class="login-tagline" style="margin-bottom:24px;" id="paywallTagline">Pro · $9.99/mo</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;" id="paywallFeatures">
+      ✅ Unlimited projects<br>
+      ✅ Cloud data sync<br>
+      ✅ Passive income simulator<br>
+      ✅ Contribution history<br>
+      ✅ Daily contribution tip
     </div>
     <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.2rem;" onclick="window.location.href='https://buy.stripe.com/test_aFa7sLens6f90X72lqabK00?prefilled_email=' + encodeURIComponent(currentUser?.email || '')">
-      💳 Assinar KA$H Pro — $9.99/mês
+      <span id="paywallBtnText">💳 Subscribe KA$H Pro — $9.99/mo</span>
     </button>
-    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;">
-      Cancele quando quiser · Pagamento seguro via Stripe
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;" id="paywallNote">
+      Cancel anytime · Secure payment via Stripe
     </div>
-    <button class="btn-logout" style="margin-top:16px;width:100%;" onclick="logoutUser()">Sair</button>
+    <button class="btn-logout" style="margin-top:16px;width:100%;" onclick="logoutUser()" id="paywallLogoutBtn">Sign Out</button>
   </div>
 </div>
 
@@ -1196,7 +1156,7 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
-    <button class="btn-logout no-print" onclick="logoutUser()">Sair</button>
+    <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
 
@@ -1415,73 +1375,6 @@ async function loginGoogle() {
   });
 }
 
-// ── EMAIL/PASSWORD AUTH ───────────────────────────
-let authMode = 'login'; // 'login' | 'signup'
-
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'signup' : 'login';
-  const btn = document.getElementById('authSubmitBtn');
-  const toggle = document.getElementById('authToggleText');
-  const nameField = document.getElementById('authNameField');
-  const forgot = document.getElementById('authForgotText');
-  if (authMode === 'signup') {
-    btn.textContent = '✉ Criar Conta';
-    toggle.innerHTML = 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>';
-    nameField.style.display = 'block';
-    forgot.style.display = 'none';
-  } else {
-    btn.textContent = '✉ Entrar';
-    toggle.innerHTML = 'Não tem conta? <a onclick="toggleAuthMode()">Criar conta grátis</a>';
-    nameField.style.display = 'none';
-    forgot.style.display = 'block';
-  }
-  showAuthMsg('', '');
-}
-
-function showAuthMsg(msg, type) {
-  const el = document.getElementById('authMsg');
-  if (!msg) { el.style.display = 'none'; return; }
-  el.textContent = msg;
-  el.className = 'auth-msg ' + type;
-  el.style.display = 'block';
-}
-
-async function handleEmailAuth() {
-  const email = document.getElementById('authEmail').value.trim();
-  const password = document.getElementById('authPassword').value;
-  const btn = document.getElementById('authSubmitBtn');
-  if (!email || !password) { showAuthMsg('Preencha email e senha.', 'error'); return; }
-  btn.disabled = true;
-  btn.textContent = authMode === 'login' ? 'Entrando...' : 'Criando conta...';
-  showAuthMsg('', '');
-  try {
-    if (authMode === 'signup') {
-      const name = document.getElementById('authName').value.trim();
-      const { error } = await _supabase.auth.signUp({
-        email, password,
-        options: { data: { full_name: name }, emailRedirectTo: window.location.origin }
-      });
-      if (error) { showAuthMsg(error.message, 'error'); }
-      else { showAuthMsg('Conta criada! Verifique seu email para confirmar.', 'success'); }
-    } else {
-      const { error } = await _supabase.auth.signInWithPassword({ email, password });
-      if (error) { showAuthMsg(error.message === 'Invalid login credentials' ? 'Email ou senha incorretos.' : error.message, 'error'); }
-    }
-  } catch(e) {
-    showAuthMsg('Erro inesperado. Tente novamente.', 'error');
-  }
-  btn.disabled = false;
-  btn.textContent = authMode === 'login' ? '✉ Entrar' : '✉ Criar Conta';
-}
-
-async function handleForgotPassword() {
-  const email = document.getElementById('authEmail').value.trim();
-  if (!email) { showAuthMsg('Digite seu email acima primeiro.', 'error'); return; }
-  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
-  if (error) { showAuthMsg(error.message, 'error'); }
-  else { showAuthMsg('Link de redefinição enviado para ' + email, 'success'); }
-}
-
 async function logoutUser() {
   await _supabase.auth.signOut();
   currentUser = null;
@@ -1527,9 +1420,209 @@ async function load() {
 }
 
 // ══════════════════════════════════════════════════
+// i18n — LANGUAGE SYSTEM (Phase 1: login/paywall/loading)
+// ══════════════════════════════════════════════════
+const i18n = {
+  en: {
+    loading:        'Loading...',
+    googleBtn:      'Sign in with Google',
+    or:             'or',
+    emailPlaceholder:    'your@email.com',
+    passwordPlaceholder: 'Password',
+    namePlaceholder:     'Your full name',
+    signIn:         'Sign In',
+    createAccount:  'Create Account',
+    noAccount:      "Don't have an account?",
+    createFree:     'Create free account',
+    haveAccount:    'Already have an account?',
+    signInLink:     'Sign In',
+    forgotPassword: 'Forgot my password',
+    loginFooter:    'Your data is saved in the cloud · Secure',
+    paywallTagline: 'Pro · $9.99/mo',
+    paywallFeatures:'✅ Unlimited projects<br>✅ Cloud data sync<br>✅ Passive income simulator<br>✅ Contribution history<br>✅ Daily contribution tip',
+    paywallBtn:     '💳 Subscribe KA$H Pro — $9.99/mo',
+    paywallNote:    'Cancel anytime · Secure payment via Stripe',
+    paywallLogout:  'Sign Out',
+    logoutBtn:      'Sign Out',
+    errFillFields:  'Please fill in email and password.',
+    errInvalidCreds:'Incorrect email or password.',
+    errUnexpected:  'Unexpected error. Please try again.',
+    successSignup:  'Account created! Check your email to confirm.',
+    signingIn:      'Signing in...',
+    creatingAcct:   'Creating account...',
+    resetSent:      'Reset link sent to ',
+    errEmailFirst:  'Enter your email above first.',
+  },
+  pt: {
+    loading:        'Carregando...',
+    googleBtn:      'Entrar com Google',
+    or:             'ou',
+    emailPlaceholder:    'seu@email.com',
+    passwordPlaceholder: 'Senha',
+    namePlaceholder:     'Seu nome completo',
+    signIn:         'Entrar',
+    createAccount:  'Criar Conta',
+    noAccount:      'Não tem conta?',
+    createFree:     'Criar conta grátis',
+    haveAccount:    'Já tem conta?',
+    signInLink:     'Entrar',
+    forgotPassword: 'Esqueci minha senha',
+    loginFooter:    'Seus dados ficam salvos na nuvem · Seguro',
+    paywallTagline: 'Pro · $9.99/mês',
+    paywallFeatures:'✅ Projetos ilimitados<br>✅ Dados salvos na nuvem<br>✅ Simulador de renda passiva<br>✅ Histórico de aportes<br>✅ Aporte diário recomendado',
+    paywallBtn:     '💳 Assinar KA$H Pro — $9.99/mês',
+    paywallNote:    'Cancele quando quiser · Pagamento seguro via Stripe',
+    paywallLogout:  'Sair',
+    logoutBtn:      'Sair',
+    errFillFields:  'Preencha email e senha.',
+    errInvalidCreds:'Email ou senha incorretos.',
+    errUnexpected:  'Erro inesperado. Tente novamente.',
+    successSignup:  'Conta criada! Verifique seu email para confirmar.',
+    signingIn:      'Entrando...',
+    creatingAcct:   'Criando conta...',
+    resetSent:      'Link de redefinição enviado para ',
+    errEmailFirst:  'Digite seu email acima primeiro.',
+  }
+};
+
+let currentLang = localStorage.getItem('kash_lang') || 'en';
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('kash_lang', lang);
+
+  // Toggle buttons
+  document.getElementById('langBtnEN').classList.toggle('active', lang === 'en');
+  document.getElementById('langBtnPT').classList.toggle('active', lang === 'pt');
+
+  const t = i18n[lang];
+
+  // Loading
+  const lt = document.getElementById('loadingText');
+  if (lt) lt.textContent = t.loading;
+
+  // Login
+  const gb = document.getElementById('googleBtnText');
+  if (gb) gb.textContent = t.googleBtn;
+  const orEl = document.getElementById('orText');
+  if (orEl) orEl.textContent = t.or;
+  const emailEl = document.getElementById('authEmail');
+  if (emailEl) emailEl.placeholder = t.emailPlaceholder;
+  const passEl = document.getElementById('authPassword');
+  if (passEl) passEl.placeholder = t.passwordPlaceholder;
+  const nameEl = document.getElementById('authName');
+  if (nameEl) nameEl.placeholder = t.namePlaceholder;
+  const lf = document.getElementById('loginFooterText');
+  if (lf) lf.textContent = t.loginFooter;
+
+  // Auth form labels (re-apply mode)
+  applyAuthMode();
+
+  // Paywall
+  const pt2 = document.getElementById('paywallTagline');
+  if (pt2) pt2.textContent = t.paywallTagline;
+  const pf = document.getElementById('paywallFeatures');
+  if (pf) pf.innerHTML = t.paywallFeatures;
+  const pb = document.getElementById('paywallBtnText');
+  if (pb) pb.textContent = t.paywallBtn;
+  const pn = document.getElementById('paywallNote');
+  if (pn) pn.textContent = t.paywallNote;
+  const pl = document.getElementById('paywallLogoutBtn');
+  if (pl) pl.textContent = t.paywallLogout;
+
+  // App logout button
+  const appLogout = document.getElementById('appLogoutBtn');
+  if (appLogout) appLogout.textContent = t.logoutBtn;
+}
+
+// ══════════════════════════════════════════════════
+// EMAIL / PASSWORD AUTH
+// ══════════════════════════════════════════════════
+let authMode = 'login';
+
+function applyAuthMode() {
+  const t = i18n[currentLang];
+  const btn = document.getElementById('authSubmitBtn');
+  const submitText = document.getElementById('authSubmitText');
+  const toggle = document.getElementById('authToggleText');
+  const nameField = document.getElementById('authNameField');
+  const forgot = document.getElementById('authForgotText');
+  if (!btn) return;
+  if (authMode === 'signup') {
+    if (submitText) submitText.textContent = t.createAccount;
+    if (toggle) toggle.innerHTML = `${t.haveAccount} <a onclick="toggleAuthMode()">${t.signInLink}</a>`;
+    if (nameField) nameField.style.display = 'block';
+    if (forgot) forgot.style.display = 'none';
+  } else {
+    if (submitText) submitText.textContent = t.signIn;
+    if (toggle) toggle.innerHTML = `${t.noAccount} <a onclick="toggleAuthMode()">${t.createFree}</a>`;
+    if (nameField) nameField.style.display = 'none';
+    if (forgot) forgot.innerHTML = `<a onclick="handleForgotPassword()">${t.forgotPassword}</a>`;
+    if (forgot) forgot.style.display = 'block';
+  }
+}
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  applyAuthMode();
+  showAuthMsg('', '');
+}
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('authMsg');
+  if (!el) return;
+  if (!msg) { el.style.display = 'none'; return; }
+  el.textContent = msg;
+  el.className = 'auth-msg ' + type;
+  el.style.display = 'block';
+}
+
+async function handleEmailAuth() {
+  const t = i18n[currentLang];
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+  const submitText = document.getElementById('authSubmitText');
+  if (!email || !password) { showAuthMsg(t.errFillFields, 'error'); return; }
+  btn.disabled = true;
+  if (submitText) submitText.textContent = authMode === 'login' ? t.signingIn : t.creatingAcct;
+  showAuthMsg('', '');
+  try {
+    if (authMode === 'signup') {
+      const name = document.getElementById('authName').value.trim();
+      const { error } = await _supabase.auth.signUp({
+        email, password,
+        options: { data: { full_name: name }, emailRedirectTo: window.location.origin }
+      });
+      if (error) showAuthMsg(error.message, 'error');
+      else showAuthMsg(t.successSignup, 'success');
+    } else {
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      if (error) showAuthMsg(error.message === 'Invalid login credentials' ? t.errInvalidCreds : error.message, 'error');
+    }
+  } catch(e) {
+    showAuthMsg(t.errUnexpected, 'error');
+  }
+  btn.disabled = false;
+  if (submitText) submitText.textContent = authMode === 'login' ? t.signIn : t.createAccount;
+}
+
+async function handleForgotPassword() {
+  const t = i18n[currentLang];
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) { showAuthMsg(t.errEmailFirst, 'error'); return; }
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  if (error) showAuthMsg(error.message, 'error');
+  else showAuthMsg(t.resetSent + email, 'success');
+}
+
+// ══════════════════════════════════════════════════
 // BOOT — check session
 // ══════════════════════════════════════════════════
 async function boot() {
+  // Apply saved language immediately
+  setLang(currentLang);
+  applyAuthMode();
   try {
     // Supabase puts tokens in the hash after OAuth redirect
     if (window.location.hash && window.location.hash.includes('access_token')) {
