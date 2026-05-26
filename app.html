@@ -1282,12 +1282,7 @@
     <div class="form-row">
       <div class="form-group">
         <label>Taxa / Fee ($/mês)</label>
-        <select id="projAcornsPlan">
-          <option value="0">$0.00/mês — Sem taxa</option>
-          <option value="0.10">$3.00/mês — $0.10/dia</option>
-          <option value="0.20">$6.00/mês — $0.20/dia</option>
-          <option value="0.40">$12.00/mês — $0.40/dia</option>
-        </select>
+        <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
       </div>
       <div class="form-group">
         <label>Meta Renda Passiva ($/mês)</label>
@@ -1783,7 +1778,7 @@ function createProject() {
   const name = document.getElementById('projName').value.trim();
   const target = parseFloat(document.getElementById('projTarget').value);
   const date = document.getElementById('projDate').value;
-  const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0;
+  const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0; // stored as $/month
   const passive = parseFloat(document.getElementById('projPassive').value) || 0;
 
   if (!name) return alert('Insira o nome do projeto.');
@@ -1883,8 +1878,9 @@ function calcProject(proj) {
   const rate = state.interestRate;
   const daysLeft = Math.max(0, daysUntil(proj.date));
 
-  // Acorns daily fee — new projects use acornsDailyFee, old use fee %
-  const dailyFeeUSD = proj.acornsDailyFee || 0;
+  // Fee: user enters $/month — convert to $/day
+  const monthlyFeeUSD = proj.acornsDailyFee || 0; // stored as monthly value
+  const dailyFeeUSD = monthlyFeeUSD / 30;
 
   // Total days of the project (from first contribution to deadline)
   const firstContrib = proj.contributions.length > 0 ? proj.contributions[0].date : null;
@@ -1930,7 +1926,7 @@ function calcProject(proj) {
     : dailyFeeUSD === 0.10 ? '🥉 Bronze'
     : 'Sem plano';
 
-  return { totalInvested, estimatedBalance, remaining, pct, daysLeft, suggestedDaily, monthlyPassive, neededForPassive, rows, totalAcornsFee, dailyFeeUSD };
+  return { totalInvested, estimatedBalance, remaining, pct, daysLeft, suggestedDaily, monthlyPassive, neededForPassive, rows, totalAcornsFee, dailyFeeUSD, monthlyFeeUSD };
 }
 
 // ══════════════════════════════════════════════════
@@ -2060,7 +2056,7 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${(st.dailyFeeUSD * 30).toFixed(2)}/mês ($${st.dailyFeeUSD.toFixed(2)}/dia) · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${(st.dailyFeeUSD * 30).toFixed(2)}/mês · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
       </div>
     </div>
 
