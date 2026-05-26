@@ -1362,8 +1362,8 @@ async function goToCheckout() {
   const { error } = await stripe.redirectToCheckout({
     lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
     mode: 'subscription',
-    successUrl: 'https://kashsolutions.us?subscribed=true',
-    cancelUrl: 'https://kashsolutions.us?canceled=true',
+    successUrl: 'https://kashsolutions.us/app?subscribed=true',
+    cancelUrl: 'https://kashsolutions.us/app?canceled=true',
     customerEmail: currentUser?.email,
   });
   if (error) alert('Erro ao abrir checkout: ' + error.message);
@@ -1385,9 +1385,7 @@ async function logoutUser() {
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
-  document.getElementById('appContent').style.display = 'none';
-  document.getElementById('paywallScreen').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
+  window.location.href = '/';
 }
 
 // ══════════════════════════════════════════════════
@@ -1617,7 +1615,7 @@ async function handleForgotPassword() {
   const t = i18n[currentLang];
   const email = document.getElementById('authEmail').value.trim();
   if (!email) { showAuthMsg(t.errEmailFirst, 'error'); return; }
-  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/app' });
   if (error) showAuthMsg(error.message, 'error');
   else showAuthMsg(t.resetSent + email, 'success');
 }
@@ -1657,7 +1655,7 @@ async function initApp() {
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
-    setTimeout(() => { window.location.href = 'https://kashsolutions.us'; }, 2000);
+    setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 2000);
   }
 
   let hasSub = false;
