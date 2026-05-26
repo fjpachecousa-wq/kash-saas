@@ -986,11 +986,19 @@ footer {
   </div>
   <div class="nav-right">
     <div class="lang-toggle">
+<<<<<<< HEAD
       <button class="lang-btn" id="landingLangEN" onclick="setLang('en')">EN</button>
       <button class="lang-btn" id="landingLangPT" onclick="setLang('pt')">PT</button>
     </div>
     <a class="btn-nav-login" id="navLoginBtn" href="/app">Login</a>
     <a class="btn-nav" id="navStartBtn" href="/app">Start Now — $9.99</a>
+=======
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('pt')">PT</button>
+    </div>
+    <a class="btn-nav-login" href="/app" data-en="Login" data-pt="Entrar">Login</a>
+    <a class="btn-nav" href="/app" data-en="Start Now — $9.99" data-pt="Começar — $9.99">Start Now — $9.99</a>
+>>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
   </div>
 </nav>
 
@@ -1396,8 +1404,12 @@ footer {
 
 <script>
 // ── SIMULATOR ──
+<<<<<<< HEAD
 // Bug 1+2 fix: read from localStorage, default to 'en'
 let currentLang = localStorage.getItem('kash_lang') || 'en';
+=======
+let currentLang = 'en';
+>>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
 
 function fmt(n) {
   return '$' + Math.round(n).toLocaleString('en-US');
@@ -1424,6 +1436,7 @@ function calcSim() {
 }
 
 // ── LANGUAGE SWITCHER ──
+<<<<<<< HEAD
 // Bug 5 fix: separate text-only elements from link elements
 const textTranslations = {
   en: {
@@ -1483,6 +1496,20 @@ function setLang(lang) {
 
 // Bug 1+3 fix: apply saved language on page load
 setLang(currentLang);
+=======
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.toLowerCase() === lang);
+  });
+  document.querySelectorAll('[data-en][data-pt]').forEach(el => {
+    const text = lang === 'pt' ? el.dataset.pt : el.dataset.en;
+    if (text) el.innerHTML = text;
+  });
+  calcSim();
+}
+
+>>>>>>> 132c635696bfc90fbe106ad15f599e6d6de2b691
 calcSim();
 
 // ── SCROLL ANIMATIONS ──
