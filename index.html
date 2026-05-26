@@ -1014,6 +1014,94 @@
   }
   #appContent { display: none; }
   #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+
+  /* ── AUTH DIVIDER ────────────────────────────── */
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(57,255,20,0.15);
+  }
+  .auth-divider span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(192,192,192,0.4);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .auth-input {
+    background: rgba(0,0,0,0.6);
+    border: 1px solid rgba(57,255,20,0.3);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  .auth-input:focus {
+    border-color: var(--green-neon);
+    box-shadow: 0 0 0 3px rgba(57,255,20,0.12);
+  }
+  .auth-input::placeholder { color: rgba(192,192,192,0.3); }
+  .btn-email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+    color: #000;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1rem;
+    letter-spacing: 3px;
+    padding: 13px 28px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(57,255,20,0.25);
+  }
+  .btn-email:hover {
+    background: linear-gradient(135deg, var(--green-mid), var(--green-neon));
+    box-shadow: 0 6px 30px rgba(57,255,20,0.4);
+    transform: translateY(-1px);
+  }
+  .auth-toggle {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(192,192,192,0.5);
+    letter-spacing: 1px;
+    margin-top: 12px;
+    cursor: pointer;
+  }
+  .auth-toggle a {
+    color: var(--green-neon);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .auth-toggle a:hover { text-decoration: underline; }
+  .auth-msg {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  .auth-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+  .auth-msg.success { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.25); color: var(--green-neon); }
 </style>
 </head>
 <body>
@@ -1024,15 +1112,38 @@
   <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:3px;margin-top:8px;">Carregando...</div>
 </div>
 <div id="loginScreen" style="display:none;">
-  <div class="login-box">
+  <div class="login-box" style="max-width:440px;">
     <div class="login-logo">
       <span style="color:var(--green-neon);">KA</span><span style="color:var(--green-neon);text-shadow:0 0 30px #39ff14,0 0 60px #39ff14;">$</span><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
     </div>
     <div class="login-tagline">Microinvest. Macroresults.</div>
+
+    <!-- Google -->
     <button class="btn-google" onclick="loginGoogle()">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       Entrar com Google
     </button>
+
+    <!-- Divider -->
+    <div class="auth-divider"><span>ou</span></div>
+
+    <!-- Email/Password form -->
+    <div id="authEmailForm">
+      <input class="auth-input" type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email">
+      <input class="auth-input" type="password" id="authPassword" placeholder="Senha" autocomplete="current-password">
+      <div id="authNameField" style="display:none;">
+        <input class="auth-input" type="text" id="authName" placeholder="Seu nome completo" autocomplete="name">
+      </div>
+      <div id="authMsg" class="auth-msg"></div>
+      <button class="btn-email" id="authSubmitBtn" onclick="handleEmailAuth()">✉ Entrar</button>
+      <div class="auth-toggle" id="authToggleText">
+        Não tem conta? <a onclick="toggleAuthMode()">Criar conta grátis</a>
+      </div>
+      <div class="auth-toggle" id="authForgotText" style="margin-top:8px;">
+        <a onclick="handleForgotPassword()">Esqueci minha senha</a>
+      </div>
+    </div>
+
     <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;">
       Seus dados ficam salvos na nuvem · Seguro
     </div>
@@ -1302,6 +1413,73 @@ async function loginGoogle() {
     provider: 'google',
     options: { redirectTo: window.location.origin }
   });
+}
+
+// ── EMAIL/PASSWORD AUTH ───────────────────────────
+let authMode = 'login'; // 'login' | 'signup'
+
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  const btn = document.getElementById('authSubmitBtn');
+  const toggle = document.getElementById('authToggleText');
+  const nameField = document.getElementById('authNameField');
+  const forgot = document.getElementById('authForgotText');
+  if (authMode === 'signup') {
+    btn.textContent = '✉ Criar Conta';
+    toggle.innerHTML = 'Já tem conta? <a onclick="toggleAuthMode()">Entrar</a>';
+    nameField.style.display = 'block';
+    forgot.style.display = 'none';
+  } else {
+    btn.textContent = '✉ Entrar';
+    toggle.innerHTML = 'Não tem conta? <a onclick="toggleAuthMode()">Criar conta grátis</a>';
+    nameField.style.display = 'none';
+    forgot.style.display = 'block';
+  }
+  showAuthMsg('', '');
+}
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('authMsg');
+  if (!msg) { el.style.display = 'none'; return; }
+  el.textContent = msg;
+  el.className = 'auth-msg ' + type;
+  el.style.display = 'block';
+}
+
+async function handleEmailAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const btn = document.getElementById('authSubmitBtn');
+  if (!email || !password) { showAuthMsg('Preencha email e senha.', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = authMode === 'login' ? 'Entrando...' : 'Criando conta...';
+  showAuthMsg('', '');
+  try {
+    if (authMode === 'signup') {
+      const name = document.getElementById('authName').value.trim();
+      const { error } = await _supabase.auth.signUp({
+        email, password,
+        options: { data: { full_name: name }, emailRedirectTo: window.location.origin }
+      });
+      if (error) { showAuthMsg(error.message, 'error'); }
+      else { showAuthMsg('Conta criada! Verifique seu email para confirmar.', 'success'); }
+    } else {
+      const { error } = await _supabase.auth.signInWithPassword({ email, password });
+      if (error) { showAuthMsg(error.message === 'Invalid login credentials' ? 'Email ou senha incorretos.' : error.message, 'error'); }
+    }
+  } catch(e) {
+    showAuthMsg('Erro inesperado. Tente novamente.', 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = authMode === 'login' ? '✉ Entrar' : '✉ Criar Conta';
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById('authEmail').value.trim();
+  if (!email) { showAuthMsg('Digite seu email acima primeiro.', 'error'); return; }
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+  if (error) { showAuthMsg(error.message, 'error'); }
+  else { showAuthMsg('Link de redefinição enviado para ' + email, 'success'); }
 }
 
 async function logoutUser() {
