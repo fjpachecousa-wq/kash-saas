@@ -997,13 +997,13 @@ footer {
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
-  <div class="hero-eyebrow" id="heroEyebrow">Build wealth — one contribution at a time.</div>
+  <div class="hero-eyebrow" id="heroEyebrow">See where your financial behavior is taking you — before years are lost.</div>
   <div class="hero-title">
     <span class="ka">KA</span><span class="dollar">$</span><span class="h">H</span>
   </div>
-  <div class="hero-tagline" id="heroTagline">Microinvest. Macroresults.</div>
+  <div class="hero-tagline" id="heroTagline">Real Projection. Smart Decisions.</div>
   <p class="hero-sub" id="heroSub">
-    Build wealth progressively through recurring contributions — until you reach partial or total financial independence. No finance degree required. No minimums. Just consistency.
+    KA$H is a financial projection platform based on real goals, actual contributions, and plausible scenarios. We don't manage your money — we help you see the impact of each financial decision before it happens.
   </p>
   <div class="hero-cta-group">
     <a class="btn-primary-lg" href="/app" id="heroCta1">💳 Start for $9.99/mo</a>
@@ -1043,7 +1043,7 @@ footer {
 <section class="problem-section" id="problem">
   <div class="section-inner">
     <div class="section-label" id="problemLabel">The Problem</div>
-    <h2 class="section-title" id="problemTitle">Most people never<br><em>start investing.</em></h2>
+    <h2 class="section-title" id="problemTitle">Most people never<br><em>see where they're headed.</em></h2>
     <div class="problem-grid">
       <ul class="problem-list">
         <li><span class="problem-icon">😰</span><span id="prob1" data-en='"I\'ll start when I have more money" — and never do.' data-pt='"Vou começar quando tiver mais dinheiro" — e nunca começa.'>"I'll start when I have more money" — and never do.</span></li>
@@ -1202,10 +1202,10 @@ footer {
 <!-- MANIFESTO -->
 <section class="manifesto-section">
   <div class="section-inner">
-    <div class="manifesto-quote" id="manifestoQuote" data-en='You don\'t need to wait until you have <em>"enough"</em> money to start investing.' data-pt='Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a investir.'>
-      You don't need to wait until you have <em>"enough"</em> money to start investing.
+    <div class="manifesto-quote" id="manifestoQuote" data-en='You don\'t need to wait until you have <em>"enough"</em> money to start planning.' data-pt='Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a planejar.'>
+      You don't need to wait until you have <em>"enough"</em> money to start planning.
     </div>
-    <p class="manifesto-sub" id="manifestoSub" data-en="Every $1 you contribute today works for you tomorrow.<br>Even without hitting your goal, accumulated money generates passive income — forever.<br>Consistency beats timing. Every single time." data-pt="Cada $1 que você aporta hoje trabalha por você amanhã.<br>Mesmo sem atingir sua meta, o dinheiro acumulado gera renda passiva — para sempre.<br>Consistência vence o timing. Sempre.">
+    <p class="manifesto-sub" id="manifestoSub" data-en="Every $1 contributed today has an estimated impact on your financial future.<br>Even without reaching your goal, accumulated balance works for you.<br>Consistent financial behavior beats perfect timing — every single time." data-pt="Cada $1 aportado hoje gera impacto estimado no seu futuro financeiro.<br>Mesmo sem atingir a meta, o saldo acumulado trabalha por você.<br>Consistência no comportamento financeiro supera o momento perfeito — sempre.">
       Every $1 you contribute today works for you tomorrow.<br>
       Even without hitting your goal, accumulated money generates passive income — forever.<br>
       Consistency beats timing. Every single time.
@@ -1244,7 +1244,7 @@ footer {
 <section class="final-cta">
   <div class="section-inner">
     <h2 id="finalTitle" data-en="Start today.<br><span>Not someday.</span>" data-pt="Comece hoje.<br><span>Não algum dia.</span>">Start today.<br><span>Not someday.</span></h2>
-    <p id="finalSub" data-en="Your financial independence starts with the next contribution." data-pt="Sua independência financeira começa com o próximo aporte.">Your financial independence starts with the next contribution.</p>
+    <p id="finalSub" data-en="Your financial clarity starts with the next contribution." data-pt="Sua clareza financeira começa com o próximo aporte.">Your financial clarity starts with the next contribution.</p>
     <a class="btn-primary-lg" href="/app" id="finalBtn">Open KA$H — $9.99/mo</a>
   </div>
 </section>
@@ -1426,115 +1426,104 @@ function calcSim() {
 // ── TRANSLATIONS ──
 const translations = {
   en: {
-    // Nav
     navHow: 'How It Works', navFeatures: 'Features', navSimulator: 'Simulator', navPricing: 'Pricing',
     navLogin: 'Login', navStart: 'Start Now — $9.99',
-    // Hero
-    heroEyebrow: 'Build wealth — one contribution at a time.',
-    heroTagline: 'Microinvest. Macroresults.',
-    heroSub: 'Build wealth progressively through recurring contributions — until you reach partial or total financial independence. No finance degree required. No minimums. Just consistency.',
+    heroEyebrow: 'See where your financial behavior is taking you — before years are lost.',
+    heroTagline: 'Real Projection. Smart Decisions.',
+    heroSub: 'KA$H is a financial projection platform based on real goals, actual contributions, and plausible scenarios. We don\'t manage your money — we help you see the impact of each financial decision before it happens.',
     heroCta1: '💳 Start for $9.99/mo', heroCta2: '🔑 Login',
     heroNote: 'Cancel anytime · No contracts · Secure payment via Stripe',
     heroScroll: 'Scroll',
-    // Problem
     problemLabel: 'The Problem',
-    problemTitle: 'Most people never<br><em>start investing.</em>',
-    prob1: '"I\'ll start when I have more money" — and never do.',
-    prob2: 'Complex platforms built for finance professionals, not real people.',
-    prob3: 'No clear picture of how small contributions grow over time.',
-    prob4: 'Living paycheck to paycheck with no wealth-building system.',
-    prob5: 'Navigating a financial system with no simple, honest guide.',
-    solutionTitle: 'The KA$H Solution',
-    solutionBody: 'KA$H was built so that <strong>anyone</strong> — regardless of income or background — can start building wealth today.<br><br>Create investment goals. Track every contribution. Watch compound interest work in real time. Get a recommended daily amount to stay on track.<br><br><strong>We use real market indices and fees</strong> so your projections are honest — not fantasy.',
-    // How
-    howLabel: 'How It Works', howTitle: 'Four steps to<br><em>financial momentum.</em>',
-    step1Title: 'Set Your Goal', step1Desc: 'Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream.',
-    step2Title: 'Add Contributions', step2Desc: 'Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically.',
-    step3Title: 'Track Progress', step3Desc: 'See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline.',
-    step4Title: 'Earn Passively', step4Desc: 'Every dollar accumulated generates passive income — forever. Even without hitting your goal, you\'re building wealth.',
-    // Numbers
-    num1: 'Minimum to start', num2: 'Projects you can create', num3: 'Default annual return (adjustable)', num4: 'Per month, all included',
-    // Features
-    featLabel: 'Features', featTitle: 'Everything you need.<br><em>Nothing you don\'t.</em>',
-    feat1Title: 'Unlimited Projects', feat1Desc: 'Create as many investment goals as you want. Home, car, college, retirement — all tracked separately.',
-    feat2Title: 'Cloud Sync', feat2Desc: 'Your data is saved securely in the cloud. Access your portfolio from any device, anytime.',
-    feat3Title: 'Passive Income Simulator', feat3Desc: 'See how much monthly passive income your accumulated balance generates — even before hitting your goal.',
-    feat4Title: 'Daily Contribution Tip', feat4Desc: 'KA$H calculates the exact daily amount you need to stay on track with real compound interest math.',
-    feat5Title: 'Full History & CSV Export', feat5Desc: 'Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review.',
-    feat6Title: 'Secure Login', feat6Desc: 'Sign in with Google or email/password. Your financial data stays private and encrypted.',
-    // Simulator
-    simLabel: 'Try It Now', simTitle: 'See what <em>your money</em><br>can become.',
-    simDesc: 'Adjust the numbers below and watch compound interest work in real time.',
-    simMonthly: 'Monthly Contribution ($)', simRate: 'Annual Return (%)', simYears: 'Years',
+    problemTitle: 'Most people never<br><em>see where they\'re headed.</em>',
+    prob1: '"I\'ll start when I have more money" — and the years go by with no real progress.',
+    prob2: 'Complex platforms built for experts — not for people who want financial clarity.',
+    prob3: 'No visibility into how current behavior will impact the future.',
+    prob4: 'Irregular contributions with no system to measure the real cost of delay.',
+    prob5: 'An opaque financial system — with no honest reference point for where you actually stand.',
+    solutionTitle: 'The KA$H Approach',
+    solutionBody: 'KA$H was built so that <strong>anyone</strong> — regardless of income or background — can visualize the real impact of their financial behavior.<br><br>Create goals. Log your contributions. Compare your planned scenario with a plausible one based on your current pace. See how much time you can gain — or lose — with each decision.<br><br><strong>We use real market indices and fees</strong> so your projections are honest references — not promises.',
+    howLabel: 'How It Works', howTitle: 'Four steps to<br><em>real financial clarity.</em>',
+    step1Title: 'Define Your Goal', step1Desc: 'Create a project for each financial objective — a home, retirement, emergency fund, or any goal that matters to you.',
+    step2Title: 'Log Your Contributions', step2Desc: 'Record every deposit, no matter how small. KA$H calculates fees, net amounts, and projects the cumulative impact automatically.',
+    step3Title: 'Track Your Trajectory', step3Desc: 'Visualize three scenarios: planned, plausible (based on your current pace), and accelerated (with extra contributions). Know exactly how much time you can gain or lose.',
+    step4Title: 'Understand the Real Impact', step4Desc: 'Every amount accumulated generates a passive income estimate — even before reaching your goal. See the potential impact of continuing or pausing your contributions.',
+    num1: 'Minimum to start', num2: 'Goals you can create', num3: 'Estimated annual return (adjustable)', num4: 'Per month, all included',
+    featLabel: 'Features', featTitle: 'What you need.<br><em>Nothing you don\'t.</em>',
+    feat1Title: 'Unlimited Goals', feat1Desc: 'Create as many projects as you want. Home, car, college, retirement — each with its own projection and separate history.',
+    feat2Title: 'Cloud Sync', feat2Desc: 'Your data saved securely. Access your dashboard from any device, at any time.',
+    feat3Title: 'Passive Income Estimate', feat3Desc: 'See the potential impact of your accumulated balance as estimated monthly income — even before reaching your goal.',
+    feat4Title: 'Daily Contribution Guide', feat4Desc: 'KA$H calculates the exact amount you would need to contribute daily to keep your trajectory within the estimated deadline.',
+    feat5Title: 'Full History & CSV Export', feat5Desc: 'Every contribution logged with date, fee, net amount, and running total. Export anytime for analysis or tax purposes.',
+    feat6Title: 'Secure Access', feat6Desc: 'Sign in with Google or email/password. Your financial data stays private and encrypted.',
+    simLabel: 'Try It Now', simTitle: 'See where <em>your money</em><br>could be going.',
+    simDesc: 'Adjust the values below and visualize the estimated impact of your contributions over time.',
+    simMonthly: 'Monthly Contribution ($)', simRate: 'Estimated Annual Return (%)', simYears: 'Years',
     simBalance: 'Estimated Balance', simPassiveLabel: 'Estimated monthly passive income',
-    // Manifesto
-    manifestoQuote: 'You don\'t need to wait until you have <em>"enough"</em> money to start investing.',
-    manifestoSub: 'Every $1 you contribute today works for you tomorrow.<br>Even without hitting your goal, accumulated money generates passive income — forever.<br>Consistency beats timing. Every single time.',
-    // Pricing
+    manifestoQuote: 'You don\'t need to wait until you have <em>"enough"</em> money to start planning.',
+    manifestoSub: 'Every $1 contributed today has an estimated impact on your financial future.<br>Even without reaching your goal, accumulated balance works for you.<br>Consistent financial behavior beats perfect timing — every single time.',
     pricingLabel: 'Pricing', pricingTitle: 'Simple. <em>Honest.</em> Affordable.',
     pricingPeriod: 'per month · cancel anytime',
-    pricingF1: 'Unlimited investment projects', pricingF2: 'Cloud sync across all devices',
-    pricingF3: 'Passive income simulator', pricingF4: 'Daily contribution recommendation',
-    pricingF5: 'Full contribution history & CSV export', pricingF6: 'Compound interest projections with real fees',
+    pricingF1: 'Unlimited projection goals', pricingF2: 'Cloud sync across all devices',
+    pricingF3: 'Passive income estimate', pricingF4: 'Daily contribution guide',
+    pricingF5: 'Full contribution history & CSV export', pricingF6: 'Projections with real market indices and fees',
     pricingF7: 'Google & email/password login', pricingF8: 'Print-ready statements',
-    pricingBtn: '💳 Start Building Wealth Now',
+    pricingBtn: '💳 Start Projecting Now',
     pricingNote: 'No contracts · No setup fees · Cancel anytime · Powered by Stripe',
-    // Final CTA
     finalTitle: 'Start today.<br><span>Not someday.</span>',
-    finalSub: 'Your financial independence starts with the next contribution.',
+    finalSub: 'Your financial clarity starts with the next contribution.',
     finalBtn: 'Open KA$H — $9.99/mo',
-    // Footer
     footerNote: 'KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice. Projections use real market indices and fees for reference only. Past performance does not guarantee future results. © 2026 KA$H · kashsolutions.us',
   },
   pt: {
-    navHow: 'Como Funciona', navFeatures: 'Recursos', navSimulator: 'Simulador', navPricing: 'Preços',
+    navHow: 'Como Funciona', navFeatures: 'Funcionalidades', navSimulator: 'Simulador', navPricing: 'Planos',
     navLogin: 'Entrar', navStart: 'Começar — $9.99',
-    heroEyebrow: 'Construa patrimônio — um aporte por vez.',
-    heroTagline: 'Microaportes. Macroesultados.',
-    heroSub: 'Construa patrimônio progressivamente através de aportes recorrentes — até atingir independência financeira parcial ou total. Sem diploma de finanças. Sem valor mínimo. Apenas consistência.',
-    heroCta1: '💳 Começar por $9.99/mês', heroCta2: '🔑 Entrar',
+    heroEyebrow: 'Veja para onde seu comportamento financeiro está te levando — antes que anos sejam perdidos.',
+    heroTagline: 'Projeção real. Decisão inteligente.',
+    heroSub: 'O KA$H é uma plataforma de projeção financeira baseada em metas, aportes reais e cenários plausíveis. Não gerenciamos seu dinheiro — ajudamos você a enxergar o impacto de cada decisão financeira antes que ela aconteça.',
+    heroCta1: 'Começar por $9.99/mês', heroCta2: 'Entrar',
     heroNote: 'Cancele quando quiser · Sem contratos · Pagamento seguro via Stripe',
     heroScroll: 'Role',
     problemLabel: 'O Problema',
-    problemTitle: 'A maioria das pessoas nunca<br><em>começa a investir.</em>',
-    prob1: '"Vou começar quando tiver mais dinheiro" — e nunca começa.',
-    prob2: 'Plataformas complexas feitas para profissionais de finanças, não para pessoas reais.',
-    prob3: 'Sem clareza de como pequenos aportes crescem ao longo do tempo.',
-    prob4: 'Vivendo de salário em salário sem nenhum sistema de construção de patrimônio.',
-    prob5: 'Navegando num sistema financeiro sem um guia simples e honesto.',
-    solutionTitle: 'A Solução KA$H',
-    solutionBody: 'O KA$H foi feito para que <strong>qualquer pessoa</strong> — independente de renda ou origem — possa começar a construir patrimônio hoje.<br><br>Crie metas de investimento. Registre cada aporte. Veja os juros compostos trabalhando em tempo real. Receba o valor diário recomendado para atingir seus objetivos.<br><br><strong>Usamos índices e taxas reais do mercado</strong> para que suas projeções sejam honestas — não fantasia.',
-    howLabel: 'Como Funciona', howTitle: 'Quatro passos para<br><em>momentum financeiro.</em>',
-    step1Title: 'Defina Seu Objetivo', step1Desc: 'Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou renda passiva.',
-    step2Title: 'Adicione Aportes', step2Desc: 'Registre cada depósito, por menor que seja. O KA$H calcula taxas, valores líquidos e juros estimados automaticamente.',
-    step3Title: 'Acompanhe o Progresso', step3Desc: 'Veja seu saldo crescer em tempo real. O KA$H te diz exatamente quanto aportar por dia para bater seu prazo.',
-    step4Title: 'Gere Renda Passiva', step4Desc: 'Cada dólar acumulado gera renda passiva — para sempre. Mesmo sem atingir a meta, você está construindo patrimônio.',
-    num1: 'Mínimo para começar', num2: 'Projetos que você pode criar', num3: 'Retorno anual padrão (ajustável)', num4: 'Por mês, tudo incluído',
-    featLabel: 'Recursos', featTitle: 'Tudo que você precisa.<br><em>Nada a mais.</em>',
-    feat1Title: 'Projetos Ilimitados', feat1Desc: 'Crie quantos objetivos de investimento quiser. Casa, carro, faculdade, aposentadoria — todos rastreados separadamente.',
-    feat2Title: 'Sincronização na Nuvem', feat2Desc: 'Seus dados ficam salvos com segurança na nuvem. Acesse seu portfólio de qualquer dispositivo, a qualquer hora.',
-    feat3Title: 'Simulador de Renda Passiva', feat3Desc: 'Veja quanto de renda passiva mensal seu saldo acumulado gera — mesmo antes de atingir sua meta.',
-    feat4Title: 'Sugestão de Aporte Diário', feat4Desc: 'O KA$H calcula o valor exato que você precisa aportar por dia para ficar no caminho certo com juros compostos reais.',
-    feat5Title: 'Histórico Completo & Exportação CSV', feat5Desc: 'Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para imposto ou revisão.',
-    feat6Title: 'Login Seguro', feat6Desc: 'Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.',
-    simLabel: 'Experimente Agora', simTitle: 'Veja o que <em>seu dinheiro</em><br>pode se tornar.',
-    simDesc: 'Ajuste os números abaixo e veja os juros compostos trabalhando em tempo real.',
-    simMonthly: 'Aporte Mensal ($)', simRate: 'Retorno Anual (%)', simYears: 'Anos',
-    simBalance: 'Saldo Estimado', simPassiveLabel: 'Renda passiva mensal estimada',
-    manifestoQuote: 'Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a investir.',
-    manifestoSub: 'Cada $1 que você aporta hoje trabalha por você amanhã.<br>Mesmo sem atingir sua meta, o dinheiro acumulado gera renda passiva — para sempre.<br>Consistência vence o timing. Sempre.',
-    pricingLabel: 'Preços', pricingTitle: 'Simples. <em>Honesto.</em> Acessível.',
+    problemTitle: 'A maioria das pessoas nunca<br><em>visualiza para onde está indo.</em>',
+    prob1: '"Vou começar quando tiver mais dinheiro" — e os anos passam sem nenhum progresso real.',
+    prob2: 'Plataformas complexas feitas para especialistas — não para quem quer clareza financeira.',
+    prob3: 'Nenhuma visão de como o comportamento atual vai impactar o futuro.',
+    prob4: 'Aportes irregulares sem nenhum sistema para medir o custo real do atraso.',
+    prob5: 'Um sistema financeiro opaco — sem referência honesta de onde você realmente está.',
+    solutionTitle: 'A Proposta do KA$H',
+    solutionBody: 'O KA$H foi desenvolvido para que <strong>qualquer pessoa</strong> — independente de renda ou origem — consiga visualizar o impacto real do seu comportamento financeiro.<br><br>Crie metas. Registre seus aportes. Compare o cenário planejado com o cenário plausível baseado no seu ritmo atual. Veja quanto tempo você pode ganhar — ou perder — com cada decisão.<br><br><strong>Usamos índices e taxas reais do mercado</strong> para que suas projeções sejam referências honestas — não promessas.',
+    howLabel: 'Como Funciona', howTitle: 'Quatro etapas para<br><em>clareza financeira de verdade.</em>',
+    step1Title: 'Defina sua Meta', step1Desc: 'Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou qualquer meta que faça sentido para você.',
+    step2Title: 'Registre seus Aportes', step2Desc: 'Lance cada depósito, independente do valor. O KA$H calcula taxas, valores líquidos e projeta o impacto acumulado automaticamente.',
+    step3Title: 'Acompanhe sua Trajetória', step3Desc: 'Visualize três cenários: o planejado, o plausível (baseado no seu ritmo atual) e o acelerado (com aportes extras). Saiba exatamente quanto tempo você pode ganhar ou perder.',
+    step4Title: 'Entenda o Impacto Real', step4Desc: 'Cada valor acumulado gera estimativa de renda passiva — mesmo antes de atingir a meta. Veja o impacto potencial de continuar ou pausar seus aportes.',
+    num1: 'Valor mínimo para começar', num2: 'Metas que você pode criar', num3: 'Retorno anual estimado (ajustável)', num4: 'Por mês, tudo incluído',
+    featLabel: 'Funcionalidades', featTitle: 'O que você precisa.<br><em>Sem o que não precisa.</em>',
+    feat1Title: 'Metas Ilimitadas', feat1Desc: 'Crie quantos projetos quiser. Casa, carro, faculdade, aposentadoria — cada objetivo com sua própria projeção e histórico separado.',
+    feat2Title: 'Sincronização na Nuvem', feat2Desc: 'Seus dados salvos com segurança. Acesse seu painel de qualquer dispositivo, a qualquer momento.',
+    feat3Title: 'Estimativa de Renda Passiva', feat3Desc: 'Veja o impacto potencial do saldo acumulado em renda mensal estimada — mesmo antes de atingir sua meta.',
+    feat4Title: 'Guia de Aporte Diário', feat4Desc: 'O KA$H calcula o valor exato que você precisaria aportar por dia para manter sua trajetória dentro do prazo estimado.',
+    feat5Title: 'Histórico Completo & Exportação CSV', feat5Desc: 'Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para análise ou controle fiscal.',
+    feat6Title: 'Acesso Seguro', feat6Desc: 'Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.',
+    simLabel: 'Experimente Agora', simTitle: 'Veja para onde <em>seu dinheiro</em><br>pode estar indo.',
+    simDesc: 'Ajuste os valores abaixo e visualize o impacto estimado dos seus aportes ao longo do tempo.',
+    simMonthly: 'Aporte Mensal ($)', simRate: 'Retorno Anual Estimado (%)', simYears: 'Anos',
+    simBalance: 'Saldo Estimado', simPassiveLabel: 'Estimativa de renda passiva mensal',
+    manifestoQuote: 'Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a planejar.',
+    manifestoSub: 'Cada $1 aportado hoje gera impacto estimado no seu futuro financeiro.<br>Mesmo sem atingir a meta, o saldo acumulado trabalha por você.<br>Consistência no comportamento financeiro supera o momento perfeito — sempre.',
+    pricingLabel: 'Planos', pricingTitle: 'Simples. <em>Honesto.</em> Acessível.',
     pricingPeriod: 'por mês · cancele quando quiser',
-    pricingF1: 'Projetos de investimento ilimitados', pricingF2: 'Sincronização na nuvem em todos os dispositivos',
-    pricingF3: 'Simulador de renda passiva', pricingF4: 'Recomendação de aporte diário',
-    pricingF5: 'Histórico completo de aportes e exportação CSV', pricingF6: 'Projeções de juros compostos com taxas reais',
+    pricingF1: 'Metas de projeção ilimitadas', pricingF2: 'Sincronização na nuvem em todos os dispositivos',
+    pricingF3: 'Estimativa de renda passiva', pricingF4: 'Guia de aporte diário',
+    pricingF5: 'Histórico completo de aportes e exportação CSV', pricingF6: 'Projeções com taxas e índices reais de mercado',
     pricingF7: 'Login com Google ou email/senha', pricingF8: 'Extratos prontos para impressão',
-    pricingBtn: '💳 Comece a Construir Patrimônio Agora',
-    pricingNote: 'Sem contratos · Sem taxas de setup · Cancele quando quiser · Powered by Stripe',
+    pricingBtn: 'Começar a Projetar Agora',
+    pricingNote: 'Sem contratos · Sem taxas de adesão · Cancele quando quiser · Powered by Stripe',
     finalTitle: 'Comece hoje.<br><span>Não algum dia.</span>',
-    finalSub: 'Sua independência financeira começa com o próximo aporte.',
-    finalBtn: 'Abrir KA$H — $9.99/mês',
-    footerNote: 'O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções usam índices e taxas reais do mercado apenas como referência. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us',
+    finalSub: 'Sua clareza financeira começa com o próximo aporte.',
+    finalBtn: 'Abrir o KA$H — $9.99/mês',
+    footerNote: 'O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções utilizam índices e taxas reais do mercado apenas como referência estimada. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us',
   }
 };
 
