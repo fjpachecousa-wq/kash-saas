@@ -979,10 +979,10 @@ footer {
     <span class="ka">KA</span><span class="dollar">$</span><span class="h">H</span>
   </a>
   <div class="nav-links">
-    <a href="#how" data-en="How It Works" data-pt="Como Funciona">How It Works</a>
-    <a href="#features" data-en="Features" data-pt="Recursos">Features</a>
-    <a href="#simulator" data-en="Simulator" data-pt="Simulador">Simulator</a>
-    <a href="#pricing" data-en="Pricing" data-pt="Preços">Pricing</a>
+    <a href="#how" id="navHow">How It Works</a>
+    <a href="#features" id="navFeatures">Features</a>
+    <a href="#simulator" id="navSimulator">Simulator</a>
+    <a href="#pricing" id="navPricing">Pricing</a>
   </div>
   <div class="nav-right">
     <div class="lang-toggle">
@@ -997,22 +997,22 @@ footer {
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
-  <div class="hero-eyebrow" data-en="Build wealth — one contribution at a time." data-pt="Construa patrimônio — um aporte por vez.">Build wealth — one contribution at a time.</div>
+  <div class="hero-eyebrow" id="heroEyebrow">Build wealth — one contribution at a time.</div>
   <div class="hero-title">
     <span class="ka">KA</span><span class="dollar">$</span><span class="h">H</span>
   </div>
-  <div class="hero-tagline" data-en="Microinvest. Macroresults." data-pt="Microaportes. Macroesultados.">Microinvest. Macroresults.</div>
-  <p class="hero-sub" data-en="Build wealth progressively through recurring contributions — until you reach partial or total financial independence. No finance degree required. No minimums. Just consistency." data-pt="Construa patrimônio progressivamente através de aportes recorrentes — até atingir independência financeira parcial ou total. Sem diploma de finanças. Sem valor mínimo. Apenas consistência.">
+  <div class="hero-tagline" id="heroTagline">Microinvest. Macroresults.</div>
+  <p class="hero-sub" id="heroSub">
     Build wealth progressively through recurring contributions — until you reach partial or total financial independence. No finance degree required. No minimums. Just consistency.
   </p>
   <div class="hero-cta-group">
-    <a class="btn-primary-lg" href="/app" data-en="💳 Start for $9.99/mo" data-pt="💳 Começar por $9.99/mês">💳 Start for $9.99/mo</a>
-    <a class="btn-ghost-lg" href="/app" data-en="🔑 Login" data-pt="🔑 Entrar">🔑 Login</a>
+    <a class="btn-primary-lg" href="/app" id="heroCta1">💳 Start for $9.99/mo</a>
+    <a class="btn-ghost-lg" href="/app" id="heroCta2">🔑 Login</a>
   </div>
-  <div class="hero-price-note" data-en="Cancel anytime · No contracts · Secure payment via Stripe" data-pt="Cancele quando quiser · Sem contratos · Pagamento seguro via Stripe">Cancel anytime · No contracts · Secure payment via Stripe</div>
+  <div class="hero-price-note" id="heroNote">Cancel anytime · No contracts · Secure payment via Stripe</div>
   <div class="scroll-indicator">
     <div class="scroll-line"></div>
-    <div class="scroll-label" data-en="Scroll" data-pt="Role">Scroll</div>
+    <div class="scroll-label" id="heroScroll">Scroll</div>
   </div>
 </section>
 
@@ -1042,19 +1042,19 @@ footer {
 <!-- PROBLEM -->
 <section class="problem-section" id="problem">
   <div class="section-inner">
-    <div class="section-label" data-en="The Problem" data-pt="O Problema">The Problem</div>
-    <h2 class="section-title" data-en="Most people never<br><em>start investing.</em>" data-pt="A maioria das pessoas nunca<br><em>começa a investir.</em>">Most people never<br><em>start investing.</em></h2>
+    <div class="section-label" id="problemLabel">The Problem</div>
+    <h2 class="section-title" id="problemTitle">Most people never<br><em>start investing.</em></h2>
     <div class="problem-grid">
       <ul class="problem-list">
-        <li><span class="problem-icon">😰</span><span data-en='"I\'ll start when I have more money" — and never do.' data-pt='"Vou começar quando tiver mais dinheiro" — e nunca começa.'>"I'll start when I have more money" — and never do.</span></li>
-        <li><span class="problem-icon">📉</span><span data-en="Complex platforms built for finance professionals, not real people." data-pt="Plataformas complexas feitas para profissionais de finanças, não para pessoas reais.">Complex platforms built for finance professionals, not real people.</span></li>
-        <li><span class="problem-icon">🌀</span><span data-en="No clear picture of how small contributions grow over time." data-pt="Sem clareza de como pequenos aportes crescem ao longo do tempo.">No clear picture of how small contributions grow over time.</span></li>
-        <li><span class="problem-icon">💸</span><span data-en="Living paycheck to paycheck with no wealth-building system." data-pt="Vivendo de salário em salário sem nenhum sistema de construção de patrimônio.">Living paycheck to paycheck with no wealth-building system.</span></li>
-        <li><span class="problem-icon">🌍</span><span data-en="Navigating a financial system with no simple, honest guide." data-pt="Navegando num sistema financeiro sem um guia simples e honesto.">Navigating a financial system with no simple, honest guide.</span></li>
+        <li><span class="problem-icon">😰</span><span id="prob1" data-en='"I\'ll start when I have more money" — and never do.' data-pt='"Vou começar quando tiver mais dinheiro" — e nunca começa.'>"I'll start when I have more money" — and never do.</span></li>
+        <li><span class="problem-icon">📉</span><span id="prob2" data-en="Complex platforms built for finance professionals, not real people." data-pt="Plataformas complexas feitas para profissionais de finanças, não para pessoas reais.">Complex platforms built for finance professionals, not real people.</span></li>
+        <li><span class="problem-icon">🌀</span><span id="prob3" data-en="No clear picture of how small contributions grow over time." data-pt="Sem clareza de como pequenos aportes crescem ao longo do tempo.">No clear picture of how small contributions grow over time.</span></li>
+        <li><span class="problem-icon">💸</span><span id="prob4" data-en="Living paycheck to paycheck with no wealth-building system." data-pt="Vivendo de salário em salário sem nenhum sistema de construção de patrimônio.">Living paycheck to paycheck with no wealth-building system.</span></li>
+        <li><span class="problem-icon">🌍</span><span id="prob5" data-en="Navigating a financial system with no simple, honest guide." data-pt="Navegando num sistema financeiro sem um guia simples e honesto.">Navigating a financial system with no simple, honest guide.</span></li>
       </ul>
       <div class="solution-card">
-        <div class="solution-card-title" data-en="The KA$H Solution" data-pt="A Solução KA$H">The KA$H Solution</div>
-        <p data-en="KA$H was built so that <strong>anyone</strong> — regardless of income or background — can start building wealth today.<br><br>Create investment goals. Track every contribution. Watch compound interest work in real time. Get a recommended daily amount to stay on track.<br><br><strong>We use real market indices and fees</strong> so your projections are honest — not fantasy."
+        <div class="solution-card-title" id="solutionTitle">The KA$H Solution</div>
+        <p id="solutionBody" data-en="KA$H was built so that <strong>anyone</strong> — regardless of income or background — can start building wealth today.<br><br>Create investment goals. Track every contribution. Watch compound interest work in real time. Get a recommended daily amount to stay on track.<br><br><strong>We use real market indices and fees</strong> so your projections are honest — not fantasy."
            data-pt="O KA$H foi feito para que <strong>qualquer pessoa</strong> — independente de renda ou origem — possa começar a construir patrimônio hoje.<br><br>Crie metas de investimento. Registre cada aporte. Veja os juros compostos trabalhando em tempo real. Receba o valor diário recomendado para atingir seus objetivos.<br><br><strong>Usamos índices e taxas reais do mercado</strong> para que suas projeções sejam honestas — não fantasia.">
           KA$H was built so that <strong>anyone</strong> — regardless of income or background — can start building wealth today.<br><br>Create investment goals. Track every contribution. Watch compound interest work in real time. Get a recommended daily amount to stay on track.<br><br><strong>We use real market indices and fees</strong> so your projections are honest — not fantasy.
         </p>
@@ -1066,32 +1066,32 @@ footer {
 <!-- HOW IT WORKS -->
 <section class="how-section" id="how">
   <div class="section-inner">
-    <div class="section-label" data-en="How It Works" data-pt="Como Funciona">How It Works</div>
-    <h2 class="section-title" data-en="Four steps to<br><em>financial momentum.</em>" data-pt="Quatro passos para<br><em>momentum financeiro.</em>">Four steps to<br><em>financial momentum.</em></h2>
+    <div class="section-label" id="howLabel">How It Works</div>
+    <h2 class="section-title" id="howTitle">Four steps to<br><em>financial momentum.</em></h2>
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">01</div>
         <div class="step-icon">🎯</div>
-        <div class="step-title" data-en="Set Your Goal" data-pt="Defina Seu Objetivo">Set Your Goal</div>
-        <p class="step-desc" data-en="Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream." data-pt="Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou renda passiva.">Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream.</p>
+        <div class="step-title" id="step1Title">Set Your Goal</div>
+        <p class="step-desc" id="step1Desc" data-en="Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream." data-pt="Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou renda passiva.">Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream.</p>
       </div>
       <div class="step-card">
         <div class="step-num">02</div>
         <div class="step-icon">💵</div>
-        <div class="step-title" data-en="Add Contributions" data-pt="Adicione Aportes">Add Contributions</div>
-        <p class="step-desc" data-en="Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically." data-pt="Registre cada depósito, por menor que seja. O KA$H calcula taxas, valores líquidos e juros estimados automaticamente.">Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically.</p>
+        <div class="step-title" id="step2Title">Add Contributions</div>
+        <p class="step-desc" id="step2Desc" data-en="Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically." data-pt="Registre cada depósito, por menor que seja. O KA$H calcula taxas, valores líquidos e juros estimados automaticamente.">Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically.</p>
       </div>
       <div class="step-card">
         <div class="step-num">03</div>
         <div class="step-icon">📈</div>
-        <div class="step-title" data-en="Track Progress" data-pt="Acompanhe o Progresso">Track Progress</div>
-        <p class="step-desc" data-en="See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline." data-pt="Veja seu saldo crescer em tempo real. O KA$H te diz exatamente quanto aportar por dia para bater seu prazo.">See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline.</p>
+        <div class="step-title" id="step3Title">Track Progress</div>
+        <p class="step-desc" id="step3Desc" data-en="See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline." data-pt="Veja seu saldo crescer em tempo real. O KA$H te diz exatamente quanto aportar por dia para bater seu prazo.">See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline.</p>
       </div>
       <div class="step-card">
         <div class="step-num">04</div>
         <div class="step-icon">🌿</div>
-        <div class="step-title" data-en="Earn Passively" data-pt="Gere Renda Passiva">Earn Passively</div>
-        <p class="step-desc" data-en="Every dollar accumulated generates passive income — forever. Even without hitting your goal, you're building wealth." data-pt="Cada dólar acumulado gera renda passiva — para sempre. Mesmo sem atingir a meta, você está construindo patrimônio.">Every dollar accumulated generates passive income — forever. Even without hitting your goal, you're building wealth.</p>
+        <div class="step-title" id="step4Title">Earn Passively</div>
+        <p class="step-desc" id="step4Desc" data-en="Every dollar accumulated generates passive income — forever. Even without hitting your goal, you're building wealth." data-pt="Cada dólar acumulado gera renda passiva — para sempre. Mesmo sem atingir a meta, você está construindo patrimônio.">Every dollar accumulated generates passive income — forever. Even without hitting your goal, you're building wealth.</p>
       </div>
     </div>
   </div>
@@ -1103,19 +1103,19 @@ footer {
     <div class="numbers-grid">
       <div class="number-item">
         <span class="number-val">$1</span>
-        <span class="number-label" data-en="Minimum to start" data-pt="Mínimo para começar">Minimum to start</span>
+        <span class="number-label" id="num1">Minimum to start</span>
       </div>
       <div class="number-item">
         <span class="number-val">∞</span>
-        <span class="number-label" data-en="Projects you can create" data-pt="Projetos que você pode criar">Projects you can create</span>
+        <span class="number-label" id="num2">Projects you can create</span>
       </div>
       <div class="number-item">
         <span class="number-val">7%</span>
-        <span class="number-label" data-en="Default annual return (adjustable)" data-pt="Retorno anual padrão (ajustável)">Default annual return (adjustable)</span>
+        <span class="number-label" id="num3">Default annual return (adjustable)</span>
       </div>
       <div class="number-item">
         <span class="number-val">$9.99</span>
-        <span class="number-label" data-en="Per month, all included" data-pt="Por mês, tudo incluído">Per month, all included</span>
+        <span class="number-label" id="num4">Per month, all included</span>
       </div>
     </div>
   </div>
@@ -1124,38 +1124,38 @@ footer {
 <!-- FEATURES -->
 <section class="features-section" id="features">
   <div class="section-inner">
-    <div class="section-label" data-en="Features" data-pt="Recursos">Features</div>
-    <h2 class="section-title" data-en="Everything you need.<br><em>Nothing you don't.</em>" data-pt="Tudo que você precisa.<br><em>Nada a mais.</em>">Everything you need.<br><em>Nothing you don't.</em></h2>
+    <div class="section-label" id="featLabel">Features</div>
+    <h2 class="section-title" id="featTitle">Everything you need.<br><em>Nothing you don't.</em></h2>
     <div class="features-grid">
       <div class="feature-card">
         <span class="feature-icon">🗂</span>
-        <div class="feature-title" data-en="Unlimited Projects" data-pt="Projetos Ilimitados">Unlimited Projects</div>
-        <p class="feature-desc" data-en="Create as many investment goals as you want. Home, car, college, retirement — all tracked separately." data-pt="Crie quantos objetivos de investimento quiser. Casa, carro, faculdade, aposentadoria — todos rastreados separadamente.">Create as many investment goals as you want. Home, car, college, retirement — all tracked separately.</p>
+        <div class="feature-title" id="feat1Title">Unlimited Projects</div>
+        <p class="feature-desc" id="feat1Desc" data-en="Create as many investment goals as you want. Home, car, college, retirement — all tracked separately." data-pt="Crie quantos objetivos de investimento quiser. Casa, carro, faculdade, aposentadoria — todos rastreados separadamente.">Create as many investment goals as you want. Home, car, college, retirement — all tracked separately.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon">☁️</span>
-        <div class="feature-title" data-en="Cloud Sync" data-pt="Sincronização na Nuvem">Cloud Sync</div>
-        <p class="feature-desc" data-en="Your data is saved securely in the cloud. Access your portfolio from any device, anytime." data-pt="Seus dados ficam salvos com segurança na nuvem. Acesse seu portfólio de qualquer dispositivo, a qualquer hora.">Your data is saved securely in the cloud. Access your portfolio from any device, anytime.</p>
+        <div class="feature-title" id="feat2Title">Cloud Sync</div>
+        <p class="feature-desc" id="feat2Desc" data-en="Your data is saved securely in the cloud. Access your portfolio from any device, anytime." data-pt="Seus dados ficam salvos com segurança na nuvem. Acesse seu portfólio de qualquer dispositivo, a qualquer hora.">Your data is saved securely in the cloud. Access your portfolio from any device, anytime.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon">🌿</span>
-        <div class="feature-title" data-en="Passive Income Simulator" data-pt="Simulador de Renda Passiva">Passive Income Simulator</div>
-        <p class="feature-desc" data-en="See how much monthly passive income your accumulated balance generates — even before hitting your goal." data-pt="Veja quanto de renda passiva mensal seu saldo acumulado gera — mesmo antes de atingir sua meta.">See how much monthly passive income your accumulated balance generates — even before hitting your goal.</p>
+        <div class="feature-title" id="feat3Title">Passive Income Simulator</div>
+        <p class="feature-desc" id="feat3Desc" data-en="See how much monthly passive income your accumulated balance generates — even before hitting your goal." data-pt="Veja quanto de renda passiva mensal seu saldo acumulado gera — mesmo antes de atingir sua meta.">See how much monthly passive income your accumulated balance generates — even before hitting your goal.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon">💡</span>
-        <div class="feature-title" data-en="Daily Contribution Tip" data-pt="Sugestão de Aporte Diário">Daily Contribution Tip</div>
-        <p class="feature-desc" data-en="KA$H calculates the exact daily amount you need to stay on track with real compound interest math." data-pt="O KA$H calcula o valor exato que você precisa aportar por dia para ficar no caminho certo com juros compostos reais.">KA$H calculates the exact daily amount you need to stay on track with real compound interest math.</p>
+        <div class="feature-title" id="feat4Title">Daily Contribution Tip</div>
+        <p class="feature-desc" id="feat4Desc" data-en="KA$H calculates the exact daily amount you need to stay on track with real compound interest math." data-pt="O KA$H calcula o valor exato que você precisa aportar por dia para ficar no caminho certo com juros compostos reais.">KA$H calculates the exact daily amount you need to stay on track with real compound interest math.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon">📋</span>
-        <div class="feature-title" data-en="Full History & CSV Export" data-pt="Histórico Completo & Exportação CSV">Full History & CSV Export</div>
-        <p class="feature-desc" data-en="Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review." data-pt="Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para imposto ou revisão.">Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review.</p>
+        <div class="feature-title" id="feat5Title">Full History & CSV Export</div>
+        <p class="feature-desc" id="feat5Desc" data-en="Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review." data-pt="Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para imposto ou revisão.">Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review.</p>
       </div>
       <div class="feature-card">
         <span class="feature-icon">🔒</span>
-        <div class="feature-title" data-en="Secure Login" data-pt="Login Seguro">Secure Login</div>
-        <p class="feature-desc" data-en="Sign in with Google or email/password. Your financial data stays private and encrypted." data-pt="Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.">Sign in with Google or email/password. Your financial data stays private and encrypted.</p>
+        <div class="feature-title" id="feat6Title">Secure Login</div>
+        <p class="feature-desc" id="feat6Desc" data-en="Sign in with Google or email/password. Your financial data stays private and encrypted." data-pt="Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.">Sign in with Google or email/password. Your financial data stays private and encrypted.</p>
       </div>
     </div>
   </div>
@@ -1164,34 +1164,34 @@ footer {
 <!-- SIMULATOR -->
 <section class="sim-section" id="simulator">
   <div class="section-inner">
-    <div class="section-label" data-en="Try It Now" data-pt="Experimente Agora">Try It Now</div>
-    <h2 class="section-title" data-en="See what <em>your money</em><br>can become." data-pt="Veja o que <em>seu dinheiro</em><br>pode se tornar.">See what <em>your money</em><br>can become.</h2>
-    <p class="section-desc" data-en="Adjust the numbers below and watch compound interest work in real time." data-pt="Ajuste os números abaixo e veja os juros compostos trabalhando em tempo real.">Adjust the numbers below and watch compound interest work in real time.</p>
+    <div class="section-label" id="simLabel">Try It Now</div>
+    <h2 class="section-title" id="simTitle">See what <em>your money</em><br>can become.</h2>
+    <p class="section-desc" id="simDesc">Adjust the numbers below and watch compound interest work in real time.</p>
     <div class="sim-card">
       <div class="sim-grid">
         <div class="sim-inputs">
           <div class="sim-group">
-            <label class="sim-label" data-en="Monthly Contribution ($)" data-pt="Aporte Mensal ($)">Monthly Contribution ($)</label>
+            <label class="sim-label" id="simLabelMonthly" data-en="Monthly Contribution ($)" data-pt="Aporte Mensal ($)">Monthly Contribution ($)</label>
             <input class="sim-input" type="number" id="simMonthly" value="100" min="1" oninput="calcSim()">
           </div>
           <div class="sim-group">
-            <label class="sim-label" data-en="Annual Return (%)" data-pt="Retorno Anual (%)">Annual Return (%)</label>
+            <label class="sim-label" id="simLabelRate" data-en="Annual Return (%)" data-pt="Retorno Anual (%)">Annual Return (%)</label>
             <input class="sim-input" type="number" id="simRate" value="7" min="1" max="30" step="0.1" oninput="calcSim()">
           </div>
           <div class="sim-group">
-            <label class="sim-label" data-en="Years" data-pt="Anos">Years</label>
+            <label class="sim-label" id="simLabelYears" data-en="Years" data-pt="Anos">Years</label>
             <input class="sim-input" type="number" id="simYears" value="10" min="1" max="50" oninput="calcSim()">
           </div>
         </div>
         <div>
           <div class="sim-result">
-            <div class="sim-result-label" data-en="Estimated Balance" data-pt="Saldo Estimado">Estimated Balance</div>
+            <div class="sim-result-label" id="simBalanceLabel">Estimated Balance</div>
             <span class="sim-result-val" id="simResult">$17,308</span>
             <div class="sim-result-sub" id="simContribTotal">Total contributed: $12,000</div>
           </div>
           <div class="sim-passive">
             <span class="sim-passive-val" id="simPassive">$101/mo</span>
-            <span class="sim-passive-label" data-en="Estimated monthly passive income" data-pt="Renda passiva mensal estimada">Estimated monthly passive income</span>
+            <span class="sim-passive-label" id="simPassiveLabelEl">Estimated monthly passive income</span>
           </div>
         </div>
       </div>
@@ -1202,10 +1202,10 @@ footer {
 <!-- MANIFESTO -->
 <section class="manifesto-section">
   <div class="section-inner">
-    <div class="manifesto-quote" data-en='You don\'t need to wait until you have <em>"enough"</em> money to start investing.' data-pt='Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a investir.'>
+    <div class="manifesto-quote" id="manifestoQuote" data-en='You don\'t need to wait until you have <em>"enough"</em> money to start investing.' data-pt='Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a investir.'>
       You don't need to wait until you have <em>"enough"</em> money to start investing.
     </div>
-    <p class="manifesto-sub" data-en="Every $1 you contribute today works for you tomorrow.<br>Even without hitting your goal, accumulated money generates passive income — forever.<br>Consistency beats timing. Every single time." data-pt="Cada $1 que você aporta hoje trabalha por você amanhã.<br>Mesmo sem atingir sua meta, o dinheiro acumulado gera renda passiva — para sempre.<br>Consistência vence o timing. Sempre.">
+    <p class="manifesto-sub" id="manifestoSub" data-en="Every $1 you contribute today works for you tomorrow.<br>Even without hitting your goal, accumulated money generates passive income — forever.<br>Consistency beats timing. Every single time." data-pt="Cada $1 que você aporta hoje trabalha por você amanhã.<br>Mesmo sem atingir sua meta, o dinheiro acumulado gera renda passiva — para sempre.<br>Consistência vence o timing. Sempre.">
       Every $1 you contribute today works for you tomorrow.<br>
       Even without hitting your goal, accumulated money generates passive income — forever.<br>
       Consistency beats timing. Every single time.
@@ -1216,26 +1216,26 @@ footer {
 <!-- PRICING -->
 <section class="pricing-section" id="pricing">
   <div class="section-inner" style="text-align:center;">
-    <div class="section-label" data-en="Pricing" data-pt="Preços">Pricing</div>
-    <h2 class="section-title" data-en="Simple. <em>Honest.</em> Affordable." data-pt="Simples. <em>Honesto.</em> Acessível.">Simple. <em>Honest.</em> Affordable.</h2>
+    <div class="section-label" id="pricingLabel">Pricing</div>
+    <h2 class="section-title" id="pricingTitle">Simple. <em>Honest.</em> Affordable.</h2>
     <div class="pricing-card">
       <div class="pricing-badge">KA$H Pro</div>
       <div class="pricing-price">
         <span class="currency">$</span>9<span class="cents">.99</span>
       </div>
-      <div class="pricing-period" data-en="per month · cancel anytime" data-pt="por mês · cancele quando quiser">per month · cancel anytime</div>
+      <div class="pricing-period" id="pricingPeriod">per month · cancel anytime</div>
       <ul class="pricing-features">
-        <li data-en="Unlimited investment projects" data-pt="Projetos de investimento ilimitados">Unlimited investment projects</li>
-        <li data-en="Cloud sync across all devices" data-pt="Sincronização na nuvem em todos os dispositivos">Cloud sync across all devices</li>
-        <li data-en="Passive income simulator" data-pt="Simulador de renda passiva">Passive income simulator</li>
-        <li data-en="Daily contribution recommendation" data-pt="Recomendação de aporte diário">Daily contribution recommendation</li>
-        <li data-en="Full contribution history & CSV export" data-pt="Histórico completo de aportes e exportação CSV">Full contribution history & CSV export</li>
-        <li data-en="Compound interest projections with real fees" data-pt="Projeções de juros compostos com taxas reais">Compound interest projections with real fees</li>
-        <li data-en="Google & email/password login" data-pt="Login com Google ou email/senha">Google & email/password login</li>
-        <li data-en="Print-ready statements" data-pt="Extratos prontos para impressão">Print-ready statements</li>
+        <li id="pricingF1" data-en="Unlimited investment projects" data-pt="Projetos de investimento ilimitados">Unlimited investment projects</li>
+        <li id="pricingF2" data-en="Cloud sync across all devices" data-pt="Sincronização na nuvem em todos os dispositivos">Cloud sync across all devices</li>
+        <li id="pricingF3" data-en="Passive income simulator" data-pt="Simulador de renda passiva">Passive income simulator</li>
+        <li id="pricingF4" data-en="Daily contribution recommendation" data-pt="Recomendação de aporte diário">Daily contribution recommendation</li>
+        <li id="pricingF5" data-en="Full contribution history & CSV export" data-pt="Histórico completo de aportes e exportação CSV">Full contribution history & CSV export</li>
+        <li id="pricingF6" data-en="Compound interest projections with real fees" data-pt="Projeções de juros compostos com taxas reais">Compound interest projections with real fees</li>
+        <li id="pricingF7" data-en="Google & email/password login" data-pt="Login com Google ou email/senha">Google & email/password login</li>
+        <li id="pricingF8" data-en="Print-ready statements" data-pt="Extratos prontos para impressão">Print-ready statements</li>
       </ul>
-      <a class="btn-cta-full" href="/app" data-en="💳 Start Building Wealth Now" data-pt="💳 Comece a Construir Patrimônio Agora">💳 Start Building Wealth Now</a>
-      <div class="pricing-note" data-en="No contracts · No setup fees · Cancel anytime · Powered by Stripe" data-pt="Sem contratos · Sem taxas de setup · Cancele quando quiser · Powered by Stripe">No contracts · No setup fees · Cancel anytime · Powered by Stripe</div>
+      <a class="btn-cta-full" href="/app" id="pricingBtn">💳 Start Building Wealth Now</a>
+      <div class="pricing-note" id="pricingNote" data-en="No contracts · No setup fees · Cancel anytime · Powered by Stripe" data-pt="Sem contratos · Sem taxas de setup · Cancele quando quiser · Powered by Stripe">No contracts · No setup fees · Cancel anytime · Powered by Stripe</div>
     </div>
   </div>
 </section>
@@ -1243,9 +1243,9 @@ footer {
 <!-- FINAL CTA -->
 <section class="final-cta">
   <div class="section-inner">
-    <h2 data-en="Start today.<br><span>Not someday.</span>" data-pt="Comece hoje.<br><span>Não algum dia.</span>">Start today.<br><span>Not someday.</span></h2>
-    <p data-en="Your financial independence starts with the next contribution." data-pt="Sua independência financeira começa com o próximo aporte.">Your financial independence starts with the next contribution.</p>
-    <a class="btn-primary-lg" href="/app" data-en="Open KA$H — $9.99/mo" data-pt="Abrir KA$H — $9.99/mês">Open KA$H — $9.99/mo</a>
+    <h2 id="finalTitle" data-en="Start today.<br><span>Not someday.</span>" data-pt="Comece hoje.<br><span>Não algum dia.</span>">Start today.<br><span>Not someday.</span></h2>
+    <p id="finalSub" data-en="Your financial independence starts with the next contribution." data-pt="Sua independência financeira começa com o próximo aporte.">Your financial independence starts with the next contribution.</p>
+    <a class="btn-primary-lg" href="/app" id="finalBtn">Open KA$H — $9.99/mo</a>
   </div>
 </section>
   <div class="section-inner">
@@ -1387,7 +1387,7 @@ footer {
   <a class="nav-logo" href="#" style="font-size:1.5rem;">
     <span class="ka">KA</span><span class="dollar">$</span><span class="h">H</span>
   </a>
-  <div class="footer-note" data-en="KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice. Projections use real market indices and fees for reference only. Past performance does not guarantee future results. © 2026 KA$H · kashsolutions.us" data-pt="O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções usam índices e taxas reais do mercado apenas como referência. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us">
+  <div class="footer-note" id="footerNote" data-en="KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice. Projections use real market indices and fees for reference only. Past performance does not guarantee future results. © 2026 KA$H · kashsolutions.us" data-pt="O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções usam índices e taxas reais do mercado apenas como referência. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us">
     KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice.<br>
     Projections use real market indices and fees for reference only. Past performance does not guarantee future results.<br>
     © 2026 KA$H · kashsolutions.us
@@ -1422,53 +1422,193 @@ function calcSim() {
   document.getElementById('simPassive').textContent = fmt(passive) + (currentLang === 'pt' ? '/mês' : '/mo');
 }
 
-// ── LANGUAGE SWITCHER ──
-const textTranslations = {
+
+// ── TRANSLATIONS ──
+const translations = {
   en: {
-    navLogin:   'Login',
-    navStart:   'Start Now — $9.99',
-    simMonthly: 'Monthly Contribution ($)',
-    simRate:    'Annual Return (%)',
-    simYears:   'Years',
-    simBalance: 'Estimated Balance',
-    simPassiveLabel: 'Estimated monthly passive income',
+    // Nav
+    navHow: 'How It Works', navFeatures: 'Features', navSimulator: 'Simulator', navPricing: 'Pricing',
+    navLogin: 'Login', navStart: 'Start Now — $9.99',
+    // Hero
+    heroEyebrow: 'Build wealth — one contribution at a time.',
+    heroTagline: 'Microinvest. Macroresults.',
+    heroSub: 'Build wealth progressively through recurring contributions — until you reach partial or total financial independence. No finance degree required. No minimums. Just consistency.',
+    heroCta1: '💳 Start for $9.99/mo', heroCta2: '🔑 Login',
+    heroNote: 'Cancel anytime · No contracts · Secure payment via Stripe',
+    heroScroll: 'Scroll',
+    // Problem
+    problemLabel: 'The Problem',
+    problemTitle: 'Most people never<br><em>start investing.</em>',
+    prob1: '"I\'ll start when I have more money" — and never do.',
+    prob2: 'Complex platforms built for finance professionals, not real people.',
+    prob3: 'No clear picture of how small contributions grow over time.',
+    prob4: 'Living paycheck to paycheck with no wealth-building system.',
+    prob5: 'Navigating a financial system with no simple, honest guide.',
+    solutionTitle: 'The KA$H Solution',
+    solutionBody: 'KA$H was built so that <strong>anyone</strong> — regardless of income or background — can start building wealth today.<br><br>Create investment goals. Track every contribution. Watch compound interest work in real time. Get a recommended daily amount to stay on track.<br><br><strong>We use real market indices and fees</strong> so your projections are honest — not fantasy.',
+    // How
+    howLabel: 'How It Works', howTitle: 'Four steps to<br><em>financial momentum.</em>',
+    step1Title: 'Set Your Goal', step1Desc: 'Create a project for each financial objective — a home, retirement, emergency fund, or passive income stream.',
+    step2Title: 'Add Contributions', step2Desc: 'Record every deposit, no matter how small. KA$H calculates fees, net amounts, and estimated interest automatically.',
+    step3Title: 'Track Progress', step3Desc: 'See your balance grow in real time. KA$H tells you exactly how much to contribute daily to hit your deadline.',
+    step4Title: 'Earn Passively', step4Desc: 'Every dollar accumulated generates passive income — forever. Even without hitting your goal, you\'re building wealth.',
+    // Numbers
+    num1: 'Minimum to start', num2: 'Projects you can create', num3: 'Default annual return (adjustable)', num4: 'Per month, all included',
+    // Features
+    featLabel: 'Features', featTitle: 'Everything you need.<br><em>Nothing you don\'t.</em>',
+    feat1Title: 'Unlimited Projects', feat1Desc: 'Create as many investment goals as you want. Home, car, college, retirement — all tracked separately.',
+    feat2Title: 'Cloud Sync', feat2Desc: 'Your data is saved securely in the cloud. Access your portfolio from any device, anytime.',
+    feat3Title: 'Passive Income Simulator', feat3Desc: 'See how much monthly passive income your accumulated balance generates — even before hitting your goal.',
+    feat4Title: 'Daily Contribution Tip', feat4Desc: 'KA$H calculates the exact daily amount you need to stay on track with real compound interest math.',
+    feat5Title: 'Full History & CSV Export', feat5Desc: 'Every contribution logged with date, fee, net amount, and running total. Export anytime for tax or review.',
+    feat6Title: 'Secure Login', feat6Desc: 'Sign in with Google or email/password. Your financial data stays private and encrypted.',
+    // Simulator
+    simLabel: 'Try It Now', simTitle: 'See what <em>your money</em><br>can become.',
+    simDesc: 'Adjust the numbers below and watch compound interest work in real time.',
+    simMonthly: 'Monthly Contribution ($)', simRate: 'Annual Return (%)', simYears: 'Years',
+    simBalance: 'Estimated Balance', simPassiveLabel: 'Estimated monthly passive income',
+    // Manifesto
+    manifestoQuote: 'You don\'t need to wait until you have <em>"enough"</em> money to start investing.',
+    manifestoSub: 'Every $1 you contribute today works for you tomorrow.<br>Even without hitting your goal, accumulated money generates passive income — forever.<br>Consistency beats timing. Every single time.',
+    // Pricing
+    pricingLabel: 'Pricing', pricingTitle: 'Simple. <em>Honest.</em> Affordable.',
+    pricingPeriod: 'per month · cancel anytime',
+    pricingF1: 'Unlimited investment projects', pricingF2: 'Cloud sync across all devices',
+    pricingF3: 'Passive income simulator', pricingF4: 'Daily contribution recommendation',
+    pricingF5: 'Full contribution history & CSV export', pricingF6: 'Compound interest projections with real fees',
+    pricingF7: 'Google & email/password login', pricingF8: 'Print-ready statements',
+    pricingBtn: '💳 Start Building Wealth Now',
+    pricingNote: 'No contracts · No setup fees · Cancel anytime · Powered by Stripe',
+    // Final CTA
+    finalTitle: 'Start today.<br><span>Not someday.</span>',
+    finalSub: 'Your financial independence starts with the next contribution.',
+    finalBtn: 'Open KA$H — $9.99/mo',
+    // Footer
+    footerNote: 'KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice. Projections use real market indices and fees for reference only. Past performance does not guarantee future results. © 2026 KA$H · kashsolutions.us',
   },
   pt: {
-    navLogin:   'Entrar',
-    navStart:   'Começar — $9.99',
-    simMonthly: 'Aporte Mensal ($)',
-    simRate:    'Retorno Anual (%)',
-    simYears:   'Anos',
-    simBalance: 'Saldo Estimado',
-    simPassiveLabel: 'Renda passiva mensal estimada',
+    navHow: 'Como Funciona', navFeatures: 'Recursos', navSimulator: 'Simulador', navPricing: 'Preços',
+    navLogin: 'Entrar', navStart: 'Começar — $9.99',
+    heroEyebrow: 'Construa patrimônio — um aporte por vez.',
+    heroTagline: 'Microaportes. Macroesultados.',
+    heroSub: 'Construa patrimônio progressivamente através de aportes recorrentes — até atingir independência financeira parcial ou total. Sem diploma de finanças. Sem valor mínimo. Apenas consistência.',
+    heroCta1: '💳 Começar por $9.99/mês', heroCta2: '🔑 Entrar',
+    heroNote: 'Cancele quando quiser · Sem contratos · Pagamento seguro via Stripe',
+    heroScroll: 'Role',
+    problemLabel: 'O Problema',
+    problemTitle: 'A maioria das pessoas nunca<br><em>começa a investir.</em>',
+    prob1: '"Vou começar quando tiver mais dinheiro" — e nunca começa.',
+    prob2: 'Plataformas complexas feitas para profissionais de finanças, não para pessoas reais.',
+    prob3: 'Sem clareza de como pequenos aportes crescem ao longo do tempo.',
+    prob4: 'Vivendo de salário em salário sem nenhum sistema de construção de patrimônio.',
+    prob5: 'Navegando num sistema financeiro sem um guia simples e honesto.',
+    solutionTitle: 'A Solução KA$H',
+    solutionBody: 'O KA$H foi feito para que <strong>qualquer pessoa</strong> — independente de renda ou origem — possa começar a construir patrimônio hoje.<br><br>Crie metas de investimento. Registre cada aporte. Veja os juros compostos trabalhando em tempo real. Receba o valor diário recomendado para atingir seus objetivos.<br><br><strong>Usamos índices e taxas reais do mercado</strong> para que suas projeções sejam honestas — não fantasia.',
+    howLabel: 'Como Funciona', howTitle: 'Quatro passos para<br><em>momentum financeiro.</em>',
+    step1Title: 'Defina Seu Objetivo', step1Desc: 'Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou renda passiva.',
+    step2Title: 'Adicione Aportes', step2Desc: 'Registre cada depósito, por menor que seja. O KA$H calcula taxas, valores líquidos e juros estimados automaticamente.',
+    step3Title: 'Acompanhe o Progresso', step3Desc: 'Veja seu saldo crescer em tempo real. O KA$H te diz exatamente quanto aportar por dia para bater seu prazo.',
+    step4Title: 'Gere Renda Passiva', step4Desc: 'Cada dólar acumulado gera renda passiva — para sempre. Mesmo sem atingir a meta, você está construindo patrimônio.',
+    num1: 'Mínimo para começar', num2: 'Projetos que você pode criar', num3: 'Retorno anual padrão (ajustável)', num4: 'Por mês, tudo incluído',
+    featLabel: 'Recursos', featTitle: 'Tudo que você precisa.<br><em>Nada a mais.</em>',
+    feat1Title: 'Projetos Ilimitados', feat1Desc: 'Crie quantos objetivos de investimento quiser. Casa, carro, faculdade, aposentadoria — todos rastreados separadamente.',
+    feat2Title: 'Sincronização na Nuvem', feat2Desc: 'Seus dados ficam salvos com segurança na nuvem. Acesse seu portfólio de qualquer dispositivo, a qualquer hora.',
+    feat3Title: 'Simulador de Renda Passiva', feat3Desc: 'Veja quanto de renda passiva mensal seu saldo acumulado gera — mesmo antes de atingir sua meta.',
+    feat4Title: 'Sugestão de Aporte Diário', feat4Desc: 'O KA$H calcula o valor exato que você precisa aportar por dia para ficar no caminho certo com juros compostos reais.',
+    feat5Title: 'Histórico Completo & Exportação CSV', feat5Desc: 'Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para imposto ou revisão.',
+    feat6Title: 'Login Seguro', feat6Desc: 'Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.',
+    simLabel: 'Experimente Agora', simTitle: 'Veja o que <em>seu dinheiro</em><br>pode se tornar.',
+    simDesc: 'Ajuste os números abaixo e veja os juros compostos trabalhando em tempo real.',
+    simMonthly: 'Aporte Mensal ($)', simRate: 'Retorno Anual (%)', simYears: 'Anos',
+    simBalance: 'Saldo Estimado', simPassiveLabel: 'Renda passiva mensal estimada',
+    manifestoQuote: 'Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a investir.',
+    manifestoSub: 'Cada $1 que você aporta hoje trabalha por você amanhã.<br>Mesmo sem atingir sua meta, o dinheiro acumulado gera renda passiva — para sempre.<br>Consistência vence o timing. Sempre.',
+    pricingLabel: 'Preços', pricingTitle: 'Simples. <em>Honesto.</em> Acessível.',
+    pricingPeriod: 'por mês · cancele quando quiser',
+    pricingF1: 'Projetos de investimento ilimitados', pricingF2: 'Sincronização na nuvem em todos os dispositivos',
+    pricingF3: 'Simulador de renda passiva', pricingF4: 'Recomendação de aporte diário',
+    pricingF5: 'Histórico completo de aportes e exportação CSV', pricingF6: 'Projeções de juros compostos com taxas reais',
+    pricingF7: 'Login com Google ou email/senha', pricingF8: 'Extratos prontos para impressão',
+    pricingBtn: '💳 Comece a Construir Patrimônio Agora',
+    pricingNote: 'Sem contratos · Sem taxas de setup · Cancele quando quiser · Powered by Stripe',
+    finalTitle: 'Comece hoje.<br><span>Não algum dia.</span>',
+    finalSub: 'Sua independência financeira começa com o próximo aporte.',
+    finalBtn: 'Abrir KA$H — $9.99/mês',
+    footerNote: 'O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções usam índices e taxas reais do mercado apenas como referência. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us',
   }
 };
 
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('kash_lang', lang);
+  const t = translations[lang];
 
+  // Lang buttons
   document.getElementById('landingLangEN').classList.toggle('active', lang === 'en');
   document.getElementById('landingLangPT').classList.toggle('active', lang === 'pt');
 
-  const t = textTranslations[lang];
-  document.getElementById('navLoginBtn').textContent = t.navLogin;
-  document.getElementById('navStartBtn').textContent = t.navStart;
+  // Helper: set innerHTML by id safely
+  const h = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+  const t2 = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-  const simLabels = document.querySelectorAll('.sim-label');
-  if (simLabels[0]) simLabels[0].textContent = t.simMonthly;
-  if (simLabels[1]) simLabels[1].textContent = t.simRate;
-  if (simLabels[2]) simLabels[2].textContent = t.simYears;
-  const simResultLabel = document.querySelector('.sim-result-label');
-  if (simResultLabel) simResultLabel.textContent = t.simBalance;
-  const simPassiveLabel = document.querySelector('.sim-passive-label');
-  if (simPassiveLabel) simPassiveLabel.textContent = t.simPassiveLabel;
+  // Nav
+  t2('navLoginBtn', t.navLogin); t2('navStartBtn', t.navStart);
+  t2('navHow', t.navHow); t2('navFeatures', t.navFeatures);
+  t2('navSimulator', t.navSimulator); t2('navPricing', t.navPricing);
 
-  document.querySelectorAll('[data-en][data-pt]').forEach(el => {
-    if (el.tagName === 'A' || el.querySelector('a')) return;
-    const text = lang === 'pt' ? el.dataset.pt : el.dataset.en;
-    if (text) el.innerHTML = text;
-  });
+  // Hero
+  t2('heroEyebrow', t.heroEyebrow); t2('heroTagline', t.heroTagline);
+  t2('heroSub', t.heroSub); t2('heroNote', t.heroNote); t2('heroScroll', t.heroScroll);
+  t2('heroCta1', t.heroCta1); t2('heroCta2', t.heroCta2);
+
+  // Problem
+  t2('problemLabel', t.problemLabel); h('problemTitle', t.problemTitle);
+  t2('prob1', t.prob1); t2('prob2', t.prob2); t2('prob3', t.prob3);
+  t2('prob4', t.prob4); t2('prob5', t.prob5);
+  t2('solutionTitle', t.solutionTitle); h('solutionBody', t.solutionBody);
+
+  // How it works
+  t2('howLabel', t.howLabel); h('howTitle', t.howTitle);
+  t2('step1Title', t.step1Title); t2('step1Desc', t.step1Desc);
+  t2('step2Title', t.step2Title); t2('step2Desc', t.step2Desc);
+  t2('step3Title', t.step3Title); t2('step3Desc', t.step3Desc);
+  t2('step4Title', t.step4Title); t2('step4Desc', t.step4Desc);
+
+  // Numbers
+  t2('num1', t.num1); t2('num2', t.num2); t2('num3', t.num3); t2('num4', t.num4);
+
+  // Features
+  t2('featLabel', t.featLabel); h('featTitle', t.featTitle);
+  t2('feat1Title', t.feat1Title); t2('feat1Desc', t.feat1Desc);
+  t2('feat2Title', t.feat2Title); t2('feat2Desc', t.feat2Desc);
+  t2('feat3Title', t.feat3Title); t2('feat3Desc', t.feat3Desc);
+  t2('feat4Title', t.feat4Title); t2('feat4Desc', t.feat4Desc);
+  t2('feat5Title', t.feat5Title); t2('feat5Desc', t.feat5Desc);
+  t2('feat6Title', t.feat6Title); t2('feat6Desc', t.feat6Desc);
+
+  // Simulator
+  t2('simLabel', t.simLabel); h('simTitle', t.simTitle);
+  t2('simDesc', t.simDesc); t2('simLabelMonthly', t.simMonthly);
+  t2('simLabelRate', t.simRate); t2('simLabelYears', t.simYears);
+  t2('simBalanceLabel', t.simBalance); t2('simPassiveLabelEl', t.simPassiveLabel);
+
+  // Manifesto
+  h('manifestoQuote', t.manifestoQuote); h('manifestoSub', t.manifestoSub);
+
+  // Pricing
+  t2('pricingLabel', t.pricingLabel); h('pricingTitle', t.pricingTitle);
+  t2('pricingPeriod', t.pricingPeriod);
+  t2('pricingF1', t.pricingF1); t2('pricingF2', t.pricingF2);
+  t2('pricingF3', t.pricingF3); t2('pricingF4', t.pricingF4);
+  t2('pricingF5', t.pricingF5); t2('pricingF6', t.pricingF6);
+  t2('pricingF7', t.pricingF7); t2('pricingF8', t.pricingF8);
+  t2('pricingBtn', t.pricingBtn); t2('pricingNote', t.pricingNote);
+
+  // Final CTA
+  h('finalTitle', t.finalTitle); t2('finalSub', t.finalSub); t2('finalBtn', t.finalBtn);
+
+  // Footer
+  t2('footerNote', t.footerNote);
 
   calcSim();
 }
