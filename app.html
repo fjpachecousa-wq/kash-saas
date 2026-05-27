@@ -1274,19 +1274,26 @@
         <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
       </div>
       <div class="form-group">
-        <label>Prazo</label>
-        <input type="date" id="projDate" onclick="this.showPicker && this.showPicker()">
+        <label>Meta Renda Passiva ($/mês)</label>
+        <input type="number" id="projPassive" placeholder="ex: 500" min="0" step="0.01">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Taxa / Fee ($/mês)</label>
-        <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
+        <label>Data de Início</label>
+        <input type="date" id="projStartDate" onclick="this.showPicker && this.showPicker()">
       </div>
       <div class="form-group">
-        <label>Meta Renda Passiva ($/mês)</label>
-        <input type="number" id="projPassive" placeholder="ex: 500" min="0" step="0.01">
+        <label>Prazo (Data Fim)</label>
+        <input type="date" id="projDate" onclick="this.showPicker && this.showPicker()">
+      </div>
+    </div>
+
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Taxa / Fee ($/mês)</label>
+        <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
       </div>
     </div>
 
@@ -1758,6 +1765,7 @@ function selectColor(el) {
 function openNewProjectModal() {
   document.getElementById('projName').value = '';
   document.getElementById('projTarget').value = '';
+  document.getElementById('projStartDate').value = todayStr();
   document.getElementById('projDate').value = '';
   document.getElementById('projAcornsPlan').value = '0';
   document.getElementById('projPassive').value = '';
@@ -1777,8 +1785,9 @@ function closeNewProjectModal() {
 function createProject() {
   const name = document.getElementById('projName').value.trim();
   const target = parseFloat(document.getElementById('projTarget').value);
+  const startDate = document.getElementById('projStartDate').value || todayStr();
   const date = document.getElementById('projDate').value;
-  const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0; // stored as $/month
+  const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0;
   const passive = parseFloat(document.getElementById('projPassive').value) || 0;
 
   if (!name) return alert('Insira o nome do projeto.');
@@ -1789,9 +1798,9 @@ function createProject() {
   const proj = {
     id: Date.now().toString(),
     num: nextProjectNum(),
-    name, target, date,
-    acornsDailyFee,  // $0.10, $0.20, $0.40 or 0
-    fee: 0,          // kept for backward compat with old projects
+    name, target, startDate, date,
+    acornsDailyFee,
+    fee: 0,
     passive,
     color: selectedColor,
     contributions: []
@@ -1877,19 +1886,26 @@ function switchTab(tabId) {
 function calcProject(proj) {
   const rate = state.interestRate;
   const daysLeft = Math.max(0, daysUntil(proj.date));
+  const monthlyFeeUSD = proj.acornsDailyFee || 0;
 
-  // Fee: user enters $/month — convert to $/day
-  const monthlyFeeUSD = proj.acornsDailyFee || 0; // stored as monthly value
-  const dailyFeeUSD = monthlyFeeUSD / 30;
+  // Calculate elapsed months from startDate to today
+  const startDate = proj.startDate || proj.date;
+  const start = new Date(startDate + 'T12:00:00');
+  const today = new Date();
+  const end = new Date(proj.date + 'T12:00:00');
 
-  // Total days of the project (from first contribution to deadline)
-  const firstContrib = proj.contributions.length > 0 ? proj.contributions[0].date : null;
-  const totalProjectDays = firstContrib
-    ? Math.max(1, Math.ceil((new Date(proj.date) - new Date(firstContrib)) / 86400000))
-    : daysLeft;
+  // Months elapsed since start (fee already charged cycles)
+  const msElapsed = Math.max(0, today - start);
+  const monthsElapsed = Math.floor(msElapsed / (30 * 24 * 3600 * 1000));
 
-  // Total Acorns fee for the full project period (in 30-day cycles)
-  const totalAcornsFee = dailyFeeUSD * totalProjectDays;
+  // Total months of full project duration
+  const msTotal = Math.max(1, end - start);
+  const monthsTotal = Math.ceil(msTotal / (30 * 24 * 3600 * 1000));
+
+  // Fee already charged (past cycles) + remaining cycles
+  const totalFeeCharged = monthlyFeeUSD * monthsElapsed;
+  const totalFeeRemaining = monthlyFeeUSD * Math.max(0, monthsTotal - monthsElapsed);
+  const totalFeeAll = monthlyFeeUSD * monthsTotal;
 
   let totalInvested = 0;
   let estimatedBalance = 0;
@@ -1902,8 +1918,8 @@ function calcProject(proj) {
     rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
   });
 
-  // Deduct total Acorns fee from estimated balance
-  estimatedBalance = Math.max(0, estimatedBalance - totalAcornsFee);
+  // Deduct total fees for entire project period from estimated balance
+  estimatedBalance = Math.max(0, estimatedBalance - totalFeeAll);
 
   const remaining = Math.max(0, proj.target - estimatedBalance);
   const pct = Math.min(100, proj.target > 0 ? (estimatedBalance / proj.target) * 100 : 0);
@@ -1912,21 +1928,19 @@ function calcProject(proj) {
   if (daysLeft > 0 && remaining > 0) {
     const dailyRate = rate / 100 / 365;
     const avgDays = daysLeft / 2;
-    // Add daily fee to suggested contribution
-    suggestedDaily = (remaining / daysLeft) / Math.pow(1 + dailyRate, avgDays) + dailyFeeUSD;
+    suggestedDaily = (remaining / daysLeft) / Math.pow(1 + dailyRate, avgDays) + (monthlyFeeUSD / 30);
   }
 
   const monthlyRate = rate / 100 / 12;
   const monthlyPassive = estimatedBalance * monthlyRate;
   const neededForPassive = proj.passive > 0 ? proj.passive / monthlyRate : 0;
 
-  // Acorns plan label
-  const acornsPlanLabel = dailyFeeUSD === 0.40 ? '🥇 Gold'
-    : dailyFeeUSD === 0.20 ? '🥈 Silver'
-    : dailyFeeUSD === 0.10 ? '🥉 Bronze'
-    : 'Sem plano';
-
-  return { totalInvested, estimatedBalance, remaining, pct, daysLeft, suggestedDaily, monthlyPassive, neededForPassive, rows, totalAcornsFee, dailyFeeUSD, monthlyFeeUSD };
+  return {
+    totalInvested, estimatedBalance, remaining, pct, daysLeft,
+    suggestedDaily, monthlyPassive, neededForPassive, rows,
+    totalFeeAll, totalFeeCharged, totalFeeRemaining,
+    monthlyFeeUSD, monthsElapsed, monthsTotal
+  };
 }
 
 // ══════════════════════════════════════════════════
@@ -2056,7 +2070,7 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${(st.dailyFeeUSD * 30).toFixed(2)}/mês · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
       </div>
     </div>
 
@@ -2122,7 +2136,7 @@ function renderProjectPanel(proj) {
     <!-- HISTORY TABLE -->
     <div class="card">
       <div class="card-title">📋 Histórico de Aportes
-        ${st.totalAcornsFee > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa estimada total: -${fmt(st.totalAcornsFee)}</span>` : ''}
+        ${st.totalFeeAll > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa total: -${fmt(st.totalFeeAll)} (${st.monthsTotal} ciclos × $${st.monthlyFeeUSD.toFixed(2)}/mês)</span>` : ''}
       </div>
       <div class="table-wrap">
         <table>
