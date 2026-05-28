@@ -1948,6 +1948,8 @@ function switchTab(tabId) {
   const panel = document.getElementById('panel-' + tabId);
   if (btn) btn.classList.add('active');
   if (panel) panel.classList.add('active');
+
+  if (tabId === 'portfolio') renderPortfolio();
 }
 
 // ══════════════════════════════════════════════════
@@ -2613,12 +2615,7 @@ async function renderPortfolio() {
     </div>`).join('');
 }
 
-// Inicializar portfolio quando a aba for clicada
-const _origSwitchTab = switchTab;
-function switchTab(tabId) {
-  _origSwitchTab(tabId);
-  if (tabId === 'portfolio') renderPortfolio();
-}
+// Portfolio é inicializado pelo switchTab original via renderPortfolio()
 
 // ══════════════════════════════════════════════════
 // BOOT
