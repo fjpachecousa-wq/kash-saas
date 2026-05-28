@@ -1200,6 +1200,75 @@
   <!-- TABS: Overview + one per project -->
   <div class="tabs-nav" id="tabsNav">
     <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 Visão Geral</button>
+    <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 Portfólio</button>
+  </div>
+
+  <!-- ══ PORTFOLIO TAB ══════════════════════════════ -->
+  <div class="tab-panel" id="panel-portfolio">
+    <div style="padding:24px 0;">
+
+      <!-- HEADER -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MEU PORTFÓLIO DE ATIVOS</div>
+          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Registre seus aportes e acompanhe a performance em tempo real</div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ Novo Aporte</button>
+      </div>
+
+      <!-- FORM NOVO APORTE (oculto por padrão) -->
+      <div id="portfolioForm" style="display:none;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">REGISTRAR APORTE</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATA DO APORTE</label>
+            <input type="date" id="pfDate" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">VALOR TOTAL ($)</label>
+            <input type="number" id="pfAmount" placeholder="100.00" min="0" step="0.01" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+          </div>
+        </div>
+
+        <!-- ETFs -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <label style="font-size:0.75rem;color:var(--silver);">ATIVOS (ETFs)</label>
+            <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="addEtfRow()">+ Adicionar ETF</button>
+          </div>
+          <div id="etfRows">
+            <!-- linhas de ETF geradas dinamicamente -->
+          </div>
+          <div id="pfPctWarning" style="display:none;font-size:0.75rem;color:#f59e0b;margin-top:6px;">⚠️ A soma dos percentuais deve ser 100%</div>
+        </div>
+
+        <!-- Portfólio para comparação -->
+        <div style="margin-bottom:16px;">
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PORTFÓLIO ALTERNATIVO PARA COMPARAÇÃO (opcional)</label>
+          <div id="altEtfRows"></div>
+          <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;margin-top:6px;" onclick="addAltEtfRow()">+ Adicionar ETF alternativo</button>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Salvar Aporte</button>
+          <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE APORTES -->
+      <div id="portfolioList">
+        <div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
+          Nenhum aporte registrado ainda.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+        </div>
+      </div>
+
+      <!-- RESUMO TOTAL -->
+      <div id="portfolioSummary" style="display:none;margin-top:24px;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">RESUMO DO PORTFÓLIO</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;" id="portfolioSummaryGrid"></div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ══ OVERVIEW TAB ══════════════════════════════ -->
@@ -2262,6 +2331,293 @@ function hexToRgb(hex) {
   const g = parseInt(hex.slice(3,5),16);
   const b = parseInt(hex.slice(5,7),16);
   return `${r},${g},${b}`;
+}
+
+
+// ══════════════════════════════════════════════════
+// PORTFOLIO MODULE
+// ══════════════════════════════════════════════════
+
+let portfolioEntries = JSON.parse(localStorage.getItem('kash_portfolio') || '[]');
+let etfPriceCache = {};
+
+function savePortfolioToStorage() {
+  localStorage.setItem('kash_portfolio', JSON.stringify(portfolioEntries));
+}
+
+function showAddPortfolioEntry() {
+  const form = document.getElementById('portfolioForm');
+  form.style.display = 'block';
+  // Set today as default date
+  document.getElementById('pfDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pfAmount').value = '';
+  document.getElementById('etfRows').innerHTML = '';
+  document.getElementById('altEtfRows').innerHTML = '';
+  addEtfRow();
+  form.scrollIntoView({behavior:'smooth'});
+}
+
+function cancelPortfolioEntry() {
+  document.getElementById('portfolioForm').style.display = 'none';
+}
+
+function addEtfRow(ticker='', pct='') {
+  const container = document.getElementById('etfRows');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" placeholder="Ex: VOO" value="${ticker}" maxlength="10"
+      style="width:100px;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;text-transform:uppercase;"
+      oninput="this.value=this.value.toUpperCase()">
+    <input type="number" placeholder="%" value="${pct}" min="0" max="100" step="0.1"
+      style="width:80px;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
+    <span style="color:var(--silver);font-size:0.8rem;">%</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(239,68,68,0.7);cursor:pointer;font-size:1rem;padding:4px;">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function addAltEtfRow(ticker='', pct='') {
+  const container = document.getElementById('altEtfRows');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center;';
+  div.innerHTML = `
+    <input type="text" placeholder="Ex: QQQ" value="${ticker}" maxlength="10"
+      style="width:100px;background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;text-transform:uppercase;"
+      oninput="this.value=this.value.toUpperCase()">
+    <input type="number" placeholder="%" value="${pct}" min="0" max="100" step="0.1"
+      style="width:80px;background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
+    <span style="color:var(--silver);font-size:0.8rem;">%</span>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(239,68,68,0.7);cursor:pointer;font-size:1rem;padding:4px;">✕</button>
+  `;
+  container.appendChild(div);
+}
+
+function getEtfRows(containerId) {
+  const rows = [];
+  document.querySelectorAll(`#${containerId} > div`).forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const ticker = inputs[0].value.trim().toUpperCase();
+    const pct = parseFloat(inputs[1].value) || 0;
+    if (ticker && pct > 0) rows.push({ticker, pct});
+  });
+  return rows;
+}
+
+function savePortfolioEntry() {
+  const date = document.getElementById('pfDate').value;
+  const amount = parseFloat(document.getElementById('pfAmount').value);
+  const etfs = getEtfRows('etfRows');
+  const altEtfs = getEtfRows('altEtfRows');
+
+  if (!date || !amount || amount <= 0 || etfs.length === 0) {
+    alert('Preencha data, valor e pelo menos um ETF.');
+    return;
+  }
+
+  const totalPct = etfs.reduce((s, e) => s + e.pct, 0);
+  if (Math.abs(totalPct - 100) > 0.5) {
+    document.getElementById('pfPctWarning').style.display = 'block';
+    return;
+  }
+  document.getElementById('pfPctWarning').style.display = 'none';
+
+  const entry = {
+    id: Date.now(),
+    date,
+    amount,
+    etfs,
+    altEtfs,
+    createdAt: new Date().toISOString()
+  };
+
+  portfolioEntries.push(entry);
+  savePortfolioToStorage();
+  document.getElementById('portfolioForm').style.display = 'none';
+  renderPortfolio();
+}
+
+function deletePortfolioEntry(id) {
+  if (!confirm('Remover este aporte?')) return;
+  portfolioEntries = portfolioEntries.filter(e => e.id !== id);
+  savePortfolioToStorage();
+  renderPortfolio();
+}
+
+async function fetchEtfPrice(ticker) {
+  if (etfPriceCache[ticker] && etfPriceCache[ticker].ts > Date.now() - 300000) {
+    return etfPriceCache[ticker];
+  }
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=2d`;
+    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+    const json = await res.json();
+    const data = JSON.parse(json.contents);
+    const meta = data.chart.result[0].meta;
+    const price = meta.regularMarketPrice;
+    const prevClose = meta.chartPreviousClose || meta.previousClose || price;
+    const change = ((price - prevClose) / prevClose) * 100;
+    etfPriceCache[ticker] = {price, change, ts: Date.now()};
+    return etfPriceCache[ticker];
+  } catch(e) {
+    return {price: null, change: null, ts: Date.now()};
+  }
+}
+
+async function renderPortfolio() {
+  const list = document.getElementById('portfolioList');
+  const summary = document.getElementById('portfolioSummary');
+
+  if (portfolioEntries.length === 0) {
+    list.innerHTML = `<div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
+      Nenhum aporte registrado ainda.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+    </div>`;
+    summary.style.display = 'none';
+    return;
+  }
+
+  list.innerHTML = '<div style="color:var(--silver);font-size:0.8rem;padding:8px 0;">🔄 Buscando cotações...</div>';
+
+  // Coletar todos os tickers únicos
+  const allTickers = new Set();
+  portfolioEntries.forEach(e => {
+    e.etfs.forEach(et => allTickers.add(et.ticker));
+    (e.altEtfs||[]).forEach(et => allTickers.add(et.ticker));
+  });
+
+  // Buscar preços em paralelo
+  const priceMap = {};
+  await Promise.all([...allTickers].map(async t => {
+    priceMap[t] = await fetchEtfPrice(t);
+  }));
+
+  // Render entries
+  let totalInvested = 0;
+  let totalCurrentMain = 0;
+  let totalCurrentAlt = 0;
+  let hasAlt = false;
+
+  const cards = portfolioEntries.map(entry => {
+    totalInvested += entry.amount;
+
+    // Calcular valor atual portfólio principal
+    let currentMain = 0;
+    let etfDetails = entry.etfs.map(et => {
+      const alloc = entry.amount * (et.pct / 100);
+      const p = priceMap[et.ticker];
+      const current = p && p.price ? alloc * (1 + (p.change||0)/100) : alloc;
+      currentMain += current;
+      const gain = current - alloc;
+      const gainPct = p && p.change !== null ? p.change : null;
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+          <div>
+            <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--green-neon);">${et.ticker}</span>
+            <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.pct}% · $${alloc.toFixed(2)}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.85rem;color:var(--white);">$${current.toFixed(2)}</div>
+            ${gainPct !== null ? `<div style="font-size:0.72rem;color:${gainPct>=0?'var(--green-neon)':'#ef4444'};">${gainPct>=0?'+':''}${gainPct.toFixed(2)}% hoje</div>` : '<div style="font-size:0.72rem;color:var(--silver);">—</div>'}
+          </div>
+        </div>`;
+    }).join('');
+
+    totalCurrentMain += currentMain;
+    const mainGain = currentMain - entry.amount;
+    const mainGainPct = (mainGain / entry.amount) * 100;
+
+    // Portfólio alternativo
+    let altSection = '';
+    if (entry.altEtfs && entry.altEtfs.length > 0) {
+      hasAlt = true;
+      let currentAlt = 0;
+      const altDetails = entry.altEtfs.map(et => {
+        const alloc = entry.amount * (et.pct / 100);
+        const p = priceMap[et.ticker];
+        const current = p && p.price ? alloc * (1 + (p.change||0)/100) : alloc;
+        currentAlt += current;
+        return `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(100,100,200,0.1);">
+            <div>
+              <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#a78bfa;">${et.ticker}</span>
+              <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.pct}%</span>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.85rem;color:var(--white);">$${current.toFixed(2)}</div>
+              ${priceMap[et.ticker]?.change !== null && priceMap[et.ticker]?.change !== undefined ? `<div style="font-size:0.72rem;color:${priceMap[et.ticker].change>=0?'var(--green-neon)':'#ef4444'};">${priceMap[et.ticker].change>=0?'+':''}${priceMap[et.ticker].change.toFixed(2)}%</div>` : ''}
+            </div>
+          </div>`;
+      }).join('');
+
+      totalCurrentAlt += currentAlt;
+      const altGain = currentAlt - entry.amount;
+      const altGainPct = (altGain / entry.amount) * 100;
+      const diff = currentAlt - currentMain;
+
+      altSection = `
+        <div style="margin-top:12px;background:rgba(100,100,200,0.07);border:1px solid rgba(100,100,200,0.2);border-radius:8px;padding:12px;">
+          <div style="font-size:0.72rem;color:#a78bfa;font-weight:600;margin-bottom:8px;letter-spacing:1px;">VS PORTFÓLIO ALTERNATIVO</div>
+          ${altDetails}
+          <div style="display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px solid rgba(100,100,200,0.2);">
+            <span style="font-size:0.8rem;color:var(--silver);">Total alternativo</span>
+            <div style="text-align:right;">
+              <span style="font-size:0.85rem;color:#a78bfa;">$${currentAlt.toFixed(2)}</span>
+              <span style="font-size:0.75rem;margin-left:6px;color:${diff>=0?'var(--green-neon)':'#ef4444'};">${diff>=0?'+':''} $${diff.toFixed(2)} vs meu portfólio</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+          <div>
+            <div style="font-size:0.75rem;color:var(--silver);">📅 ${new Date(entry.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'})}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--white);letter-spacing:1px;">$${entry.amount.toFixed(2)} aportados</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.75rem;color:var(--silver);">Valor atual</div>
+            <div style="font-size:1.2rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};font-weight:700;">$${currentMain.toFixed(2)}</div>
+            <div style="font-size:0.75rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};">${mainGain>=0?'+':''}$${mainGain.toFixed(2)} (${mainGainPct.toFixed(2)}%)</div>
+          </div>
+        </div>
+        ${etfDetails}
+        ${altSection}
+        <div style="margin-top:12px;text-align:right;">
+          <button class="btn btn-sm" style="background:none;border:1px solid rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);font-size:0.72rem;padding:4px 10px;" onclick="deletePortfolioEntry(${entry.id})">🗑 Remover</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  list.innerHTML = cards;
+
+  // Summary
+  const totalGain = totalCurrentMain - totalInvested;
+  const totalGainPct = (totalGain / totalInvested) * 100;
+  summary.style.display = 'block';
+  const grid = document.getElementById('portfolioSummaryGrid');
+  const cells = [
+    {label:'Total Aportado', value:`$${totalInvested.toFixed(2)}`, color:'var(--white)'},
+    {label:'Valor Atual', value:`$${totalCurrentMain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
+    {label:'Ganho/Perda', value:`${totalGain>=0?'+':''}$${totalGain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
+    {label:'Retorno Total', value:`${totalGainPct>=0?'+':''}${totalGainPct.toFixed(2)}%`, color: totalGainPct>=0?'var(--green-neon)':'#ef4444'},
+  ];
+  if (hasAlt && totalCurrentAlt > 0) {
+    const altDiff = totalCurrentAlt - totalCurrentMain;
+    cells.push({label:'Alternativo vs Real', value:`${altDiff>=0?'+':''}$${altDiff.toFixed(2)}`, color: altDiff>=0?'#a78bfa':'#ef4444'});
+  }
+  grid.innerHTML = cells.map(c => `
+    <div style="background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:12px;text-align:center;">
+      <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">${c.label}</div>
+      <div style="font-size:1.1rem;font-weight:700;color:${c.color};">${c.value}</div>
+    </div>`).join('');
+}
+
+// Inicializar portfolio quando a aba for clicada
+const _origSwitchTab = switchTab;
+function switchTab(tabId) {
+  _origSwitchTab(tabId);
+  if (tabId === 'portfolio') renderPortfolio();
 }
 
 // ══════════════════════════════════════════════════
