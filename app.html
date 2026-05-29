@@ -2474,6 +2474,108 @@ function deletePortfolioEntry(id) {
   renderPortfolio();
 }
 
+function addCotasToEntry(id) {
+  const entry = portfolioEntries.find(e => e.id === id);
+  if (!entry) return;
+
+  // Create inline modal
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+  const existingTickers = (entry.etfs||[]).map(et =>
+    `<option value="${et.ticker}">${et.ticker} (já possui ${et.shares} cotas)</option>`
+  ).join('');
+
+  modal.innerHTML = `
+    <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,420px);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">+ ADICIONAR COTAS</div>
+      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Adicione novas cotas a um ETF já existente neste aporte.</div>
+
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATA DA COMPRA</label>
+      <input type="date" id="cotasDate" value="${new Date().toISOString().split('T')[0]}"
+        style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
+
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ETF</label>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <select id="cotasTicker" style="flex:1;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+          ${existingTickers}
+          <option value="__new__">+ Novo ETF</option>
+        </select>
+        <input type="text" id="cotasNewTicker" placeholder="Ex: QQQ" maxlength="10"
+          style="display:none;width:100px;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;text-transform:uppercase;"
+          oninput="this.value=this.value.toUpperCase()">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        <div>
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">COTAS</label>
+          <input type="number" id="cotasShares" placeholder="0.0077" min="0" step="0.00001"
+            style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PREÇO/COTA ($)</label>
+          <input type="number" id="cotasPrice" placeholder="693.91" min="0" step="0.01"
+            style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(${id}, this.closest('div[style*=fixed]'))">Salvar</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+      </div>
+    </div>`;
+
+  // Show/hide new ticker input
+  modal.querySelector('#cotasTicker').addEventListener('change', function() {
+    const newInput = modal.querySelector('#cotasNewTicker');
+    newInput.style.display = this.value === '__new__' ? 'block' : 'none';
+  });
+
+  document.body.appendChild(modal);
+}
+
+function saveCotasToEntry(id, modal) {
+  const entry = portfolioEntries.find(e => e.id === id);
+  if (!entry) return;
+
+  const tickerSel = document.getElementById('cotasTicker').value;
+  const ticker = tickerSel === '__new__'
+    ? document.getElementById('cotasNewTicker').value.trim().toUpperCase()
+    : tickerSel;
+  const shares = parseFloat(document.getElementById('cotasShares').value) || 0;
+  const buyPrice = parseFloat(document.getElementById('cotasPrice').value) || 0;
+  const date = document.getElementById('cotasDate').value;
+
+  if (!ticker || shares <= 0 || buyPrice <= 0) {
+    alert('Preencha ticker, cotas e preço.');
+    return;
+  }
+
+  // Find existing ETF in entry or add new one
+  const existing = entry.etfs.find(et => et.ticker === ticker);
+  if (existing) {
+    // Weighted average price + sum shares
+    const oldValue = existing.shares * existing.buyPrice;
+    const newValue = shares * buyPrice;
+    existing.shares = +(existing.shares + shares).toFixed(8);
+    existing.buyPrice = +((oldValue + newValue) / existing.shares).toFixed(4);
+  } else {
+    entry.etfs.push({ticker, shares, buyPrice});
+  }
+
+  // Update entry amount
+  entry.amount = entry.etfs.reduce((s, e) => s + (e.shares * e.buyPrice), 0);
+
+  // Log the transaction
+  if (!entry.transactions) entry.transactions = [];
+  entry.transactions.push({date, ticker, shares, buyPrice});
+
+  savePortfolioToStorage();
+  modal.remove();
+  etfPriceCache = {};
+  renderPortfolio();
+}
+
 async function fetchEtfPrice(ticker) {
   if (etfPriceCache[ticker] && etfPriceCache[ticker].ts > Date.now() - 300000) {
     return etfPriceCache[ticker];
@@ -2617,7 +2719,8 @@ async function renderPortfolio() {
         </div>
         ${etfDetails}
         ${altSection}
-        <div style="margin-top:12px;text-align:right;">
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
+          <button class="btn btn-sm" style="font-size:0.72rem;padding:4px 12px;" onclick="addCotasToEntry(${entry.id})">+ Adicionar Cotas</button>
           <button class="btn btn-sm" style="background:none;border:1px solid rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);font-size:0.72rem;padding:4px 10px;" onclick="deletePortfolioEntry(${entry.id})">🗑 Remover</button>
         </div>
       </div>`;
