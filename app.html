@@ -1163,6 +1163,7 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
+    <button class="btn-logout no-print" id="appReloadBtn" onclick="reloadApp()" style="margin-right:8px;background:transparent;border:1px solid var(--green-neon);color:var(--green-neon);" title="Recarregar dados">⟳</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
@@ -1715,6 +1716,12 @@ async function handleForgotPassword() {
 // ══════════════════════════════════════════════════
 // BOOT — check session
 // ══════════════════════════════════════════════════
+async function reloadApp() {
+  if (!currentUser) return;
+  await load();
+  renderAll();
+}
+
 async function boot() {
   // Apply saved language immediately
   setLang(currentLang);
