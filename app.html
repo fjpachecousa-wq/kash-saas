@@ -1724,7 +1724,13 @@ async function boot() {
     if (window.location.hash && window.location.hash.includes('access_token')) {
       await new Promise(r => setTimeout(r, 500)); // wait for supabase to process
     }
-    const { data: { session } } = await _supabase.auth.getSession();
+    let { data: { session } } = await _supabase.auth.getSession();
+    // On page refresh, OAuth session may take a moment to restore — retry once
+    if (!session) {
+      await new Promise(r => setTimeout(r, 800));
+      const retry = await _supabase.auth.getSession();
+      session = retry.data.session;
+    }
     document.getElementById('loadingScreen').style.display = 'none';
     if (session) {
       currentUser = session.user;
