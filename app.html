@@ -1716,34 +1716,28 @@ async function handleForgotPassword() {
 // BOOT — check session
 // ══════════════════════════════════════════════════
 async function boot() {
-  // Apply saved language immediately
   setLang(currentLang);
   applyAuthMode();
-  try {
-    // Supabase puts tokens in the hash after OAuth redirect
-    if (window.location.hash && window.location.hash.includes('access_token')) {
-      await new Promise(r => setTimeout(r, 500)); // wait for supabase to process
-    }
-    let { data: { session } } = await _supabase.auth.getSession();
-    // On page refresh, OAuth session may take a moment to restore — retry once
-    if (!session) {
-      await new Promise(r => setTimeout(r, 800));
-      const retry = await _supabase.auth.getSession();
-      session = retry.data.session;
-    }
-    document.getElementById('loadingScreen').style.display = 'none';
-    if (session) {
+  // Use onAuthStateChange as the single source of truth for session state.
+  // This fires on both fresh login and page refresh, ensuring session is ready.
+  _supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
       currentUser = session.user;
+      document.getElementById('loadingScreen').style.display = 'none';
       window.history.replaceState({}, document.title, window.location.pathname);
-      await initApp();
-    } else {
-      document.getElementById('loginScreen').style.display = 'flex';
+      if (document.getElementById('appContent').style.display !== 'block') {
+        await initApp();
+      }
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      window.location.href = '/';
+    } else if (event === 'INITIAL_SESSION') {
+      if (!session) {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('loginScreen').style.display = 'flex';
+      }
     }
-  } catch(e) {
-    console.error('Boot error:', e);
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-  }
+  });
 }
 
 async function initApp() {
@@ -1781,19 +1775,7 @@ async function initApp() {
   renderAll();
 }
 
-// Listen for auth changes (e.g. after OAuth redirect)
-_supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    currentUser = session.user;
-    // Only run initApp if not already showing app content
-    if (document.getElementById('appContent').style.display !== 'block') {
-      await initApp();
-    }
-  } else if (event === 'SIGNED_OUT') {
-    currentUser = null;
-    window.location.href = '/';
-  }
-});
+// Auth state is now handled inside boot()
 
 // ══════════════════════════════════════════════════
 // HELPERS
