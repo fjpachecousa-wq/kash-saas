@@ -1770,6 +1770,7 @@ async function initApp() {
 
   document.getElementById('appContent').style.display = 'block';
   document.body.classList.add('app-visible');
+  await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
