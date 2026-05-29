@@ -1781,19 +1781,7 @@ async function initApp() {
   renderAll();
 }
 
-// Listen for auth changes (e.g. after OAuth redirect)
-_supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session) {
-    currentUser = session.user;
-    // Only run initApp if not already showing app content
-    if (document.getElementById('appContent').style.display !== 'block') {
-      await initApp();
-    }
-  } else if (event === 'SIGNED_OUT') {
-    currentUser = null;
-    window.location.href = '/';
-  }
-});
+// Auth handled by boot()
 
 // ══════════════════════════════════════════════════
 // HELPERS
