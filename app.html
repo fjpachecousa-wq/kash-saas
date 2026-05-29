@@ -1427,26 +1427,26 @@ async function loadStripe() {
 
 async function checkSubscription() {
   if (!currentUser) return false;
+  // Cache to avoid paywall flash on tab switch
   const cached = sessionStorage.getItem('kash_sub_' + currentUser.id);
   if (cached === 'active') return true;
-  // Try up to 3 times with increasing delays
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (attempt > 0) await new Promise(r => setTimeout(r, 1000 * attempt));
-    try {
-      const { data, error } = await _supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', currentUser.id)
-        .single();
-      if (error) { console.warn('Sub check attempt', attempt, error); continue; }
-      const isActive = data?.status === 'active' || data?.status === 'inactive';
-      if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
-      return isActive;
-    } catch (e) {
-      console.warn('Sub check attempt', attempt, e);
-    }
+  try {
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+    const query = _supabase
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', currentUser.id)
+      .single();
+    const { data, error } = await Promise.race([query, timeout]);
+    if (error) return false;
+    const isActive = data?.status === 'active' || data?.status === 'inactive';
+    if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
+    return isActive;
+  } catch (e) {
+    console.warn('Subscription check failed:', e);
+    if (document.getElementById('appContent').style.display === 'block') return true;
+    return false;
   }
-  return false;
 }
 
 async function goToCheckout() {
@@ -1462,7 +1462,6 @@ async function goToCheckout() {
 }
 
 let currentUser = null;
-let _appInitialized = false;
 
 // ══════════════════════════════════════════════════
 // AUTH
@@ -1717,10 +1716,21 @@ async function handleForgotPassword() {
 // BOOT — check session
 // ══════════════════════════════════════════════════
 async function boot() {
+  // Apply saved language immediately
   setLang(currentLang);
   applyAuthMode();
   try {
-    const { data: { session } } = await _supabase.auth.getSession();
+    // Supabase puts tokens in the hash after OAuth redirect
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      await new Promise(r => setTimeout(r, 500)); // wait for supabase to process
+    }
+    let { data: { session } } = await _supabase.auth.getSession();
+    // On page refresh, OAuth session may take a moment to restore — retry once
+    if (!session) {
+      await new Promise(r => setTimeout(r, 800));
+      const retry = await _supabase.auth.getSession();
+      session = retry.data.session;
+    }
     document.getElementById('loadingScreen').style.display = 'none';
     if (session) {
       currentUser = session.user;
@@ -1771,13 +1781,14 @@ async function initApp() {
   renderAll();
 }
 
-// Listen for auth changes after login
+// Listen for auth changes (e.g. after OAuth redirect)
 _supabase.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session && !currentUser) {
+  if (event === 'SIGNED_IN' && session) {
     currentUser = session.user;
-    document.getElementById('loadingScreen').style.display = 'none';
-    window.history.replaceState({}, document.title, window.location.pathname);
-    await initApp();
+    // Only run initApp if not already showing app content
+    if (document.getElementById('appContent').style.display !== 'block') {
+      await initApp();
+    }
   } else if (event === 'SIGNED_OUT') {
     currentUser = null;
     window.location.href = '/';
