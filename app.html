@@ -1718,24 +1718,20 @@ async function handleForgotPassword() {
 async function boot() {
   setLang(currentLang);
   applyAuthMode();
-  // Use onAuthStateChange as the single source of truth for session state.
-  // This fires on both fresh login and page refresh, ensuring session is ready.
   _supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session) {
+    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
       currentUser = session.user;
       document.getElementById('loadingScreen').style.display = 'none';
       window.history.replaceState({}, document.title, window.location.pathname);
       if (document.getElementById('appContent').style.display !== 'block') {
         await initApp();
       }
+    } else if (event === 'INITIAL_SESSION' && !session) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
       window.location.href = '/';
-    } else if (event === 'INITIAL_SESSION') {
-      if (!session) {
-        document.getElementById('loadingScreen').style.display = 'none';
-        document.getElementById('loginScreen').style.display = 'flex';
-      }
     }
   });
 }
