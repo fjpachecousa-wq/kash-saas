@@ -1213,7 +1213,10 @@
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MEU PORTFÓLIO DE ATIVOS</div>
           <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Registre seus aportes e acompanhe a performance em tempo real</div>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ Novo Aporte</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:var(--silver);" title="Atualizar cotações">🔄 Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ Novo Aporte</button>
+        </div>
       </div>
 
       <!-- FORM NOVO APORTE (oculto por padrão) -->
@@ -1300,6 +1303,15 @@
         <span class="kpi-value gold" id="ovTotalContribs">0</span>
         <span class="kpi-label">Total de Aportes</span>
       </div>
+    </div>
+
+    <!-- PORTFOLIO SUMMARY CARD -->
+    <div class="card" id="ovPortfolioCard" style="display:none;cursor:pointer;" onclick="switchTab('portfolio')" title="Ver portfólio completo">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>📈 Portfólio de Ativos</span>
+        <span style="font-size:0.75rem;color:var(--green-neon);">Ver detalhes →</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;" id="ovPortfolioGrid"></div>
     </div>
 
     <!-- PROJECTS LIST -->
@@ -2020,6 +2032,9 @@ function renderOverview() {
   const totalBanner = document.getElementById('totalBanner');
   const manifesto = document.getElementById('manifestoBanner');
 
+  // Update portfolio summary card in overview
+  updateOverviewPortfolio();
+
   if (!state.projects.length) {
     container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>Nenhum projeto ainda.<br>Crie seu primeiro objetivo!</p></div>`;
     totalBanner.style.display = 'none';
@@ -2139,7 +2154,7 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${state.interestRate}% juros anuais` : 'Prazo encerrado. Revise sua meta.'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${state.interestRate}% juros anuais` : 'Prazo encerrado. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transferir Saldo</button>'}</div>
       </div>
     </div>
 
@@ -2337,8 +2352,29 @@ function hexToRgb(hex) {
 // PORTFOLIO MODULE
 // ══════════════════════════════════════════════════
 
-let portfolioEntries = JSON.parse(localStorage.getItem('kash_portfolio') || '[]');
 let etfPriceCache = {};
+
+// Migrate & sanitize portfolio entries (fix for old % format)
+function loadPortfolioEntries() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('kash_portfolio') || '[]');
+    return raw.map(e => ({
+      ...e,
+      etfs: (e.etfs||[]).map(et => ({
+        ticker: et.ticker || '',
+        shares: et.shares || (et.pct ? 0 : 0),
+        buyPrice: et.buyPrice || 0
+      })).filter(et => et.ticker),
+      altEtfs: (e.altEtfs||[]).map(et => ({
+        ticker: et.ticker || '',
+        shares: et.shares || 0,
+        buyPrice: et.buyPrice || 0
+      })).filter(et => et.ticker),
+      amount: e.amount || 0
+    }));
+  } catch(e) { return []; }
+}
+let portfolioEntries = loadPortfolioEntries();
 
 function savePortfolioToStorage() {
   localStorage.setItem('kash_portfolio', JSON.stringify(portfolioEntries));
@@ -2589,6 +2625,9 @@ async function renderPortfolio() {
 
   list.innerHTML = cards;
 
+  // Update overview card too
+  updateOverviewPortfolio();
+
   // Summary
   const totalGain = totalCurrentMain - totalInvested;
   const totalGainPct = (totalGain / totalInvested) * 100;
@@ -2612,6 +2651,124 @@ async function renderPortfolio() {
 }
 
 // Portfolio é inicializado pelo switchTab original via renderPortfolio()
+
+// ══════════════════════════════════════════════════
+// PORTFOLIO: REFRESH + OVERVIEW CARD + TRANSFER
+// ══════════════════════════════════════════════════
+
+async function refreshPortfolio() {
+  etfPriceCache = {}; // clear cache
+  const btn = document.querySelector('[onclick="refreshPortfolio()"]');
+  if (btn) { btn.textContent = '⏳ Atualizando...'; btn.disabled = true; }
+  await renderPortfolio();
+  if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
+}
+
+async function updateOverviewPortfolio() {
+  const card = document.getElementById('ovPortfolioCard');
+  const grid = document.getElementById('ovPortfolioGrid');
+  if (!card || !grid) return;
+  if (portfolioEntries.length === 0) { card.style.display = 'none'; return; }
+
+  card.style.display = 'block';
+
+  // Collect tickers
+  const tickers = new Set();
+  portfolioEntries.forEach(e => {
+    (e.etfs||[]).forEach(et => tickers.add(et.ticker));
+  });
+
+  // Fetch prices
+  const priceMap = {};
+  await Promise.all([...tickers].map(async t => {
+    priceMap[t] = await fetchEtfPrice(t);
+  }));
+
+  let totalInvested = 0, totalCurrent = 0;
+  portfolioEntries.forEach(e => {
+    (e.etfs||[]).forEach(et => {
+      const cost = (et.shares||0) * (et.buyPrice||0);
+      totalInvested += cost;
+      const p = priceMap[et.ticker];
+      totalCurrent += p && p.price ? (et.shares||0) * p.price : cost;
+    });
+  });
+
+  const gain = totalCurrent - totalInvested;
+  const gainPct = totalInvested > 0 ? (gain / totalInvested) * 100 : 0;
+
+  grid.innerHTML = [
+    {label: 'Investido', value: '$' + totalInvested.toFixed(2), color: 'var(--white)'},
+    {label: 'Valor Atual', value: '$' + totalCurrent.toFixed(2), color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
+    {label: 'Retorno', value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
+  ].map(c => `<div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
+    <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">${c.label}</div>
+    <div style="font-size:1rem;font-weight:700;color:${c.color};">${c.value}</div>
+  </div>`).join('');
+}
+
+// Transfer project balance to another project
+function openTransferModal(fromId) {
+  const fromProj = state.projects.find(p => p.id === fromId);
+  if (!fromProj) return;
+  const st = calcProject(fromProj);
+  const balance = st.estimatedBalance;
+
+  const others = state.projects.filter(p => p.id !== fromId);
+  if (others.length === 0) {
+    alert('Crie outro projeto primeiro para transferir o saldo.');
+    return;
+  }
+
+  const options = others.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,400px);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--green-neon);margin-bottom:16px;">TRANSFERIR SALDO</div>
+      <div style="font-size:0.85rem;color:var(--silver);margin-bottom:16px;">
+        Saldo estimado de <strong style="color:var(--white);">${fromProj.name}</strong>: 
+        <strong style="color:var(--green-neon);">${fmt(balance)}</strong>
+      </div>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">TRANSFERIR PARA:</label>
+      <select id="transferTarget" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
+        ${options}
+      </select>
+      <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ O saldo será adicionado como um aporte no projeto destino. O projeto origem será marcado como encerrado.</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirmar Transferência</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function executeTransfer(fromId, balance, modal) {
+  const targetId = parseInt(document.getElementById('transferTarget').value);
+  const targetProj = state.projects.find(p => p.id === targetId);
+  if (!targetProj) return;
+
+  // Add balance as contribution to target project
+  const contrib = {
+    id: Date.now(),
+    date: new Date().toISOString().split('T')[0],
+    gross: balance,
+    fee: 0,
+    net: balance,
+    note: 'Transferência de saldo'
+  };
+  targetProj.contributions = targetProj.contributions || [];
+  targetProj.contributions.push(contrib);
+
+  // Mark source as transferred
+  const fromProj = state.projects.find(p => p.id === fromId);
+  if (fromProj) fromProj.transferred = true;
+
+  saveState();
+  renderOverview();
+  modal.remove();
+  alert('✅ Saldo transferido com sucesso para ' + targetProj.name + '!');
+}
 
 // ══════════════════════════════════════════════════
 // BOOT
