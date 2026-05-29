@@ -2173,7 +2173,7 @@ function renderProjectPanel(proj) {
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Adicionar Aporte</button>
+        ${proj.transferred || proj.closed ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;padding:8px 0;letter-spacing:1px;">🔒 PROJETO ENCERRADO — somente consulta</div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Adicionar Aporte</button>`}
       </div>
     </div>
 
@@ -2253,6 +2253,7 @@ function renderProjectPanel(proj) {
       <div class="btn-row no-print">
         <button class="btn btn-gold" onclick="window.print()">🖨 Imprimir Extrato</button>
         <button class="btn btn-secondary btn-sm" onclick="exportCSV('${proj.id}')">📥 Exportar CSV</button>
+        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-sm" style="border-color:#f59e0b;color:#f59e0b;" onclick="encerrarProjeto('${proj.id}')">🔒 Encerrar Projeto</button>`}
         <button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Excluir Projeto</button>
       </div>
     </div>
@@ -2280,7 +2281,7 @@ function renderTabsNav() {
     btn.className = 'tab-btn proj-tab-btn';
     btn.id = 'tab-proj-' + proj.id;
     btn.style.setProperty('--proj-color', proj.color);
-    btn.innerHTML = `<span class="proj-num" style="background:${proj.color}22;color:${proj.color};">${proj.num}</span>${proj.name}`;
+    btn.innerHTML = `<span class="proj-num" style="background:${proj.color}22;color:${proj.color};">${proj.num}</span>${proj.name}${proj.transferred || proj.closed ? ' <span style="font-size:0.6rem;color:#f59e0b;letter-spacing:1px;">🔒</span>' : ''}`;
     btn.onclick = () => switchTab('proj-' + proj.id);
     nav.appendChild(btn);
   });
@@ -2857,6 +2858,15 @@ async function updateOverviewPortfolio() {
 }
 
 // Transfer project balance to another project
+function encerrarProjeto(id) {
+  const proj = state.projects.find(p => p.id == id);
+  if (!proj) return;
+  if (!confirm(`Encerrar o projeto "${proj.name}"? Ele ficará disponível apenas para consulta.`)) return;
+  proj.closed = true;
+  save();
+  renderAll();
+}
+
 function openTransferModal(fromId) {
   const fromProj = state.projects.find(p => p.id === fromId);
   if (!fromProj) return;
