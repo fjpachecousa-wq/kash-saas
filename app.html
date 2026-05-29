@@ -1462,7 +1462,6 @@ async function goToCheckout() {
 }
 
 let currentUser = null;
-let _booting = false;
 
 // ══════════════════════════════════════════════════
 // AUTH
@@ -1735,16 +1734,13 @@ async function boot() {
     document.getElementById('loadingScreen').style.display = 'none';
     if (session) {
       currentUser = session.user;
-      _booting = true;
       window.history.replaceState({}, document.title, window.location.pathname);
       await initApp();
-      _booting = false;
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
     }
   } catch(e) {
     console.error('Boot error:', e);
-    _booting = false;
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
   }
@@ -1789,8 +1785,8 @@ async function initApp() {
 _supabase.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session) {
     currentUser = session.user;
-    // Only run initApp if boot() is not already running it
-    if (!_booting && document.getElementById('appContent').style.display !== 'block') {
+    // Only run initApp if not already showing app content
+    if (document.getElementById('appContent').style.display !== 'block') {
       await initApp();
     }
   } else if (event === 'SIGNED_OUT') {
