@@ -1462,6 +1462,7 @@ async function goToCheckout() {
 }
 
 let currentUser = null;
+let _appInitialized = false;
 
 // ══════════════════════════════════════════════════
 // AUTH
@@ -1723,7 +1724,8 @@ async function boot() {
       currentUser = session.user;
       document.getElementById('loadingScreen').style.display = 'none';
       window.history.replaceState({}, document.title, window.location.pathname);
-      if (document.getElementById('appContent').style.display !== 'block') {
+      if (!_appInitialized) {
+        _appInitialized = true;
         await initApp();
       }
     } else if (event === 'INITIAL_SESSION' && !session) {
