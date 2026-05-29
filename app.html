@@ -1427,26 +1427,26 @@ async function loadStripe() {
 
 async function checkSubscription() {
   if (!currentUser) return false;
-  // Cache to avoid paywall flash on tab switch
   const cached = sessionStorage.getItem('kash_sub_' + currentUser.id);
   if (cached === 'active') return true;
-  try {
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-    const query = _supabase
-      .from('subscriptions')
-      .select('status')
-      .eq('user_id', currentUser.id)
-      .single();
-    const { data, error } = await Promise.race([query, timeout]);
-    if (error) return false;
-    const isActive = data?.status === 'active' || data?.status === 'inactive';
-    if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
-    return isActive;
-  } catch (e) {
-    console.warn('Subscription check failed:', e);
-    if (document.getElementById('appContent').style.display === 'block') return true;
-    return false;
+  // Try up to 3 times with increasing delays
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 1000 * attempt));
+    try {
+      const { data, error } = await _supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', currentUser.id)
+        .single();
+      if (error) { console.warn('Sub check attempt', attempt, error); continue; }
+      const isActive = data?.status === 'active' || data?.status === 'inactive';
+      if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
+      return isActive;
+    } catch (e) {
+      console.warn('Sub check attempt', attempt, e);
+    }
   }
+  return false;
 }
 
 async function goToCheckout() {
@@ -1719,23 +1719,21 @@ async function handleForgotPassword() {
 async function boot() {
   setLang(currentLang);
   applyAuthMode();
-  _supabase.auth.onAuthStateChange(async (event, session) => {
-    if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    document.getElementById('loadingScreen').style.display = 'none';
+    if (session) {
       currentUser = session.user;
-      document.getElementById('loadingScreen').style.display = 'none';
       window.history.replaceState({}, document.title, window.location.pathname);
-      if (!_appInitialized) {
-        _appInitialized = true;
-        await initApp();
-      }
-    } else if (event === 'INITIAL_SESSION' && !session) {
-      document.getElementById('loadingScreen').style.display = 'none';
+      await initApp();
+    } else {
       document.getElementById('loginScreen').style.display = 'flex';
-    } else if (event === 'SIGNED_OUT') {
-      currentUser = null;
-      window.location.href = '/';
     }
-  });
+  } catch(e) {
+    console.error('Boot error:', e);
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
 }
 
 async function initApp() {
@@ -1773,7 +1771,18 @@ async function initApp() {
   renderAll();
 }
 
-// Auth state is now handled inside boot()
+// Listen for auth changes after login
+_supabase.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session && !currentUser) {
+    currentUser = session.user;
+    document.getElementById('loadingScreen').style.display = 'none';
+    window.history.replaceState({}, document.title, window.location.pathname);
+    await initApp();
+  } else if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    window.location.href = '/';
+  }
+});
 
 // ══════════════════════════════════════════════════
 // HELPERS
