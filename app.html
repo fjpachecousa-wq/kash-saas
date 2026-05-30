@@ -2087,12 +2087,17 @@ function calcProject(proj) {
   const totalFeeAll = monthlyFeeUSD * monthsTotal;
 
   let totalInvested = 0;
+  let transferBalance = 0;
   let estimatedBalance = 0;
   const rows = [];
 
   proj.contributions.forEach((c, i) => {
-    totalInvested += c.net;
     const interestEst = estimateInterest(c.net, daysLeft, rate);
+    if (c.isTransfer) {
+      transferBalance += c.net;
+    } else {
+      totalInvested += c.net;
+    }
     estimatedBalance += c.net + interestEst;
     rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
   });
@@ -2115,7 +2120,7 @@ function calcProject(proj) {
   const neededForPassive = proj.passive > 0 ? proj.passive / monthlyRate : 0;
 
   return {
-    totalInvested, estimatedBalance, remaining, pct, daysLeft,
+    totalInvested, transferBalance, estimatedBalance, remaining, pct, daysLeft,
     suggestedDaily, monthlyPassive, neededForPassive, rows,
     totalFeeAll, totalFeeCharged, totalFeeRemaining,
     monthlyFeeUSD, monthsElapsed, monthsTotal
@@ -2161,10 +2166,14 @@ function renderOverview() {
 
   const cards = state.projects.map(proj => {
     const st = calcProject(proj);
-    sumInvested += st.totalInvested;
-    sumBalance += st.estimatedBalance;
-    sumContribs += proj.contributions.length;
-    sumPassive += st.monthlyPassive;
+    // Only count active projects in totals
+    if (!proj.closed && !proj.transferred) {
+      sumInvested += st.totalInvested; // excludes transfers
+      sumBalance += st.estimatedBalance;
+      sumPassive += st.monthlyPassive;
+    }
+    // Count only real contributions (not transfers)
+    sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
 
     const passiveMsg = st.monthlyPassive >= 0.01
       ? `🌿 <span>+${fmt(st.monthlyPassive)}/mês</span> em renda passiva`
