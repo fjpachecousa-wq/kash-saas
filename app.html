@@ -2292,7 +2292,7 @@ function renderProjectPanel(proj) {
         <button class="btn btn-gold" onclick="window.print()">🖨 Imprimir Extrato</button>
         <button class="btn btn-secondary btn-sm" onclick="exportCSV('${proj.id}')">📥 Exportar CSV</button>
         ${proj.transferred || proj.closed ? '' : `<button class="btn btn-sm" style="border-color:#f59e0b;color:#f59e0b;" onclick="encerrarProjeto('${proj.id}')">🔒 Encerrar Projeto</button>`}
-        <button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Excluir Projeto</button>
+        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Excluir Projeto</button>`}
       </div>
     </div>
 
