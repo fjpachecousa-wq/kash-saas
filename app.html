@@ -1163,6 +1163,7 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
+    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Perfil do Investidor">👤 Perfil</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
@@ -1176,7 +1177,7 @@
   </div>
 
   <!-- USER SETUP CARD -->
-  <div class="card no-print" id="userSetupCard">
+  <div class="card no-print" id="userSetupCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div class="card-title" style="margin-bottom:0;">👤 Perfil do Investidor</div>
       <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Editar</button>
@@ -1791,9 +1792,11 @@ async function initApp() {
     document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
   }
   renderAll();
+  // Show profile card on first access if name not set
+  if (!state.name) {
+    document.getElementById('userSetupCard').style.display = 'block';
+  }
 }
-
-// Auth handled by boot()
 
 // ══════════════════════════════════════════════════
 // HELPERS
@@ -1855,6 +1858,12 @@ function cancelEditProfile() {
   });
   document.getElementById('profileSaveRow').style.display = 'none';
   document.getElementById('editProfileBtn').style.display = '';
+}
+
+function toggleProfileCard() {
+  const card = document.getElementById('userSetupCard');
+  const isVisible = card.style.display !== 'none';
+  card.style.display = isVisible ? 'none' : 'block';
 }
 
 // ══════════════════════════════════════════════════
@@ -2122,7 +2131,8 @@ function renderOverview() {
   document.getElementById('ovTotalInvested').textContent = fmt(sumInvested);
   document.getElementById('ovTotalBalance').textContent = fmt(sumBalance);
   document.getElementById('ovTotalPassive').textContent = fmt(sumPassive);
-  document.getElementById('ovTotalProjects').textContent = state.projects.length;
+  const activeProjects = state.projects.filter(p => !p.closed && !p.transferred).length;
+  document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
 }
 
@@ -2342,9 +2352,10 @@ function renderAll() {
   document.getElementById('printDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
 
   if (state.name && state.projects.length > 0) {
-    const totalPct = state.projects.reduce((acc, p) => acc + calcProject(p).pct, 0) / state.projects.length;
+    const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
+    const totalPct = activeProjs.length > 0 ? activeProjs.reduce((acc, p) => acc + calcProject(p).pct, 0) / activeProjs.length : 0;
     document.getElementById('statusText').textContent =
-      `${state.name} · ${state.projects.length} projeto(s) · Progresso médio: ${totalPct.toFixed(1)}%`;
+      `${state.name} · ${activeProjs.length} projeto(s) ativo(s) · Progresso médio: ${totalPct.toFixed(1)}%`;
   }
 
   renderTabsNav();
