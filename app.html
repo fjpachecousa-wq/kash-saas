@@ -1177,23 +1177,27 @@
 
   <!-- USER SETUP CARD -->
   <div class="card no-print" id="userSetupCard">
-    <div class="card-title">👤 Perfil do Investidor</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="card-title" style="margin-bottom:0;">👤 Perfil do Investidor</div>
+      <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Editar</button>
+    </div>
     <div class="form-row three">
       <div class="form-group">
         <label>Nome</label>
-        <input type="text" id="firstName" placeholder="ex: João">
+        <input type="text" id="firstName" placeholder="ex: João" readonly>
       </div>
       <div class="form-group">
         <label>Sobrenome</label>
-        <input type="text" id="lastName" placeholder="ex: Silva">
+        <input type="text" id="lastName" placeholder="ex: Silva" readonly>
       </div>
       <div class="form-group">
-        <label>Taxa de Juros Anual (%)</label>
-        <input type="number" id="globalInterestRate" placeholder="ex: 7" min="0" max="50" step="0.01" value="7">
+        <label>Data de Nascimento</label>
+        <input type="date" id="birthdate" readonly>
       </div>
     </div>
-    <div class="btn-row">
+    <div class="btn-row" id="profileSaveRow" style="display:none;">
       <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Salvar Perfil</button>
+      <button class="btn btn-sm" onclick="cancelEditProfile()">Cancelar</button>
     </div>
   </div>
 
@@ -1353,8 +1357,8 @@
         <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
       </div>
       <div class="form-group">
-        <label>Meta Renda Passiva ($/mês)</label>
-        <input type="number" id="projPassive" placeholder="ex: 500" min="0" step="0.01">
+        <label>Taxa de Juros Anual (%)</label>
+        <input type="number" id="projInterestRate" placeholder="ex: 7" min="0" max="50" step="0.01" value="7">
       </div>
     </div>
 
@@ -1369,10 +1373,18 @@
       </div>
     </div>
 
-    <div class="form-row full">
+    <div class="form-row">
       <div class="form-group">
         <label>Taxa / Fee ($/mês)</label>
         <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
+      </div>
+      <div class="form-group">
+        <label>Perfil de Risco</label>
+        <select id="projRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+          <option value="conservador">🟢 Conservador</option>
+          <option value="moderado" selected>🟡 Moderado</option>
+          <option value="agressivo">🔴 Agressivo</option>
+        </select>
       </div>
     </div>
 
@@ -1815,13 +1827,34 @@ function nextProjectNum() {
 function saveProfile() {
   const fn = document.getElementById('firstName').value.trim();
   const ln = document.getElementById('lastName').value.trim();
-  const ir = parseFloat(document.getElementById('globalInterestRate').value) || 7;
+  const bd = document.getElementById('birthdate').value;
 
   if (!fn) return alert('Por favor insira seu nome.');
   state.name = fn + (ln ? ' ' + ln : '');
-  state.interestRate = ir;
+  state.birthdate = bd || '';
   save();
+  cancelEditProfile();
   renderAll();
+}
+
+function toggleEditProfile() {
+  const inputs = ['firstName','lastName','birthdate'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.removeAttribute('readonly');
+  });
+  document.getElementById('profileSaveRow').style.display = 'flex';
+  document.getElementById('editProfileBtn').style.display = 'none';
+}
+
+function cancelEditProfile() {
+  const inputs = ['firstName','lastName','birthdate'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('readonly', true);
+  });
+  document.getElementById('profileSaveRow').style.display = 'none';
+  document.getElementById('editProfileBtn').style.display = '';
 }
 
 // ══════════════════════════════════════════════════
@@ -1842,7 +1875,8 @@ function openNewProjectModal() {
   document.getElementById('projStartDate').value = todayStr();
   document.getElementById('projDate').value = '';
   document.getElementById('projAcornsPlan').value = '0';
-  document.getElementById('projPassive').value = '';
+  document.getElementById('projInterestRate').value = '7';
+  document.getElementById('projRisk').value = 'moderado';
   selectedColor = '#39ff14';
   document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
   document.querySelector('.color-dot[data-color="#39ff14"]').classList.add('selected');
@@ -1862,7 +1896,8 @@ function createProject() {
   const startDate = document.getElementById('projStartDate').value || todayStr();
   const date = document.getElementById('projDate').value;
   const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0;
-  const passive = parseFloat(document.getElementById('projPassive').value) || 0;
+  const interestRate = parseFloat(document.getElementById('projInterestRate').value) || 7;
+  const risk = document.getElementById('projRisk').value || 'moderado';
 
   if (!name) return alert('Insira o nome do projeto.');
   if (!target || target <= 0) return alert('Insira uma meta válida.');
@@ -1875,7 +1910,8 @@ function createProject() {
     name, target, startDate, date,
     acornsDailyFee,
     fee: 0,
-    passive,
+    interestRate,
+    risk,
     color: selectedColor,
     contributions: []
   };
@@ -1891,6 +1927,8 @@ function createProject() {
 // DELETE PROJECT
 // ══════════════════════════════════════════════════
 function deleteProject(id) {
+  const proj = state.projects.find(p => p.id == id);
+  if (proj && (proj.closed || proj.transferred)) return alert('Projetos encerrados não podem ser excluídos. Eles permanecem no histórico.');
   if (!confirm('Excluir este projeto e todos os seus aportes?')) return;
   state.projects = state.projects.filter(p => p.id !== id);
   save();
@@ -1960,7 +1998,7 @@ function switchTab(tabId) {
 // CALC PROJECT STATS
 // ══════════════════════════════════════════════════
 function calcProject(proj) {
-  const rate = state.interestRate;
+  const rate = proj.interestRate ?? state.interestRate ?? 7;
   const daysLeft = Math.max(0, daysUntil(proj.date));
   const monthlyFeeUSD = proj.acornsDailyFee || 0;
 
@@ -2149,7 +2187,7 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${state.interestRate}% juros anuais` : 'Prazo encerrado. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transferir Saldo</button>'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${(proj.interestRate ?? state.interestRate ?? 7)}% juros · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderado'}` : 'Prazo encerrado. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transferir Saldo</button>'}</div>
       </div>
     </div>
 
@@ -2195,11 +2233,11 @@ function renderProjectPanel(proj) {
           <span class="kpi-label">Portfólio Necessário</span>
         </div>` : `
         <div class="kpi">
-          <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * state.interestRate / 100)}</span>
+          <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * (proj.interestRate ?? state.interestRate ?? 7) / 100)}</span>
           <span class="kpi-label">Renda Passiva Anual Est.</span>
         </div>
         <div class="kpi">
-          <span class="kpi-value gold">${state.interestRate}%</span>
+          <span class="kpi-value gold">${proj.interestRate ?? state.interestRate ?? 7}%</span>
           <span class="kpi-label">Taxa de Retorno</span>
         </div>`}
       </div>
@@ -2295,8 +2333,8 @@ function renderAll() {
     document.getElementById('headerName').textContent = state.name;
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
     document.getElementById('lastName').value = state.name.split(' ').slice(1).join(' ') || '';
+    if (document.getElementById('birthdate')) document.getElementById('birthdate').value = state.birthdate || '';
   }
-  document.getElementById('globalInterestRate').value = state.interestRate;
 
   const now = new Date();
   document.getElementById('headerDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' });
