@@ -2187,7 +2187,7 @@ function renderOverview() {
         <div class="ov-bar-bg">
           <div class="ov-bar-fill" style="width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 8px ${proj.color}66;"></div>
         </div>
-        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('pt-BR')} · ${st.daysLeft} dias · ${proj.contributions.length} aporte(s)</div>
+        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('pt-BR')} · ${st.daysLeft} dias · ${proj.contributions.filter(c => !c.isTransfer).length} aporte(s)</div>
         <div class="passive-pill">${passiveMsg}</div>
         <button onclick="switchTab('proj-${proj.id}')" style="margin-top:10px;background:linear-gradient(135deg,${proj.color}22,${proj.color}44);border:1px solid ${proj.color}88;color:${proj.color};font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,${proj.color}44,${proj.color}66)'" onmouseout="this.style.background='linear-gradient(135deg,${proj.color}22,${proj.color}44)'">
           📂 Ver Aportes & Detalhes
@@ -2240,7 +2240,7 @@ function renderProjectPanel(proj) {
         <span class="kpi-label">Dias Restantes</span>
       </div>
       <div class="kpi">
-        <span class="kpi-value silver">${proj.contributions.length}</span>
+        <span class="kpi-value silver">${proj.contributions.filter(c => !c.isTransfer).length}</span>
         <span class="kpi-label">Aportes</span>
       </div>
       <div class="kpi">
@@ -2262,7 +2262,7 @@ function renderProjectPanel(proj) {
         </div>
       </div>
       ${st.pct >= 100 ? `<div class="alert" style="display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;">🎉 Meta Atingida! Parabéns!</div>` : ''}
-      ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.length > 0 ? `<div class="alert" style="display:block;">⚠ Prazo próximo e meta abaixo de 30%. Aumente seus aportes.</div>` : ''}
+      ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class="alert" style="display:block;">⚠ Prazo próximo e meta abaixo de 30%. Aumente seus aportes.</div>` : ''}
     </div>
 
     <!-- DAILY SUGGESTION -->
@@ -2325,7 +2325,7 @@ function renderProjectPanel(proj) {
           <span class="kpi-label">Taxa de Retorno</span>
         </div>`}
       </div>
-      ${st.monthlyPassive < 1 && proj.contributions.length === 0 ? `
+      ${st.monthlyPassive < 1 && proj.contributions.filter(c => !c.isTransfer).length === 0 ? `
       <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:rgba(192,192,192,0.5);margin-top:8px;letter-spacing:1px;">
         💬 Mesmo sem atingir sua meta, cada centavo acumulado aqui gera renda passiva para sempre. Não existe resultado zero.
       </div>` : st.monthlyPassive >= 1 ? `
