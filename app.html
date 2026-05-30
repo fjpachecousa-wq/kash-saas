@@ -2211,7 +2211,7 @@ function renderProjectPanel(proj) {
         </div>
       </div>
       <div class="btn-row">
-        ${proj.transferred || proj.closed ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;padding:8px 0;letter-spacing:1px;">🔒 PROJETO ENCERRADO — somente consulta</div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Adicionar Aporte</button>`}
+        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ ENCERRADO — ${proj.closedAcao || 'saldo transferido'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ ENCERRADO — saldo pendente</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Destinar Saldo</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Adicionar Aporte</button>`}
       </div>
     </div>
 
@@ -2319,7 +2319,8 @@ function renderTabsNav() {
     btn.className = 'tab-btn proj-tab-btn';
     btn.id = 'tab-proj-' + proj.id;
     btn.style.setProperty('--proj-color', proj.color);
-    btn.innerHTML = `<span class="proj-num" style="background:${proj.color}22;color:${proj.color};">${proj.num}</span>${proj.name}${proj.transferred || proj.closed ? ' <span style="font-size:0.6rem;color:#f59e0b;letter-spacing:1px;">🔒</span>' : ''}`;
+    const closedBadge = proj.transferred ? ' <span style="font-size:0.6rem;color:#22c55e;letter-spacing:1px;">🔒✅</span>' : proj.closed ? ' <span style="font-size:0.6rem;color:#f59e0b;letter-spacing:1px;">🔒⏳</span>' : '';
+    btn.innerHTML = `<span class="proj-num" style="background:${proj.color}22;color:${proj.color};">${proj.num}</span>${proj.name}${closedBadge}`;
     btn.onclick = () => switchTab('proj-' + proj.id);
     nav.appendChild(btn);
   });
@@ -2899,10 +2900,104 @@ async function updateOverviewPortfolio() {
 function encerrarProjeto(id) {
   const proj = state.projects.find(p => p.id == id);
   if (!proj) return;
-  if (!confirm(`Encerrar o projeto "${proj.name}"? Ele ficará disponível apenas para consulta.`)) return;
-  proj.closed = true;
+  const st = calcProject(proj);
+  const balance = st.estimatedBalance;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+  const otherProjects = state.projects.filter(p => p.id !== id && !p.closed && !p.transferred);
+  const projectOptions = otherProjects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+  modal.innerHTML = `
+    <div style="background:var(--gray-dark);border:1px solid #f59e0b;border-radius:16px;padding:28px;width:min(90vw,440px);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#f59e0b;margin-bottom:4px;">🔒 ENCERRAR PROJETO</div>
+      <div style="font-size:0.8rem;color:var(--silver);margin-bottom:20px;">${proj.name}</div>
+
+      <div style="background:var(--black);border-radius:8px;padding:12px;margin-bottom:20px;">
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:4px;">SALDO ESTIMADO</div>
+        <div style="font-size:1.4rem;color:var(--green-neon);font-family:'Bebas Neue',sans-serif;">${fmt(balance)}</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:4px;">Você pode ajustar o valor real abaixo</div>
+      </div>
+
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">O QUE DESEJA FAZER COM O SALDO?</label>
+      <select id="encerrarAcao" onchange="updateEncerrarModal()" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
+        <option value="pendente">⏳ Manter pendente — decidir depois</option>
+        ${projectOptions ? `<option value="transferir">➡️ Transferir para outro projeto</option>` : ''}
+        <option value="retirar">💸 Registrar retirada</option>
+      </select>
+
+      <div id="encerrarTransferirDiv" style="display:none;margin-bottom:16px;">
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">PROJETO DESTINO</label>
+        <select id="encerrarTargetProj" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
+          ${projectOptions}
+        </select>
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR A TRANSFERIR ($)</label>
+        <input type="number" id="encerrarValor" value="${balance.toFixed(2)}" min="0" step="0.01"
+          style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+      </div>
+
+      <div id="encerrarRetirarDiv" style="display:none;margin-bottom:16px;">
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR RETIRADO ($)</label>
+        <input type="number" id="encerrarValorRetirada" value="${balance.toFixed(2)}" min="0" step="0.01"
+          style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn btn-primary btn-sm" onclick="confirmarEncerramento('${id}', this.closest('div[style*=fixed]'))">Confirmar</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function updateEncerrarModal() {
+  const acao = document.getElementById('encerrarAcao').value;
+  document.getElementById('encerrarTransferirDiv').style.display = acao === 'transferir' ? 'block' : 'none';
+  document.getElementById('encerrarRetirarDiv').style.display = acao === 'retirar' ? 'block' : 'none';
+}
+
+function confirmarEncerramento(fromId, modal) {
+  const proj = state.projects.find(p => p.id == fromId);
+  if (!proj) return;
+  const acao = document.getElementById('encerrarAcao').value;
+
+  if (acao === 'transferir') {
+    const targetId = document.getElementById('encerrarTargetProj').value;
+    const targetProj = state.projects.find(p => p.id == targetId);
+    if (!targetProj) return;
+    const valor = parseFloat(document.getElementById('encerrarValor').value) || 0;
+    if (valor <= 0) return alert('Informe um valor válido.');
+    targetProj.contributions = targetProj.contributions || [];
+    targetProj.contributions.push({
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      gross: valor, fee: 0, net: valor,
+      note: `Transferência de ${proj.name}`
+    });
+    proj.closed = true;
+    proj.transferred = true;
+    proj.closedBalance = valor;
+    proj.closedAcao = 'transferido para ' + targetProj.name;
+  } else if (acao === 'retirar') {
+    const valor = parseFloat(document.getElementById('encerrarValorRetirada').value) || 0;
+    proj.closed = true;
+    proj.closedBalance = valor;
+    proj.closedAcao = 'retirada de ' + fmt(valor);
+  } else {
+    // pendente
+    proj.closed = true;
+    proj.closedBalance = null;
+    proj.closedAcao = 'pendente';
+  }
+
   save();
+  modal.remove();
   renderAll();
+  if (acao === 'transferir') alert('✅ Saldo transferido com sucesso!');
+  else if (acao === 'retirar') alert('✅ Retirada registrada.');
+  else alert('🔒 Projeto encerrado. Saldo pendente — você pode transferir a qualquer momento.');
 }
 
 function openTransferModal(fromId) {
