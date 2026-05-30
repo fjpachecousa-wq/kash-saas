@@ -1066,29 +1066,6 @@
   .auth-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
   .auth-msg.success { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.25); color: var(--green-neon); }
 
-  /* ── TOOLTIP ─────────────────────────────────── */
-  .tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
-  .tooltip-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px; border-radius: 50%;
-    background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.3);
-    color: var(--green-neon); font-size: 0.65rem; font-family: 'Space Mono', monospace;
-    cursor: pointer; margin-left: 8px; flex-shrink: 0; transition: all 0.2s;
-  }
-  .tooltip-icon:hover { background: rgba(57,255,20,0.25); }
-  .tooltip-box {
-    display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%);
-    background: linear-gradient(135deg, #0d1a0d, #111811);
-    border: 1px solid rgba(57,255,20,0.3); border-radius: 10px;
-    padding: 12px 16px; width: 260px; z-index: 999;
-    font-family: 'Space Mono', monospace; font-size: 0.68rem;
-    color: var(--silver); letter-spacing: 0.5px; line-height: 1.7;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-  }
-  .tooltip-wrap:hover .tooltip-box,
-  .tooltip-wrap.open .tooltip-box { display: block; }
-  .tooltip-box strong { color: var(--green-neon); }
-
   /* ── CLIENT NUMBER ────────────────────────────── */
   .client-number {
     font-family: 'Space Mono', monospace; font-size: 0.7rem;
@@ -1253,18 +1230,7 @@
       <!-- HEADER -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;display:flex;align-items:center;">
-            📈 MEU PORTFÓLIO DE ATIVOS
-            <span class="tooltip-wrap">
-              <span class="tooltip-icon">?</span>
-              <span class="tooltip-box">
-                <strong>Portfólio de Ativos</strong><br>
-                Registre seus ETFs com ticker, cotas e preço de compra.<br><br>
-                O app busca cotações em tempo real e calcula seu ganho/perda desde a compra.<br><br>
-                Use <strong>+ Adicionar Cotas</strong> para atualizar quando comprar mais.
-              </span>
-            </span>
-          </div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MEU PORTFÓLIO DE ATIVOS</div>
           <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Registre seus aportes e acompanhe a performance em tempo real</div>
         </div>
         <div style="display:flex;gap:8px;">
@@ -1385,17 +1351,7 @@
     <!-- PROJECTS LIST -->
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span style="display:flex;align-items:center;">
-          🗂 Meus Projetos
-          <span class="tooltip-wrap">
-            <span class="tooltip-icon">?</span>
-            <span class="tooltip-box">
-              <strong>Meus Projetos</strong><br>
-              Cada projeto representa um objetivo financeiro com meta, prazo e taxa de juros.<br><br>
-              Registre aportes regulares e acompanhe seu progresso em tempo real.
-            </span>
-          </span>
-        </span>
+        <span>🗂 Meus Projetos</span>
         <button class="btn btn-primary btn-sm no-print" onclick="openNewProjectModal()">+ Novo Projeto</button>
       </div>
 
@@ -2355,18 +2311,7 @@ function renderProjectPanel(proj) {
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
-      <div class="card-title" style="display:flex;align-items:center;">
-        💵 Adicionar Aporte
-        <span class="tooltip-wrap">
-          <span class="tooltip-icon">?</span>
-          <span class="tooltip-box">
-            <strong>Aporte</strong><br>
-            Registre cada valor que você investe neste projeto.<br><br>
-            Informe o valor, a data real do aporte e uma nota opcional.<br><br>
-            O app calcula automaticamente os juros estimados e o saldo acumulado.
-          </span>
-        </span>
-      </div>
+      <div class="card-title">💵 Adicionar Aporte</div>
       <div class="form-row three">
         <div class="form-group">
           <label>Valor ($)</label>
