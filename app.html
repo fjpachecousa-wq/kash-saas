@@ -1499,7 +1499,8 @@ async function logoutUser() {
 let state = {
   name: '',
   interestRate: 7,
-  projects: []
+  projects: [],
+  portfolio: []
 };
 
 let selectedColor = '#39ff14';
@@ -1785,6 +1786,22 @@ async function initApp() {
   document.body.classList.add('app-visible');
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
+  // Migrate portfolio from localStorage to Supabase (one-time migration)
+  if (!state.portfolio || state.portfolio.length === 0) {
+    const localData = localStorage.getItem('kash_portfolio');
+    if (localData) {
+      try {
+        const parsed = JSON.parse(localData);
+        if (parsed && parsed.length > 0) {
+          state.portfolio = parsed;
+          await save();
+          localStorage.removeItem('kash_portfolio');
+          console.log('Portfolio migrated from localStorage to Supabase');
+        }
+      } catch(e) { console.warn('Portfolio migration failed:', e); }
+    }
+  }
+  portfolioEntries = state.portfolio || [];
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
     state.name = currentUser.user_metadata.full_name;
@@ -2344,6 +2361,9 @@ function renderTabsNav() {
 // RENDER ALL
 // ══════════════════════════════════════════════════
 function renderAll() {
+  // Keep portfolioEntries in sync with state
+  portfolioEntries = state.portfolio || [];
+
   if (state.name) {
     document.getElementById('headerName').textContent = state.name;
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
@@ -2407,12 +2427,12 @@ let etfPriceCache = {};
 // Migrate & sanitize portfolio entries (fix for old % format)
 function loadPortfolioEntries() {
   try {
-    const raw = JSON.parse(localStorage.getItem('kash_portfolio') || '[]');
+    const raw = state.portfolio || [];
     return raw.map(e => ({
       ...e,
       etfs: (e.etfs||[]).map(et => ({
         ticker: et.ticker || '',
-        shares: et.shares || (et.pct ? 0 : 0),
+        shares: et.shares || 0,
         buyPrice: et.buyPrice || 0
       })).filter(et => et.ticker),
       altEtfs: (e.altEtfs||[]).map(et => ({
@@ -2424,10 +2444,11 @@ function loadPortfolioEntries() {
     }));
   } catch(e) { return []; }
 }
-let portfolioEntries = loadPortfolioEntries();
+let portfolioEntries = [];
 
 function savePortfolioToStorage() {
-  localStorage.setItem('kash_portfolio', JSON.stringify(portfolioEntries));
+  state.portfolio = portfolioEntries;
+  save();
 }
 
 function showAddPortfolioEntry() {
