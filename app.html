@@ -1539,7 +1539,19 @@ async function load() {
     .eq('user_id', currentUser.id)
     .single();
   if (error && error.code !== 'PGRST116') { console.error('Load error:', error); return false; }
-  if (data && data.data) { state = data.data; return true; }
+  if (data && data.data) {
+    // Merge loaded data preserving all fields — never lose projects or portfolio
+    const loaded = data.data;
+    state = {
+      name: loaded.name || '',
+      interestRate: loaded.interestRate ?? 7,
+      projects: loaded.projects || [],
+      portfolio: loaded.portfolio || [],
+      saldoDisponivel: loaded.saldoDisponivel || 0,
+      birthdate: loaded.birthdate || ''
+    };
+    return true;
+  }
   return false;
 }
 
@@ -1801,21 +1813,23 @@ async function initApp() {
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
   // Migrate portfolio from localStorage to Supabase (one-time migration)
-  if (!state.portfolio || state.portfolio.length === 0) {
-    const localData = localStorage.getItem('kash_portfolio');
-    if (localData) {
-      try {
-        const parsed = JSON.parse(localData);
-        if (parsed && parsed.length > 0) {
-          state.portfolio = parsed;
-          await save();
-          localStorage.removeItem('kash_portfolio');
-          console.log('Portfolio migrated from localStorage to Supabase');
-        }
-      } catch(e) { console.warn('Portfolio migration failed:', e); }
-    }
+  // Only runs if portfolio is empty AND localStorage has data
+  const localData = localStorage.getItem('kash_portfolio');
+  if ((!state.portfolio || state.portfolio.length === 0) && localData) {
+    try {
+      const parsed = JSON.parse(localData);
+      if (parsed && parsed.length > 0) {
+        state.portfolio = parsed; // projects already in state from load()
+        await save();
+        localStorage.removeItem('kash_portfolio');
+        console.log('Portfolio migrated from localStorage to Supabase:', parsed.length, 'entries');
+      }
+    } catch(e) { console.warn('Portfolio migration failed:', e); }
   }
-  portfolioEntries = state.portfolio || [];
+  // Always ensure portfolio is initialized
+  if (!state.portfolio) state.portfolio = [];
+  if (!state.projects) state.projects = [];
+  portfolioEntries = state.portfolio;
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
     state.name = currentUser.user_metadata.full_name;
