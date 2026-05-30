@@ -1065,6 +1065,37 @@
   .auth-msg { font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 1px; margin-top: 10px; padding: 8px 12px; border-radius: 6px; display: none; }
   .auth-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
   .auth-msg.success { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.25); color: var(--green-neon); }
+
+  /* ── TOOLTIP ─────────────────────────────────── */
+  .tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+  .tooltip-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.3);
+    color: var(--green-neon); font-size: 0.65rem; font-family: 'Space Mono', monospace;
+    cursor: pointer; margin-left: 8px; flex-shrink: 0; transition: all 0.2s;
+  }
+  .tooltip-icon:hover { background: rgba(57,255,20,0.25); }
+  .tooltip-box {
+    display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%);
+    background: linear-gradient(135deg, #0d1a0d, #111811);
+    border: 1px solid rgba(57,255,20,0.3); border-radius: 10px;
+    padding: 12px 16px; width: 260px; z-index: 999;
+    font-family: 'Space Mono', monospace; font-size: 0.68rem;
+    color: var(--silver); letter-spacing: 0.5px; line-height: 1.7;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  }
+  .tooltip-wrap:hover .tooltip-box,
+  .tooltip-wrap.open .tooltip-box { display: block; }
+  .tooltip-box strong { color: var(--green-neon); }
+
+  /* ── CLIENT NUMBER ────────────────────────────── */
+  .client-number {
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    color: rgba(192,192,192,0.5); letter-spacing: 2px;
+    margin-top: 4px;
+  }
+  .client-number span { color: var(--green-neon); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -1179,10 +1210,13 @@
   <!-- USER SETUP CARD -->
   <div class="card no-print" id="userSetupCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div class="card-title" style="margin-bottom:0;">👤 Perfil do Investidor</div>
+      <div>
+        <div class="card-title" style="margin-bottom:2px;">👤 Perfil do Investidor</div>
+        <div class="client-number">Cliente <span id="clientNumber">—</span></div>
+      </div>
       <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Editar</button>
     </div>
-    <div class="form-row three">
+    <div class="form-row four">
       <div class="form-group">
         <label>Nome</label>
         <input type="text" id="firstName" placeholder="ex: João" readonly>
@@ -1194,6 +1228,10 @@
       <div class="form-group">
         <label>Data de Nascimento</label>
         <input type="date" id="birthdate" readonly>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="text" id="profileEmail" readonly style="color:rgba(192,192,192,0.6);font-size:0.8rem;">
       </div>
     </div>
     <div class="btn-row" id="profileSaveRow" style="display:none;">
@@ -1215,7 +1253,18 @@
       <!-- HEADER -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MEU PORTFÓLIO DE ATIVOS</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;display:flex;align-items:center;">
+            📈 MEU PORTFÓLIO DE ATIVOS
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-box">
+                <strong>Portfólio de Ativos</strong><br>
+                Registre seus ETFs com ticker, cotas e preço de compra.<br><br>
+                O app busca cotações em tempo real e calcula seu ganho/perda desde a compra.<br><br>
+                Use <strong>+ Adicionar Cotas</strong> para atualizar quando comprar mais.
+              </span>
+            </span>
+          </div>
           <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Registre seus aportes e acompanhe a performance em tempo real</div>
         </div>
         <div style="display:flex;gap:8px;">
@@ -1336,7 +1385,17 @@
     <!-- PROJECTS LIST -->
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>🗂 Meus Projetos</span>
+        <span style="display:flex;align-items:center;">
+          🗂 Meus Projetos
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-box">
+              <strong>Meus Projetos</strong><br>
+              Cada projeto representa um objetivo financeiro com meta, prazo e taxa de juros.<br><br>
+              Registre aportes regulares e acompanhe seu progresso em tempo real.
+            </span>
+          </span>
+        </span>
         <button class="btn btn-primary btn-sm no-print" onclick="openNewProjectModal()">+ Novo Projeto</button>
       </div>
 
@@ -1871,6 +1930,25 @@ function nextProjectNum() {
 }
 
 // ══════════════════════════════════════════════════
+// CLIENT NUMBER
+// ══════════════════════════════════════════════════
+function generateClientNumber(user) {
+  if (!user) return '——';
+  // MM + AA from created_at
+  const created = new Date(user.created_at);
+  const mm = String(created.getUTCMonth() + 1).padStart(2, '0');
+  const aa = String(created.getUTCFullYear()).slice(-2);
+  // 5-digit hash from user id
+  const idStr = user.id.replace(/-/g, '');
+  let hash = 0;
+  for (let i = 0; i < idStr.length; i++) {
+    hash = (hash * 31 + idStr.charCodeAt(i)) % 99999;
+  }
+  const seq = String(hash + 1).padStart(5, '0');
+  return `${mm}${aa}${seq}`;
+}
+
+// ══════════════════════════════════════════════════
 // PROFILE
 // ══════════════════════════════════════════════════
 function saveProfile() {
@@ -2277,7 +2355,18 @@ function renderProjectPanel(proj) {
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
-      <div class="card-title">💵 Adicionar Aporte</div>
+      <div class="card-title" style="display:flex;align-items:center;">
+        💵 Adicionar Aporte
+        <span class="tooltip-wrap">
+          <span class="tooltip-icon">?</span>
+          <span class="tooltip-box">
+            <strong>Aporte</strong><br>
+            Registre cada valor que você investe neste projeto.<br><br>
+            Informe o valor, a data real do aporte e uma nota opcional.<br><br>
+            O app calcula automaticamente os juros estimados e o saldo acumulado.
+          </span>
+        </span>
+      </div>
       <div class="form-row three">
         <div class="form-group">
           <label>Valor ($)</label>
@@ -2426,6 +2515,15 @@ function renderAll() {
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
     document.getElementById('lastName').value = state.name.split(' ').slice(1).join(' ') || '';
     if (document.getElementById('birthdate')) document.getElementById('birthdate').value = state.birthdate || '';
+  }
+
+  // Client number and email
+  if (currentUser) {
+    const clientNum = generateClientNumber(currentUser);
+    const cnEl = document.getElementById('clientNumber');
+    if (cnEl) cnEl.textContent = clientNum;
+    const emailEl = document.getElementById('profileEmail');
+    if (emailEl) emailEl.value = currentUser.email || '';
   }
 
   const now = new Date();
