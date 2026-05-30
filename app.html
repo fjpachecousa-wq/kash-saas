@@ -1280,7 +1280,20 @@
   <div class="tab-panel active" id="panel-overview">
 
     <!-- MANIFESTO -->
-    <div class="manifesto" id="manifestoBanner" style="display:none;">
+    <!-- SALDO DISPONÍVEL -->
+    <div id="saldoDisponivelBanner" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(0,0,0,0.5));border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:20px 24px;margin-bottom:20px;display:none;align-items:center;gap:20px;">
+      <div style="font-size:2rem;flex-shrink:0;">💰</div>
+      <div style="flex:1;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fbbf24;letter-spacing:2px;margin-bottom:4px;">SALDO DISPONÍVEL PARA ALOCAÇÃO</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;">Saldo remanescente de projeto encerrado aguardando destino.</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.5);" id="saldoDisponivelValue">$0.00</div>
+        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="alocarSaldoDisponivel()">➡️ Alocar em Projeto</button>
+      </div>
+    </div>
+
+    <!-- MANIFESTO -->
       Você não precisa esperar sobrar dinheiro para começar a investir.<br>
       <strong>Cada $1 que você aporta hoje trabalha por você amanhã.</strong><br>
       Mesmo que não atinja a meta, o dinheiro acumulado gera renda passiva — para sempre.
@@ -1500,7 +1513,8 @@ let state = {
   name: '',
   interestRate: 7,
   projects: [],
-  portfolio: []
+  portfolio: [],
+  saldoDisponivel: 0
 };
 
 let selectedColor = '#39ff14';
@@ -1955,7 +1969,17 @@ function createProject() {
 function deleteProject(id) {
   const proj = state.projects.find(p => p.id == id);
   if (proj && (proj.closed || proj.transferred)) return alert('Projetos encerrados não podem ser excluídos. Eles permanecem no histórico.');
-  if (!confirm('Excluir este projeto e todos os seus aportes?')) return;
+
+  // Check if project has a transfer contribution
+  const transferContrib = proj && proj.contributions && proj.contributions.find(c => c.isTransfer);
+  if (transferContrib) {
+    if (!confirm(`Este projeto contém um saldo transferido de ${fmt(transferContrib.amount)}.\n\nAo excluir, esse valor ficará disponível para ser alocado em outro projeto.\n\nDeseja continuar?`)) return;
+    // Preserve the transfer balance
+    state.saldoDisponivel = (state.saldoDisponivel || 0) + transferContrib.amount;
+  } else {
+    if (!confirm('Excluir este projeto e todos os seus aportes?')) return;
+  }
+
   state.projects = state.projects.filter(p => p.id !== id);
   save();
   const panel = document.getElementById('panel-proj-' + id);
@@ -2093,6 +2117,15 @@ function renderOverview() {
 
   // Update portfolio summary card in overview
   updateOverviewPortfolio();
+
+  // Show saldo disponivel banner
+  const saldoBanner = document.getElementById('saldoDisponivelBanner');
+  if (state.saldoDisponivel && state.saldoDisponivel > 0) {
+    saldoBanner.style.display = 'flex';
+    document.getElementById('saldoDisponivelValue').textContent = fmt(state.saldoDisponivel);
+  } else {
+    saldoBanner.style.display = 'none';
+  }
 
   if (!state.projects.length) {
     container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>Nenhum projeto ainda.<br>Crie seu primeiro objetivo!</p></div>`;
@@ -3140,6 +3173,71 @@ function executeTransfer(fromId, balance, modal) {
   renderOverview();
   modal.remove();
   alert('✅ Saldo transferido com sucesso para ' + targetProj.name + '!');
+}
+
+// ══════════════════════════════════════════════════
+// ALOCAR SALDO DISPONÍVEL
+// ══════════════════════════════════════════════════
+function alocarSaldoDisponivel() {
+  const saldo = state.saldoDisponivel || 0;
+  if (saldo <= 0) return;
+
+  const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
+  if (activeProjs.length === 0) {
+    alert('Crie um projeto ativo primeiro para alocar o saldo.');
+    return;
+  }
+
+  const options = activeProjs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,420px);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">💰 ALOCAR SALDO DISPONÍVEL</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
+        Saldo disponível: <strong style="color:#fbbf24;">${fmt(saldo)}</strong><br>
+        Este valor entrará como aporte de transferência no projeto destino e poderá ser ajustado a qualquer momento.
+      </div>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">PROJETO DESTINO</label>
+      <select id="alocarProjSelect" style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
+        ${options}
+      </select>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR A ALOCAR ($)</label>
+      <input type="number" id="alocarValorInput" value="${saldo.toFixed(2)}" min="0" step="0.01"
+        style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gold btn-sm" onclick="confirmarAlocacao(this.closest('div[style*=fixed]'))">✅ Confirmar Alocação</button>
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function confirmarAlocacao(modal) {
+  const projId = document.getElementById('alocarProjSelect').value;
+  const valor = parseFloat(document.getElementById('alocarValorInput').value) || 0;
+  if (valor <= 0) return alert('Informe um valor válido.');
+
+  const proj = state.projects.find(p => p.id === projId);
+  if (!proj) return;
+
+  proj.contributions = proj.contributions || [];
+  proj.contributions.push({
+    id: Date.now().toString(),
+    date: new Date().toISOString().split('T')[0],
+    amount: valor, gross: valor, fee: 0, net: valor,
+    note: 'Saldo disponível alocado',
+    isTransfer: true,
+    fromProject: 'Saldo disponível'
+  });
+  proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  state.saldoDisponivel = Math.max(0, (state.saldoDisponivel || 0) - valor);
+  save();
+  modal.remove();
+  renderAll();
+  switchTab('proj-' + projId);
+  alert('✅ Saldo alocado com sucesso em ' + proj.name + '!');
 }
 
 // ══════════════════════════════════════════════════
