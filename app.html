@@ -2282,15 +2282,19 @@ function renderProjectPanel(proj) {
             ${st.rows.length === 0
               ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:30px;">Nenhum aporte ainda.</td></tr>`
               : st.rows.map(r => `
-                <tr>
+                <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
                   <td>${r.idx}</td>
                   <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
-                  <td class="amount-cell">${fmt(r.amount)}</td>
+                  <td class="amount-cell">
+                    ${fmt(r.amount)}
+                    ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFERÊNCIA</span>` : ''}
+                  </td>
                   <td style="color:#22c55e;">+${fmt(r.interestEst)}</td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note || '—'}</td>
                   <td class="no-print">
-                    ${proj.transferred || proj.closed ? '' : `<button class="icon-btn icon-btn-del" onclick="deleteContribution('${proj.id}','${r.id}')" title="Excluir">🗑</button>`}
+                    ${r.isTransfer ? `<button class="icon-btn" onclick="editTransferValue('${proj.id}','${r.id}')" title="Editar saldo transferido" style="color:#fbbf24;">✏️</button>` : ''}
+                    ${!proj.transferred && !proj.closed && !r.isTransfer ? `<button class="icon-btn icon-btn-del" onclick="deleteContribution('${proj.id}','${r.id}')" title="Excluir">🗑</button>` : ''}
                   </td>
                 </tr>`).join('')
             }
@@ -3024,10 +3028,12 @@ function confirmarEncerramento(fromId, modal) {
     if (valor <= 0) return alert('Informe um valor válido.');
     targetProj.contributions = targetProj.contributions || [];
     targetProj.contributions.push({
-      id: Date.now(),
+      id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0],
-      gross: valor, fee: 0, net: valor,
-      note: `Transferência de ${proj.name}`
+      amount: valor, gross: valor, fee: 0, net: valor,
+      note: `Transferência de ${proj.name}`,
+      isTransfer: true,
+      fromProject: proj.name
     });
     proj.closed = true;
     proj.transferred = true;
@@ -3113,6 +3119,53 @@ function executeTransfer(fromId, balance, modal) {
   renderOverview();
   modal.remove();
   alert('✅ Saldo transferido com sucesso para ' + targetProj.name + '!');
+}
+
+// ══════════════════════════════════════════════════
+// EDIT TRANSFER VALUE
+// ══════════════════════════════════════════════════
+function editTransferValue(projId, contribId) {
+  const proj = state.projects.find(p => p.id === projId);
+  if (!proj) return;
+  const contrib = proj.contributions.find(c => c.id === contribId);
+  if (!contrib || !contrib.isTransfer) return;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,400px);">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">✏️ AJUSTAR SALDO TRANSFERIDO</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
+        Origem: <strong style="color:var(--white);">${contrib.fromProject || 'Projeto anterior'}</strong><br>
+        Valor atual: <strong style="color:#fbbf24;">${fmt(contrib.amount)}</strong><br><br>
+        Ajuste para o saldo real consolidado na Acorns.
+      </div>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">NOVO VALOR ($)</label>
+      <input type="number" id="editTransferInput" value="${contrib.amount.toFixed(2)}" min="0" step="0.01"
+        style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-gold btn-sm" onclick="saveTransferValue('${projId}','${contribId}',this.closest('div[style*=fixed]'))">💾 Salvar</button>
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.querySelector('#editTransferInput').focus(), 100);
+}
+
+function saveTransferValue(projId, contribId, modal) {
+  const proj = state.projects.find(p => p.id === projId);
+  if (!proj) return;
+  const contrib = proj.contributions.find(c => c.id === contribId);
+  if (!contrib) return;
+  const newValue = parseFloat(document.getElementById('editTransferInput').value);
+  if (!newValue || newValue <= 0) return alert('Informe um valor válido.');
+  contrib.amount = newValue;
+  contrib.net = newValue;
+  contrib.gross = newValue;
+  save();
+  modal.remove();
+  renderProjectPanel(proj);
+  renderOverview();
 }
 
 // ══════════════════════════════════════════════════
