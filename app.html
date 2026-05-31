@@ -1201,9 +1201,9 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
-    <button class="btn btn-sm no-print" id="dashboardBtn" onclick="switchTab('overview')" style="display:none;font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.5);color:var(--green-neon);font-weight:700;" title="Back to Dashboard">⬅ Dashboard</button>
-    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Investor Profile">👤 Profile</button>
-    <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Help">❓ Help</button>
+    <button class="btn btn-sm no-print" id="dashboardBtn" onclick="switchTab('overview')" style="display:none;font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.5);color:#000;font-weight:700;background:var(--green-neon);" title="Back to Dashboard">⬅ Dashboard</button>
+    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Investor Profile">👤 Profile</button>
+    <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
@@ -1295,13 +1295,6 @@
           <div id="etfRows"></div>
         </div>
 
-        <!-- Alternative Portfolio for comparison -->
-        <div style="margin-bottom:16px;">
-          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ALTERNATIVE PORTFOLIO FOR COMPARISON (optional)</label>
-          <div id="altEtfRows"></div>
-          <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;margin-top:6px;" onclick="addAltEtfRow()">+ Add Alternative ETF</button>
-        </div>
-
         <div style="display:flex;gap:10px;">
           <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Save Entry</button>
           <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancel</button>
@@ -1317,7 +1310,7 @@
 
       <!-- RESUMO TOTAL -->
       <div id="portfolioSummary" style="display:none;margin-top:24px;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">RESUMO DO PORTFÓLIO</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">PORTFOLIO SUMMARY</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;" id="portfolioSummaryGrid"></div>
       </div>
 
@@ -1513,7 +1506,11 @@ async function checkSubscription() {
       .eq('user_id', currentUser.id)
       .single();
     const { data, error } = await Promise.race([query, timeout]);
-    if (error) return false;
+    if (error && error.code !== 'PGRST116') {
+      // If RLS error or network issue and app was already loaded, keep access
+      if (document.getElementById('appContent').style.display === 'block') return true;
+      return false;
+    }
     const isActive = data?.status === 'active' || data?.status === 'inactive';
     if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
     return isActive;
@@ -2826,7 +2823,7 @@ async function renderPortfolio() {
     return;
   }
 
-  list.innerHTML = '<div style="color:var(--silver);font-size:0.8rem;padding:8px 0;">🔄 Buscando cotações...</div>';
+  list.innerHTML = '<div style="color:var(--silver);font-size:0.8rem;padding:8px 0;">🔄 Fetching quotes...</div>';
 
   // Coletar todos os tickers únicos
   const allTickers = new Set();
