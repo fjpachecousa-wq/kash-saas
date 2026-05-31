@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1016,28 +1016,6 @@
   #appContent { display: none; }
   #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 
-  /* ── LANG TOGGLE ─────────────────────────────── */
-  .lang-toggle-wrap {
-    position: fixed; top: 16px; right: 20px; z-index: 9999;
-    display: flex; background: rgba(0,0,0,0.7);
-    border: 1px solid rgba(57,255,20,0.25); border-radius: 7px;
-    overflow: hidden; backdrop-filter: blur(8px);
-  }
-  /* When app header is visible, push toggle down below it */
-  body.app-visible .lang-toggle-wrap {
-    top: auto;
-    bottom: 20px;
-    right: 20px;
-  }
-  .lang-btn {
-    font-family: 'Space Mono', monospace; font-size: 0.65rem;
-    letter-spacing: 1px; padding: 7px 13px;
-    background: transparent; color: rgba(192,192,192,0.45);
-    border: none; cursor: pointer; transition: all 0.2s;
-  }
-  .lang-btn.active { background: rgba(57,255,20,0.15); color: var(--green-neon); }
-  .lang-btn:hover:not(.active) { color: var(--silver); }
-
   /* ── AUTH EMAIL FORM ─────────────────────────── */
   .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
   .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: rgba(57,255,20,0.15); }
@@ -1135,12 +1113,6 @@
 </head>
 <body>
 
-<!-- LANG TOGGLE — fixed, always visible -->
-<div class="lang-toggle-wrap no-print">
-  <button class="lang-btn active" id="langBtnEN" onclick="setLang('en')">EN</button>
-  <button class="lang-btn" id="langBtnPT" onclick="setLang('pt')">PT</button>
-</div>
-
 <!-- LOADING SCREEN -->
 <div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;">
   <div style="font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:6px;color:var(--green-neon);text-shadow:0 0 30px #39ff14;">KA$H</div>
@@ -1229,7 +1201,7 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
-    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Perfil do Investidor">👤 Perfil</button>
+    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Perfil do Investedr">👤 Profile</button>
     <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
@@ -1240,29 +1212,29 @@
   <!-- STATUS BAR -->
   <div class="status-bar">
     <div class="status-dot"></div>
-    <span id="statusText">Configure seu perfil e crie seu primeiro projeto para começar.</span>
+    <span id="statusText">Set up your profile and create your first project to get started.</span>
   </div>
 
   <!-- USER SETUP CARD -->
   <div class="card no-print" id="userSetupCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div>
-        <div class="card-title" style="margin-bottom:2px;">👤 Perfil do Investidor</div>
-        <div class="client-number">Cliente <span id="clientNumber">—</span></div>
+        <div class="card-title" style="margin-bottom:2px;">👤 Profile do Investedr</div>
+        <div class="client-number">Client <span id="clientNumber">—</span></div>
       </div>
-      <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Editar</button>
+      <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Edit</button>
     </div>
     <div class="form-row four">
       <div class="form-group">
-        <label>Nome</label>
-        <input type="text" id="firstName" placeholder="ex: João" readonly>
+        <label>First Name</label>
+        <input type="text" id="firstName" placeholder="e.g. John" readonly>
       </div>
       <div class="form-group">
-        <label>Sobrenome</label>
+        <label>Last Name</label>
         <input type="text" id="lastName" placeholder="ex: Silva" readonly>
       </div>
       <div class="form-group">
-        <label>Data de Nascimento</label>
+        <label>Date of Birth</label>
         <input type="date" id="birthdate" readonly>
       </div>
       <div class="form-group">
@@ -1271,15 +1243,15 @@
       </div>
     </div>
     <div class="btn-row" id="profileSaveRow" style="display:none;">
-      <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Salvar Perfil</button>
-      <button class="btn btn-sm" onclick="cancelEditProfile()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Save Profile</button>
+      <button class="btn btn-sm" onclick="cancelEditProfile()">Cancel</button>
     </div>
   </div>
 
   <!-- TABS: Overview + one per project -->
   <div class="tabs-nav" id="tabsNav">
-    <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 Visão Geral</button>
-    <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 Portfólio</button>
+    <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 Overview</button>
+    <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 Portfolio</button>
   </div>
 
   <!-- ══ PORTFOLIO TAB ══════════════════════════════ -->
@@ -1289,8 +1261,8 @@
       <!-- HEADER -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MEU PORTFÓLIO DE ATIVOS</div>
-          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Registre seus aportes e acompanhe a performance em tempo real</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MY ASSET PORTFOLIO</div>
+          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Register your investments and track performance in real time</div>
         </div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-sm" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:var(--silver);" title="Atualizar cotações">🔄 Refresh</button>
@@ -1298,11 +1270,11 @@
         </div>
       </div>
 
-      <!-- FORM NOVO APORTE (oculto por padrão) -->
+      <!-- NEW ENTRY FORM (hidden by default) -->
       <div id="portfolioForm" style="display:none;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">REGISTRAR APORTE</div>
         <div style="margin-bottom:12px;">
-          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATA DO APORTE</label>
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE DO APORTE</label>
           <input type="date" id="pfDate" style="width:200px;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
         </div>
 
@@ -1321,7 +1293,7 @@
           <div id="etfRows"></div>
         </div>
 
-        <!-- Portfólio para comparação -->
+        <!-- Alternative Portfolio for comparison -->
         <div style="margin-bottom:16px;">
           <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PORTFÓLIO ALTERNATIVO PARA COMPARAÇÃO (opcional)</label>
           <div id="altEtfRows"></div>
@@ -1330,14 +1302,14 @@
 
         <div style="display:flex;gap:10px;">
           <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Salvar Aporte</button>
-          <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancelar</button>
+          <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancel</button>
         </div>
       </div>
 
-      <!-- LISTA DE APORTES -->
+      <!-- LISTA DE CONTRIBUTIONS -->
       <div id="portfolioList">
         <div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
-          Nenhum aporte registrado ainda.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+          No entries registered yet.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
         </div>
       </div>
 
@@ -1358,51 +1330,51 @@
     <div id="saldoDisponivelBanner" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(0,0,0,0.5));border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:20px 24px;margin-bottom:20px;align-items:center;gap:20px;">
       <div style="font-size:2rem;flex-shrink:0;">💰</div>
       <div style="flex:1;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fbbf24;letter-spacing:2px;margin-bottom:4px;">SALDO DISPONÍVEL PARA ALOCAÇÃO</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;">Saldo remanescente de projeto encerrado aguardando destino.</div>
+        <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fbbf24;letter-spacing:2px;margin-bottom:4px;">AVAILABLE BALANCE FOR ALLOCATION</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;">Remaining balance from a closed project awaiting allocation.</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.5);" id="saldoDisponivelValue">$0.00</div>
-        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="alocarSaldoDisponivel()">➡️ Alocar em Projeto</button>
+        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="alocarSaldoDisponivel()">➡️ Allocate to Project</button>
       </div>
     </div>
 
     <!-- MANIFESTO -->
     <div class="manifesto" id="manifestoBanner" style="display:none;">
-      Você não precisa esperar sobrar dinheiro para começar a investir.<br>
-      <strong>Cada $1 que você aporta hoje trabalha por você amanhã.</strong><br>
-      Mesmo que não atinja a meta, o dinheiro acumulado gera renda passiva — para sempre.
+      You don't need to wait for extra money to start investing.<br>
+      <strong>Every $1 you invest today works for you tomorrow.</strong><br>
+      Even if you don't reach your goal, the accumulated money generates passive income — forever.
     </div>
 
     <!-- TOTAL BANNER -->
     <div class="total-banner" id="totalBanner" style="display:none; grid-template-columns: repeat(5,1fr);">
       <div class="kpi">
         <span class="kpi-value gold" id="ovTotalInvested">$0.00</span>
-        <span class="kpi-label">Total Aportado</span>
+        <span class="kpi-label">Total Invested</span>
       </div>
       <div class="kpi">
         <span class="kpi-value" id="ovTotalBalance">$0.00</span>
-        <span class="kpi-label">Saldo Est. Total</span>
+        <span class="kpi-label">Est. Total Balance</span>
       </div>
       <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
         <span class="kpi-value" style="color:var(--green-mid);" id="ovTotalPassive">$0.00</span>
-        <span class="kpi-label">Renda Passiva/mês</span>
+        <span class="kpi-label">Passive Income/mo</span>
       </div>
       <div class="kpi">
         <span class="kpi-value silver" id="ovTotalProjects">0</span>
-        <span class="kpi-label">Projetos Ativos</span>
+        <span class="kpi-label">Active Projects</span>
       </div>
       <div class="kpi">
         <span class="kpi-value gold" id="ovTotalContribs">0</span>
-        <span class="kpi-label">Total de Aportes</span>
+        <span class="kpi-label">Total Contributions</span>
       </div>
     </div>
 
     <!-- PORTFOLIO SUMMARY CARD -->
     <div class="card" id="ovPortfolioCard" style="display:none;cursor:pointer;" onclick="switchTab('portfolio')" title="Ver portfólio completo">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>📈 Portfólio de Ativos</span>
-        <span style="font-size:0.75rem;color:var(--green-neon);">Ver detalhes →</span>
+        <span>📈 Portfolio de Ativos</span>
+        <span style="font-size:0.75rem;color:var(--green-neon);">View details →</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;" id="ovPortfolioGrid"></div>
     </div>
@@ -1410,14 +1382,14 @@
     <!-- PROJECTS LIST -->
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>🗂 Meus Projetos</span>
-        <button class="btn btn-primary btn-sm no-print" onclick="openNewProjectModal()">+ Novo Projeto</button>
+        <span>🗂 My Projects</span>
+        <button class="btn btn-primary btn-sm no-print" onclick="openNewProjectModal()">+ New Project</button>
       </div>
 
       <div id="projectsContainer">
         <div class="empty-state" id="emptyState">
           <div class="icon">🎯</div>
-          <p>Nenhum projeto ainda.<br>Crie seu primeiro objetivo!</p>
+          <p>No projects yet.<br>Create your first goal!</p>
         </div>
       </div>
     </div>
@@ -1433,52 +1405,52 @@
 <div class="modal-overlay" id="newProjectModal">
   <div class="modal">
     <button class="modal-close" onclick="closeNewProjectModal()">✕</button>
-    <div class="modal-title">🆕 Novo Projeto</div>
+    <div class="modal-title">🆕 New Project</div>
 
     <div class="form-group" style="margin-bottom:16px;">
-      <label>Nome do Projeto</label>
-      <input type="text" id="projName" placeholder="ex: Compra da Casa">
+      <label>First Name do Projeto</label>
+      <input type="text" id="projName" placeholder="e.g. Home Purchase">
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Meta ($)</label>
+        <label>Goal ($)</label>
         <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
       </div>
       <div class="form-group">
-        <label>Taxa de Juros Anual (%)</label>
+        <label>Annual Interest Rate (%)</label>
         <input type="number" id="projInterestRate" placeholder="ex: 7" min="0" max="50" step="0.01" value="7">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Data de Início</label>
+        <label>Start Date</label>
         <input type="date" id="projStartDate" onclick="this.showPicker && this.showPicker()">
       </div>
       <div class="form-group">
-        <label>Prazo (Data Fim)</label>
+        <label>Deadline (End Date)</label>
         <input type="date" id="projDate" onclick="this.showPicker && this.showPicker()">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Taxa / Fee ($/mês)</label>
+        <label>Fee ($/month)</label>
         <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
       </div>
       <div class="form-group">
-        <label>Perfil de Risco</label>
+        <label>Risk Profile</label>
         <select id="projRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-          <option value="conservador">🟢 Conservador</option>
-          <option value="moderado" selected>🟡 Moderado</option>
-          <option value="agressivo">🔴 Agressivo</option>
+          <option value="conservador">🟢 Conservative</option>
+          <option value="moderado" selected>🟡 Moderate</option>
+          <option value="agressivo">🔴 Aggressive</option>
         </select>
       </div>
     </div>
 
     <div class="form-group" style="margin-bottom:20px;">
-      <label>Cor do Projeto</label>
+      <label>Project Color</label>
       <div class="color-row" id="colorPicker">
         <div class="color-dot selected" style="background:#39ff14;" data-color="#39ff14" onclick="selectColor(this)"></div>
         <div class="color-dot" style="background:#60a5fa;" data-color="#60a5fa" onclick="selectColor(this)"></div>
@@ -1492,8 +1464,8 @@
     </div>
 
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="createProject()">🚀 Criar Projeto</button>
-      <button class="btn btn-secondary btn-sm" onclick="closeNewProjectModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="createProject()">🚀 Create Project</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeNewProjectModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1559,7 +1531,7 @@ async function goToCheckout() {
     cancelUrl: 'https://kashsolutions.us/app?canceled=true',
     customerEmail: currentUser?.email,
   });
-  if (error) alert('Erro ao abrir checkout: ' + error.message);
+  if (error) alert('Checkout error: ' + error.message);
 }
 
 let currentUser = null;
@@ -1631,7 +1603,7 @@ async function load() {
 }
 
 // ══════════════════════════════════════════════════
-// i18n — LANGUAGE SYSTEM (Phase 1: login/paywall/loading)
+// i18n — EN ONLY
 // ══════════════════════════════════════════════════
 const i18n = {
   en: {
@@ -1663,56 +1635,17 @@ const i18n = {
     creatingAcct:   'Creating account...',
     resetSent:      'Reset link sent to ',
     errEmailFirst:  'Enter your email above first.',
-  },
-  pt: {
-    loading:        'Carregando...',
-    googleBtn:      'Entrar com Google',
-    or:             'ou',
-    emailPlaceholder:    'seu@email.com',
-    passwordPlaceholder: 'Senha',
-    namePlaceholder:     'Seu nome completo',
-    signIn:         'Entrar',
-    createAccount:  'Criar Conta',
-    noAccount:      'Não tem conta?',
-    createFree:     'Criar conta grátis',
-    haveAccount:    'Já tem conta?',
-    signInLink:     'Entrar',
-    forgotPassword: 'Esqueci minha senha',
-    loginFooter:    'Seus dados ficam salvos na nuvem · Seguro',
-    paywallTagline: 'Pro · $9.99/mês',
-    paywallFeatures:'✅ Projetos ilimitados<br>✅ Dados salvos na nuvem<br>✅ Simulador de renda passiva<br>✅ Histórico de aportes<br>✅ Aporte diário recomendado',
-    paywallBtn:     '💳 Assinar KA$H Pro — $9.99/mês',
-    paywallNote:    'Cancele quando quiser · Pagamento seguro via Stripe',
-    paywallLogout:  'Sair',
-    logoutBtn:      'Sair',
-    errFillFields:  'Preencha email e senha.',
-    errInvalidCreds:'Email ou senha incorretos.',
-    errUnexpected:  'Erro inesperado. Tente novamente.',
-    successSignup:  'Conta criada! Verifique seu email para confirmar.',
-    signingIn:      'Entrando...',
-    creatingAcct:   'Criando conta...',
-    resetSent:      'Link de redefinição enviado para ',
-    errEmailFirst:  'Digite seu email acima primeiro.',
   }
 };
 
-let currentLang = localStorage.getItem('kash_lang') || 'en';
+let currentLang = 'en';
 
 function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('kash_lang', lang);
+  currentLang = 'en';
+  const t = i18n.en;
 
-  // Toggle buttons
-  document.getElementById('langBtnEN').classList.toggle('active', lang === 'en');
-  document.getElementById('langBtnPT').classList.toggle('active', lang === 'pt');
-
-  const t = i18n[lang];
-
-  // Loading
   const lt = document.getElementById('loadingText');
   if (lt) lt.textContent = t.loading;
-
-  // Login
   const gb = document.getElementById('googleBtnText');
   if (gb) gb.textContent = t.googleBtn;
   const orEl = document.getElementById('orText');
@@ -1725,11 +1658,7 @@ function setLang(lang) {
   if (nameEl) nameEl.placeholder = t.namePlaceholder;
   const lf = document.getElementById('loginFooterText');
   if (lf) lf.textContent = t.loginFooter;
-
-  // Auth form labels (re-apply mode)
   applyAuthMode();
-
-  // Paywall
   const pt2 = document.getElementById('paywallTagline');
   if (pt2) pt2.textContent = t.paywallTagline;
   const pf = document.getElementById('paywallFeatures');
@@ -1740,8 +1669,6 @@ function setLang(lang) {
   if (pn) pn.textContent = t.paywallNote;
   const pl = document.getElementById('paywallLogoutBtn');
   if (pl) pl.textContent = t.paywallLogout;
-
-  // App logout button
   const appLogout = document.getElementById('appLogoutBtn');
   if (appLogout) appLogout.textContent = t.logoutBtn;
 }
@@ -1889,10 +1816,10 @@ async function initApp() {
   await load();
   // Migrate portfolio from localStorage to Supabase (one-time migration)
   // Only runs if portfolio is empty AND localStorage has data
-  const localData = localStorage.getItem('kash_portfolio');
-  if ((!state.portfolio || state.portfolio.length === 0) && localData) {
+  const localDate = localStorage.getItem('kash_portfolio');
+  if ((!state.portfolio || state.portfolio.length === 0) && localDate) {
     try {
-      const parsed = JSON.parse(localData);
+      const parsed = JSON.parse(localDate);
       if (parsed && parsed.length > 0) {
         state.portfolio = parsed; // projects already in state from load()
         await save();
@@ -1971,7 +1898,7 @@ function saveProfile() {
   const ln = document.getElementById('lastName').value.trim();
   const bd = document.getElementById('birthdate').value;
 
-  if (!fn) return alert('Por favor insira seu nome.');
+  if (!fn) return alert('Please enter your name.');
   state.name = fn + (ln ? ' ' + ln : '');
   state.birthdate = bd || '';
   save();
@@ -2047,10 +1974,10 @@ function createProject() {
   const interestRate = parseFloat(document.getElementById('projInterestRate').value) || 7;
   const risk = document.getElementById('projRisk').value || 'moderado';
 
-  if (!name) return alert('Insira o nome do projeto.');
-  if (!target || target <= 0) return alert('Insira uma meta válida.');
-  if (!date) return alert('Selecione um prazo.');
-  if (daysUntil(date) <= 0) return alert('O prazo deve ser no futuro.');
+  if (!name) return alert('Please enter a project name.');
+  if (!target || target <= 0) return alert('Please enter a valid goal.');
+  if (!date) return alert('Please select a deadline.');
+  if (daysUntil(date) <= 0) return alert('The deadline must be in the future.');
 
   const proj = {
     id: Date.now().toString(),
@@ -2076,16 +2003,16 @@ function createProject() {
 // ══════════════════════════════════════════════════
 function deleteProject(id) {
   const proj = state.projects.find(p => p.id == id);
-  if (proj && (proj.closed || proj.transferred)) return alert('Projetos encerrados não podem ser excluídos. Eles permanecem no histórico.');
+  if (proj && (proj.closed || proj.transferred)) return alert('Closed projects cannot be deleted. They remain in history.');
 
   // Check if project has a transfer contribution
   const transferContrib = proj && proj.contributions && proj.contributions.find(c => c.isTransfer);
   if (transferContrib) {
-    if (!confirm(`Este projeto contém um saldo transferido de ${fmt(transferContrib.amount)}.\n\nAo excluir, esse valor ficará disponível para ser alocado em outro projeto.\n\nDeseja continuar?`)) return;
+    if (!confirm(`This project contains a transferred balance of ${fmt(transferContrib.amount)}.\n\nIf deleted, this amount will be available to allocate to another project.\n\nDo you want to continue?`)) return;
     // Preserve the transfer balance
     state.saldoDisponivel = (state.saldoDisponivel || 0) + transferContrib.amount;
   } else {
-    if (!confirm('Excluir este projeto e todos os seus aportes?')) return;
+    if (!confirm('Delete this project and all its contributions?')) return;
   }
 
   state.projects = state.projects.filter(p => p.id !== id);
@@ -2109,7 +2036,7 @@ function addContribution(projId) {
   const dt = document.getElementById('dt-' + projId).value || todayStr();
   const note = document.getElementById('note-' + projId).value.trim();
 
-  if (!amt || amt <= 0) return alert('Insira um valor de aporte válido.');
+  if (!amt || amt <= 0) return alert('Please enter a valid contribution amount.');
 
   // No per-contribution fee — Acorns charges a flat daily rate, not per deposit
   const net = amt;
@@ -2245,7 +2172,7 @@ function renderOverview() {
   }
 
   if (!state.projects.length) {
-    container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>Nenhum projeto ainda.<br>Crie seu primeiro objetivo!</p></div>`;
+    container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No projects yet.<br>Create your first goal!</p></div>`;
     totalBanner.style.display = 'none';
     manifesto.style.display = 'none';
     document.getElementById('ovTotalInvested').textContent = fmt(0);
@@ -2273,8 +2200,8 @@ function renderOverview() {
     sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
 
     const passiveMsg = st.monthlyPassive >= 0.01
-      ? `🌿 <span>+${fmt(st.monthlyPassive)}/mês</span> em renda passiva`
-      : `🌱 Faça o 1º aporte para ver sua renda passiva crescer`;
+      ? `🌿 <span>+${fmt(st.monthlyPassive)}/mo</span> in passive income`
+      : `🌱 Make your first contribution to watch your passive income grow`;
 
     return `
     <div class="overview-card" style="border-color: rgba(${hexToRgb(proj.color)},0.3);">
@@ -2284,10 +2211,10 @@ function renderOverview() {
         <div class="ov-bar-bg">
           <div class="ov-bar-fill" style="width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 8px ${proj.color}66;"></div>
         </div>
-        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('pt-BR')} · ${st.daysLeft} dias · ${proj.contributions.filter(c => !c.isTransfer).length} aporte(s)</div>
+        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('en-US')} · ${st.daysLeft} dias · ${proj.contributions.filter(c => !c.isTransfer).length} contribution(s)</div>
         <div class="passive-pill">${passiveMsg}</div>
         <button onclick="switchTab('proj-${proj.id}')" style="margin-top:10px;background:linear-gradient(135deg,${proj.color}22,${proj.color}44);border:1px solid ${proj.color}88;color:${proj.color};font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,${proj.color}44,${proj.color}66)'" onmouseout="this.style.background='linear-gradient(135deg,${proj.color}22,${proj.color}44)'">
-          📂 Ver Aportes & Detalhes
+          📂 View Contributions Ver Aportes & Detalhes Details
         </button>
       </div>
       <div class="ov-right">
@@ -2322,7 +2249,7 @@ function renderProjectPanel(proj) {
     <div class="kpi-grid">
       <div class="kpi">
         <span class="kpi-value" style="color:${proj.color};">${fmt(st.totalInvested)}</span>
-        <span class="kpi-label">Total Aportado</span>
+        <span class="kpi-label">Total Invested</span>
       </div>
       <div class="kpi">
         <span class="kpi-value silver">${fmt(st.estimatedBalance)}</span>
@@ -2366,33 +2293,33 @@ function renderProjectPanel(proj) {
     <div class="suggestion-box" style="border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;">
       <div class="suggestion-icon">💡</div>
       <div class="suggestion-text">
-        <div class="kpi-label" style="margin-bottom:4px;">APORTE DIÁRIO RECOMENDADO</div>
+        <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} dias restantes · Taxa: $${st.monthlyFeeUSD.toFixed(2)}/mês · ${st.monthsElapsed}/${st.monthsTotal} ciclos · ${(proj.interestRate ?? state.interestRate ?? 7)}% juros · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderado'}` : 'Prazo encerrado. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transferir Saldo</button>'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left · Fee: $${st.monthlyFeeUSD.toFixed(2)}/mo · ${st.monthsElapsed}/${st.monthsTotal} cycles · ${(proj.interestRate ?? state.interestRate ?? 7)}% interest · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'}` : 'Deadline reached. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transfer Balance</button>'}</div>
       </div>
     </div>
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
-      <div class="card-title">💵 Adicionar Aporte</div>
+      <div class="card-title">💵 Add Contribution</div>
       <div class="form-row three">
         <div class="form-group">
-          <label>Valor ($)</label>
+          <label>Amount ($)</label>
           <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00" min="0.01" step="0.01">
         </div>
         <div class="form-group">
-          <label>Data</label>
+          <label>Date</label>
           <input type="date" id="dt-${proj.id}" value="${todayStr()}"
             onclick="this.showPicker && this.showPicker()"
             onfocus="this.showPicker && this.showPicker()">
         </div>
         <div class="form-group">
-          <label>Nota (opcional)</label>
-          <input type="text" id="note-${proj.id}" placeholder="ex: Economia do café">
+          <label>Note (opcional)</label>
+          <input type="text" id="note-${proj.id}" placeholder="e.g. Paycheck, savings">
         </div>
       </div>
       <div class="btn-row">
-        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ ENCERRADO — ${proj.closedAcao || 'saldo transferido'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ ENCERRADO — saldo pendente</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Destinar Saldo</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Adicionar Aporte</button>`}
+        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ ENCERRADO — ${proj.closedAcao || 'saldo transferido'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
       </div>
     </div>
 
@@ -2402,16 +2329,16 @@ function renderProjectPanel(proj) {
       <div class="kpi-grid">
         <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
           <span class="kpi-value" style="color:var(--green-mid);">${fmt(st.monthlyPassive)}</span>
-          <span class="kpi-label">Renda Passiva Atual/mês</span>
+          <span class="kpi-label">Current Passive/mo</span>
         </div>
         ${proj.passive > 0 ? `
         <div class="kpi">
           <span class="kpi-value" style="color:${proj.color};">${fmt(proj.passive)}</span>
-          <span class="kpi-label">Meta de Passiva/mês</span>
+          <span class="kpi-label">Passive Goal/mo</span>
         </div>
         <div class="kpi">
           <span class="kpi-value silver">${fmt(st.neededForPassive)}</span>
-          <span class="kpi-label">Portfólio Necessário</span>
+          <span class="kpi-label">Portfolio Needed</span>
         </div>` : `
         <div class="kpi">
           <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * (proj.interestRate ?? state.interestRate ?? 7) / 100)}</span>
@@ -2419,15 +2346,15 @@ function renderProjectPanel(proj) {
         </div>
         <div class="kpi">
           <span class="kpi-value gold">${proj.interestRate ?? state.interestRate ?? 7}%</span>
-          <span class="kpi-label">Taxa de Retorno</span>
+          <span class="kpi-label">Taxa de Return</span>
         </div>`}
       </div>
       ${st.monthlyPassive < 1 && proj.contributions.filter(c => !c.isTransfer).length === 0 ? `
       <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:rgba(192,192,192,0.5);margin-top:8px;letter-spacing:1px;">
-        💬 Mesmo sem atingir sua meta, cada centavo acumulado aqui gera renda passiva para sempre. Não existe resultado zero.
+        💬 Even without reaching your goal, every cent accumulated here generates passive income forever. There is no zero result.
       </div>` : st.monthlyPassive >= 1 ? `
       <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--green-mid);margin-top:8px;letter-spacing:1px;">
-        ✅ Este projeto já gera <strong>${fmt(st.monthlyPassive)}/mês</strong> de renda passiva — independente de atingir a meta.
+        ✅ This project already generates <strong>${fmt(st.monthlyPassive)}/mo</strong> in passive income — regardless of reaching the goal.
       </div>` : ''}
     </div>
 
@@ -2441,21 +2368,21 @@ function renderProjectPanel(proj) {
           <thead>
             <tr>
               <th>#</th>
-              <th>Data</th>
-              <th>Valor</th>
-              <th>Juros Est.</th>
-              <th>Acumulado</th>
-              <th>Nota</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Est. Interest</th>
+              <th>Accumulated</th>
+              <th>Note</th>
               <th class="no-print"></th>
             </tr>
           </thead>
           <tbody>
             ${st.rows.length === 0
-              ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:30px;">Nenhum aporte ainda.</td></tr>`
+              ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
               : st.rows.map(r => `
                 <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
                   <td>${r.idx}</td>
-                  <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('pt-BR')}</td>
+                  <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('en-US')}</td>
                   <td class="amount-cell">
                     ${fmt(r.amount)}
                     ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFERÊNCIA</span>` : ''}
@@ -2474,10 +2401,10 @@ function renderProjectPanel(proj) {
       </div>
       <hr class="divider">
       <div class="btn-row no-print">
-        <button class="btn btn-gold" onclick="window.print()">🖨 Imprimir Extrato</button>
-        <button class="btn btn-secondary btn-sm" onclick="exportCSV('${proj.id}')">📥 Exportar CSV</button>
-        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-sm" style="border-color:#f59e0b;color:#f59e0b;" onclick="encerrarProjeto('${proj.id}')">🔒 Encerrar Projeto</button>`}
-        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Excluir Projeto</button>`}
+        <button class="btn btn-gold" onclick="window.print()">🖨 Print Statement</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV('${proj.id}')">📥 Export CSV</button>
+        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-sm" style="border-color:#f59e0b;color:#f59e0b;" onclick="encerrarProjeto('${proj.id}')">🔒 Close Project</button>`}
+        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Delete Project</button>`}
       </div>
     </div>
 
@@ -2535,14 +2462,14 @@ function renderAll() {
   }
 
   const now = new Date();
-  document.getElementById('headerDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' });
-  document.getElementById('printDate').textContent = now.toLocaleDateString('pt-BR', { day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+  document.getElementById('printDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
 
   if (state.name && state.projects.length > 0) {
     const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
     const totalPct = activeProjs.length > 0 ? activeProjs.reduce((acc, p) => acc + calcProject(p).pct, 0) / activeProjs.length : 0;
     document.getElementById('statusText').textContent =
-      `${state.name} · ${activeProjs.length} projeto(s) ativo(s) · Progresso médio: ${totalPct.toFixed(1)}%`;
+      `${state.name} · ${activeProjs.length} active project(s) · Average progress: ${totalPct.toFixed(1)}%`;
   }
 
   renderTabsNav();
@@ -2557,7 +2484,7 @@ function exportCSV(projId) {
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
   const st = calcProject(proj);
-  const rows = [['Projeto', 'Nº', 'Data', 'Valor', 'Juros Est.', 'Acumulado', 'Nota']];
+  const rows = [['Projeto', 'Nº', 'Date', 'Amount', 'Est. Interest', 'Accumulated', 'Note']];
   st.rows.forEach(r => {
     rows.push([proj.name, r.idx, r.date, r.amount.toFixed(2),
                r.interestEst.toFixed(2), r.running.toFixed(2), r.note || '']);
@@ -2638,7 +2565,7 @@ function addEtfRow(ticker='', shares='', price='') {
       oninput="this.value=this.value.toUpperCase()">
     <input type="number" placeholder="Cotas ex: 0.0077" value="${shares}" min="0" step="0.00001"
       style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
-    <input type="number" placeholder="Preço/cota ex: 693.91" value="${price}" min="0" step="0.01"
+    <input type="number" placeholder="Price/share e.g. 693.91" value="${price}" min="0" step="0.01"
       style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
     <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(239,68,68,0.7);cursor:pointer;font-size:1rem;padding:4px;">✕</button>
   `;
@@ -2655,7 +2582,7 @@ function addAltEtfRow(ticker='', shares='', price='') {
       oninput="this.value=this.value.toUpperCase()">
     <input type="number" placeholder="Cotas" value="${shares}" min="0" step="0.00001"
       style="background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
-    <input type="number" placeholder="Preço/cota" value="${price}" min="0" step="0.01"
+    <input type="number" placeholder="Price/share" value="${price}" min="0" step="0.01"
       style="background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
     <button onclick="this.parentElement.remove()" style="background:none;border:none;color:rgba(239,68,68,0.7);cursor:pointer;font-size:1rem;padding:4px;">✕</button>
   `;
@@ -2680,7 +2607,7 @@ function savePortfolioEntry() {
   const altEtfs = getEtfRows('altEtfRows');
 
   if (!date || etfs.length === 0) {
-    alert('Preencha a data e pelo menos um ETF com cotas.');
+    alert('Please fill in the date and at least one ETF with shares.');
     return;
   }
 
@@ -2702,7 +2629,7 @@ function savePortfolioEntry() {
 }
 
 function deletePortfolioEntry(id) {
-  if (!confirm('Remover este aporte?')) return;
+  if (!confirm('Remove this entry?')) return;
   portfolioEntries = portfolioEntries.filter(e => e.id !== id);
   savePortfolioToStorage();
   renderPortfolio();
@@ -2724,7 +2651,7 @@ function addCotasToEntry(id) {
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 ATUALIZAR COTAS</div>
       <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Informe o total atual de cotas. O app calcula a diferença automaticamente.</div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATA DO APORTE</label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE DO APORTE</label>
       <input type="date" id="cotasDate" value="${new Date().toISOString().split('T')[0]}"
         style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
 
@@ -2755,7 +2682,7 @@ function addCotasToEntry(id) {
 
       <div style="display:flex;gap:10px;">
         <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(${id}, this.closest('div[style*=fixed]'))">Salvar</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
 
@@ -2799,7 +2726,7 @@ function addCotasToEntry(id) {
     if (totalShares > 0 && diff !== 0) {
       diffInfo.style.display = 'block';
       const color = diff > 0 ? 'var(--green-neon)' : 'var(--red)';
-      const valor = price > 0 ? ` · Valor: $${(Math.abs(diff) * price).toFixed(2)}` : '';
+      const valor = price > 0 ? ` · Amount: $${(Math.abs(diff) * price).toFixed(2)}` : '';
       diffInfo.innerHTML = `Diferença: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} cotas</strong>${valor}`;
     } else {
       diffInfo.style.display = 'none';
@@ -2824,7 +2751,7 @@ function saveCotasToEntry(id, modal) {
   const date = document.getElementById('cotasDate').value;
 
   if (!ticker || totalShares <= 0 || buyPrice <= 0) {
-    alert('Preencha ticker, total de cotas e preço.');
+    alert('Please fill in ticker, total shares and price.');
     return;
   }
 
@@ -2834,7 +2761,7 @@ function saveCotasToEntry(id, modal) {
   const shares = +(totalShares - currentShares).toFixed(8); // difference only
 
   if (shares <= 0 && existing) {
-    alert('O total informado é menor ou igual ao já registrado.');
+    alert('The total entered is less than or equal to the amount already registered.');
     return;
   }
 
@@ -2887,7 +2814,7 @@ async function renderPortfolio() {
 
   if (portfolioEntries.length === 0) {
     list.innerHTML = `<div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
-      Nenhum aporte registrado ainda.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+      No entries registered yet.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
     </div>`;
     summary.style.display = 'none';
     return;
@@ -2936,7 +2863,7 @@ async function renderPortfolio() {
           <div style="text-align:right;">
             <div style="font-size:0.85rem;color:var(--white);">$${current.toFixed(2)}</div>
             <div style="font-size:0.72rem;color:${gain>=0?'var(--green-neon)':'#ef4444'};">${gain>=0?'+':''}$${gain.toFixed(2)} (${gainPct.toFixed(2)}%)</div>
-            ${p && p.change !== null && p.change !== undefined ? `<div style="font-size:0.68rem;color:var(--silver);">${p.change>=0?'+':''}${p.change.toFixed(2)}% hoje</div>` : ''}
+            ${p && p.change !== null && p.change !== undefined ? `<div style="font-size:0.68rem;color:var(--silver);">${p.change>=0?'+':''}${p.change.toFixed(2)}% today</div>` : ''}
           </div>
         </div>`;
     }).join('');
@@ -2993,11 +2920,11 @@ async function renderPortfolio() {
       <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:16px;margin-bottom:16px;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
           <div>
-            <div style="font-size:0.75rem;color:var(--silver);">📅 ${new Date(entry.date+'T12:00:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short',year:'numeric'})}</div>
+            <div style="font-size:0.75rem;color:var(--silver);">📅 ${new Date(entry.date+'T12:00:00').toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}</div>
             <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--white);letter-spacing:1px;">$${invested.toFixed(2)} investido</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:0.75rem;color:var(--silver);">Valor atual</div>
+            <div style="font-size:0.75rem;color:var(--silver);">Amount atual</div>
             <div style="font-size:1.2rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};font-weight:700;">$${currentMain.toFixed(2)}</div>
             <div style="font-size:0.75rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};">${mainGain>=0?'+':''}$${mainGain.toFixed(2)} (${mainGainPct.toFixed(2)}%)</div>
           </div>
@@ -3022,10 +2949,10 @@ async function renderPortfolio() {
   summary.style.display = 'block';
   const grid = document.getElementById('portfolioSummaryGrid');
   const cells = [
-    {label:'Total Aportado', value:`$${totalInvested.toFixed(2)}`, color:'var(--white)'},
-    {label:'Valor Atual', value:`$${totalCurrentMain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
+    {label:'Total Invested', value:`$${totalInvested.toFixed(2)}`, color:'var(--white)'},
+    {label:'Amount Atual', value:`$${totalCurrentMain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
     {label:'Ganho/Perda', value:`${totalGain>=0?'+':''}$${totalGain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
-    {label:'Retorno Total', value:`${totalGainPct>=0?'+':''}${totalGainPct.toFixed(2)}%`, color: totalGainPct>=0?'var(--green-neon)':'#ef4444'},
+    {label:'Return Total', value:`${totalGainPct>=0?'+':''}${totalGainPct.toFixed(2)}%`, color: totalGainPct>=0?'var(--green-neon)':'#ef4444'},
   ];
   if (hasAlt && totalCurrentAlt > 0) {
     const altDiff = totalCurrentAlt - totalCurrentMain;
@@ -3086,9 +3013,9 @@ async function updateOverviewPortfolio() {
   const gainPct = totalInvested > 0 ? (gain / totalInvested) * 100 : 0;
 
   grid.innerHTML = [
-    {label: 'Investido', value: '$' + totalInvested.toFixed(2), color: 'var(--white)'},
-    {label: 'Valor Atual', value: '$' + totalCurrent.toFixed(2), color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
-    {label: 'Retorno', value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
+    {label: 'Invested', value: '$' + totalInvested.toFixed(2), color: 'var(--white)'},
+    {label: 'Amount Atual', value: '$' + totalCurrent.toFixed(2), color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
+    {label: 'Return', value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
   ].map(c => `<div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
     <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">${c.label}</div>
     <div style="font-size:1rem;font-weight:700;color:${c.color};">${c.value}</div>
@@ -3127,58 +3054,58 @@ async function encerrarProjeto(id) {
 
   const portfolioRow = portfolioBalance !== null ? `
     <div style="background:var(--black);border-radius:8px;padding:12px;margin-bottom:12px;">
-      <div style="font-size:0.72rem;color:var(--silver);margin-bottom:6px;">ESTE PROJETO REPRESENTA SUA CARTEIRA REAL?</div>
+      <div style="font-size:0.72rem;color:var(--silver);margin-bottom:6px;">DOES THIS PROJECT REPRESENT YOUR REAL PORTFOLIO?</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--white);cursor:pointer;">
           <input type="radio" name="projetoReal" value="sim" onchange="updateSaldoEncerrar(${portfolioBalance.toFixed(2)}, ${estimatedBalance.toFixed(2)})"> 
-          Sim — usar saldo do Portfólio <strong style="color:var(--green-neon);">$${portfolioBalance.toFixed(2)}</strong>
+          Yes — use Portfolio balance <strong style="color:var(--green-neon);">$${portfolioBalance.toFixed(2)}</strong>
         </label>
         <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--white);cursor:pointer;">
           <input type="radio" name="projetoReal" value="nao" onchange="updateSaldoEncerrar(${portfolioBalance.toFixed(2)}, ${estimatedBalance.toFixed(2)})" checked>
-          Não — usar saldo estimado <strong style="color:#888;">$${estimatedBalance.toFixed(2)}</strong>
+          No — use estimated balance <strong style="color:#888;">$${estimatedBalance.toFixed(2)}</strong>
         </label>
       </div>
     </div>` : '';
 
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid #f59e0b;border-radius:16px;padding:28px;width:min(90vw,440px);max-height:90vh;overflow-y:auto;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#f59e0b;margin-bottom:4px;">🔒 ENCERRAR PROJETO</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#f59e0b;margin-bottom:4px;">🔒 CLOSE PROJECT</div>
       <div style="font-size:0.8rem;color:var(--silver);margin-bottom:16px;">${proj.name}</div>
 
       ${portfolioRow}
 
       <div style="background:var(--black);border-radius:8px;padding:12px;margin-bottom:16px;">
-        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:4px;">SALDO DE REFERÊNCIA</div>
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:4px;">REFERENCE BALANCE</div>
         <div id="encerrarSaldoRef" style="font-size:1.4rem;color:var(--green-neon);font-family:'Bebas Neue',sans-serif;">$${estimatedBalance.toFixed(2)}</div>
-        <div style="font-size:0.7rem;color:#888;margin-top:4px;">Ajuste o valor nos campos abaixo se necessário</div>
+        <div style="font-size:0.7rem;color:#888;margin-top:4px;">Adjust the value in the fields below if needed</div>
       </div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">O QUE DESEJA FAZER COM O SALDO?</label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">WHAT WOULD YOU LIKE TO DO WITH THE BALANCE?</label>
       <select id="encerrarAcao" onchange="updateEncerrarModal()" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
-        <option value="pendente">⏳ Manter pendente — decidir depois</option>
-        ${projectOptions ? `<option value="transferir">➡️ Transferir para outro projeto</option>` : ''}
-        <option value="retirar">💸 Registrar retirada</option>
+        <option value="pendente">⏳ Keep pending — decide later</option>
+        ${projectOptions ? `<option value="transferir">➡️ Transfer to another project</option>` : ''}
+        <option value="retirar">💸 Record withdrawal</option>
       </select>
 
       <div id="encerrarTransferirDiv" style="display:none;margin-bottom:16px;">
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">PROJETO DESTINO</label>
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">DESTINATION PROJECT</label>
         <select id="encerrarTargetProj" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
           ${projectOptions}
         </select>
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR A TRANSFERIR ($)</label>
-        <input type="number" id="encerrarValor" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT TO TRANSFER ($)</label>
+        <input type="number" id="encerrarAmount" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
           style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
       </div>
 
       <div id="encerrarRetirarDiv" style="display:none;margin-bottom:16px;">
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR RETIRADO ($)</label>
-        <input type="number" id="encerrarValorRetirada" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
+        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT WITHDRAWN ($)</label>
+        <input type="number" id="encerrarAmountRetirada" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
           style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
       </div>
 
       <div style="display:flex;gap:10px;margin-top:8px;">
-        <button class="btn btn-primary btn-sm" onclick="confirmarEncerramento('${id}', this.closest('div[style*=fixed]'))">Confirmar</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="confirmarEncerramento('${id}', this.closest('div[style*=fixed]'))">Confirm</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
 
@@ -3189,8 +3116,8 @@ function updateSaldoEncerrar(portfolioVal, estimatedVal) {
   const isReal = document.querySelector('input[name="projetoReal"]:checked')?.value === 'sim';
   const val = isReal ? portfolioVal : estimatedVal;
   document.getElementById('encerrarSaldoRef').textContent = '$' + val.toFixed(2);
-  if (document.getElementById('encerrarValor')) document.getElementById('encerrarValor').value = val.toFixed(2);
-  if (document.getElementById('encerrarValorRetirada')) document.getElementById('encerrarValorRetirada').value = val.toFixed(2);
+  if (document.getElementById('encerrarAmount')) document.getElementById('encerrarAmount').value = val.toFixed(2);
+  if (document.getElementById('encerrarAmountRetirada')) document.getElementById('encerrarAmountRetirada').value = val.toFixed(2);
 }
 
 function updateEncerrarModal() {
@@ -3208,23 +3135,23 @@ function confirmarEncerramento(fromId, modal) {
     const targetId = document.getElementById('encerrarTargetProj').value;
     const targetProj = state.projects.find(p => p.id == targetId);
     if (!targetProj) return;
-    const valor = parseFloat(document.getElementById('encerrarValor').value) || 0;
-    if (valor <= 0) return alert('Informe um valor válido.');
+    const valor = parseFloat(document.getElementById('encerrarAmount').value) || 0;
+    if (valor <= 0) return alert('Please enter a valid amount.');
     targetProj.contributions = targetProj.contributions || [];
     targetProj.contributions.push({
       id: Date.now().toString(),
       date: new Date().toISOString().split('T')[0],
       amount: valor, gross: valor, fee: 0, net: valor,
-      note: `Transferência de ${proj.name}`,
+      note: `Transfer from ${proj.name}`,
       isTransfer: true,
       fromProject: proj.name
     });
     proj.closed = true;
     proj.transferred = true;
     proj.closedBalance = valor;
-    proj.closedAcao = 'transferido para ' + targetProj.name;
+    proj.closedAcao = 'transferred to ' + targetProj.name;
   } else if (acao === 'retirar') {
-    const valor = parseFloat(document.getElementById('encerrarValorRetirada').value) || 0;
+    const valor = parseFloat(document.getElementById('encerrarAmountRetirada').value) || 0;
     proj.closed = true;
     proj.closedBalance = valor;
     proj.closedAcao = 'retirada de ' + fmt(valor);
@@ -3238,9 +3165,9 @@ function confirmarEncerramento(fromId, modal) {
   save();
   modal.remove();
   renderAll();
-  if (acao === 'transferir') alert('✅ Saldo transferido com sucesso!');
-  else if (acao === 'retirar') alert('✅ Retirada registrada.');
-  else alert('🔒 Projeto encerrado. Saldo pendente — você pode transferir a qualquer momento.');
+  if (acao === 'transferir') alert('✅ Balance transferred successfully!');
+  else if (acao === 'retirar') alert('✅ Withdrawal recorded.');
+  else alert('🔒 Project closed. Balance pending — you can transfer at any time.');
 }
 
 function openTransferModal(fromId) {
@@ -3251,7 +3178,7 @@ function openTransferModal(fromId) {
 
   const others = state.projects.filter(p => p.id !== fromId);
   if (others.length === 0) {
-    alert('Crie outro projeto primeiro para transferir o saldo.');
+    alert('Create another project first to transfer the balance.');
     return;
   }
 
@@ -3260,7 +3187,7 @@ function openTransferModal(fromId) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,400px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--green-neon);margin-bottom:16px;">TRANSFERIR SALDO</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--green-neon);margin-bottom:16px;">TRANSFER BALANCE</div>
       <div style="font-size:0.85rem;color:var(--silver);margin-bottom:16px;">
         Saldo estimado de <strong style="color:var(--white);">${fromProj.name}</strong>: 
         <strong style="color:var(--green-neon);">${fmt(balance)}</strong>
@@ -3269,10 +3196,10 @@ function openTransferModal(fromId) {
       <select id="transferTarget" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
         ${options}
       </select>
-      <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ O saldo será adicionado como um aporte no projeto destino. O projeto origem será marcado como encerrado.</div>
+      <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ The balance will be added as a contribution to the destination project. The source project will be marked as closed.</div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirmar Transferência</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirm Transfer</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -3290,7 +3217,7 @@ function executeTransfer(fromId, balance, modal) {
     gross: balance,
     fee: 0,
     net: balance,
-    note: 'Transferência de saldo'
+    note: 'Balance transfer'
   };
   targetProj.contributions = targetProj.contributions || [];
   targetProj.contributions.push(contrib);
@@ -3302,7 +3229,7 @@ function executeTransfer(fromId, balance, modal) {
   saveState();
   renderOverview();
   modal.remove();
-  alert('✅ Saldo transferido com sucesso para ' + targetProj.name + '!');
+  alert('✅ Balance successfully transferred to ' + targetProj.name + '!');
 }
 
 // ══════════════════════════════════════════════════
@@ -3314,7 +3241,7 @@ function alocarSaldoDisponivel() {
 
   const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
   if (activeProjs.length === 0) {
-    alert('Crie um projeto ativo primeiro para alocar o saldo.');
+    alert('Create an active project first to allocate the balance.');
     return;
   }
 
@@ -3323,21 +3250,21 @@ function alocarSaldoDisponivel() {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,420px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">💰 ALOCAR SALDO DISPONÍVEL</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">💰 ALLOCATE AVAILABLE BALANCE</div>
       <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
-        Saldo disponível: <strong style="color:#fbbf24;">${fmt(saldo)}</strong><br>
-        Este valor entrará como aporte de transferência no projeto destino e poderá ser ajustado a qualquer momento.
+        Available balance: <strong style="color:#fbbf24;">${fmt(saldo)}</strong><br>
+        This amount will be added as a transfer contribution to the destination project and can be adjusted at any time.
       </div>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">PROJETO DESTINO</label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">DESTINATION PROJECT</label>
       <select id="alocarProjSelect" style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
         ${options}
       </select>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">VALOR A ALOCAR ($)</label>
-      <input type="number" id="alocarValorInput" value="${saldo.toFixed(2)}" min="0" step="0.01"
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT TO ALLOCATE ($)</label>
+      <input type="number" id="alocarAmountInput" value="${saldo.toFixed(2)}" min="0" step="0.01"
         style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-gold btn-sm" onclick="confirmarAlocacao(this.closest('div[style*=fixed]'))">✅ Confirmar Alocação</button>
-        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+        <button class="btn btn-gold btn-sm" onclick="confirmarAlocacao(this.closest('div[style*=fixed]'))">✅ Confirm Allocation</button>
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -3345,8 +3272,8 @@ function alocarSaldoDisponivel() {
 
 function confirmarAlocacao(modal) {
   const projId = document.getElementById('alocarProjSelect').value;
-  const valor = parseFloat(document.getElementById('alocarValorInput').value) || 0;
-  if (valor <= 0) return alert('Informe um valor válido.');
+  const valor = parseFloat(document.getElementById('alocarAmountInput').value) || 0;
+  if (valor <= 0) return alert('Please enter a valid amount.');
 
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
@@ -3356,9 +3283,9 @@ function confirmarAlocacao(modal) {
     id: Date.now().toString(),
     date: new Date().toISOString().split('T')[0],
     amount: valor, gross: valor, fee: 0, net: valor,
-    note: 'Saldo disponível alocado',
+    note: 'Allocated available balance',
     isTransfer: true,
-    fromProject: 'Saldo disponível'
+    fromProject: 'Available balance'
   });
   proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -3367,7 +3294,7 @@ function confirmarAlocacao(modal) {
   modal.remove();
   renderAll();
   switchTab('proj-' + projId);
-  alert('✅ Saldo alocado com sucesso em ' + proj.name + '!');
+  alert('✅ Balance successfully allocated to ' + proj.name + '!');
 }
 
 // ══════════════════════════════════════════════════
@@ -3383,18 +3310,18 @@ function editTransferValue(projId, contribId) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,400px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">✏️ AJUSTAR SALDO TRANSFERIDO</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">✏️ ADJUST TRANSFERRED BALANCE</div>
       <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
-        Origem: <strong style="color:var(--white);">${contrib.fromProject || 'Projeto anterior'}</strong><br>
-        Valor atual: <strong style="color:#fbbf24;">${fmt(contrib.amount)}</strong><br><br>
-        Ajuste para o saldo real consolidado na Acorns.
+        Source: <strong style="color:var(--white);">${contrib.fromProject || 'Previous project'}</strong><br>
+        Current amount: <strong style="color:#fbbf24;">${fmt(contrib.amount)}</strong><br><br>
+        Adjust to the actual consolidated balance in your account.
       </div>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">NOVO VALOR ($)</label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">NEW AMOUNT ($)</label>
       <input type="number" id="editTransferInput" value="${contrib.amount.toFixed(2)}" min="0" step="0.01"
         style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-gold btn-sm" onclick="saveTransferValue('${projId}','${contribId}',this.closest('div[style*=fixed]'))">💾 Salvar</button>
-        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancelar</button>
+        <button class="btn btn-gold btn-sm" onclick="saveTransferValue('${projId}','${contribId}',this.closest('div[style*=fixed]'))">💾 Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
@@ -3407,7 +3334,7 @@ function saveTransferValue(projId, contribId, modal) {
   const contrib = proj.contributions.find(c => c.id === contribId);
   if (!contrib) return;
   const newValue = parseFloat(document.getElementById('editTransferInput').value);
-  if (!newValue || newValue <= 0) return alert('Informe um valor válido.');
+  if (!newValue || newValue <= 0) return alert('Please enter a valid amount.');
   contrib.amount = newValue;
   contrib.net = newValue;
   contrib.gross = newValue;
@@ -3478,7 +3405,7 @@ boot();
     <!-- Module 03 -->
     <div class="help-panel" id="helpPanel2">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Select the Project</strong><br>Click the project tab in the navigation bar. Scroll down to <em>"Add Contribution"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Data</strong><br><em>Amount ($):</em> e.g. $5.00<br><em>Date:</em> the actual contribution date (can be backdated).<br><em>Note (optional):</em> e.g. "Coffee savings", "Paycheck".</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Amount ($):</em> e.g. $5.00<br><em>Date:</em> the actual contribution date (can be backdated).<br><em>Note (optional):</em> e.g. "Coffee savings", "Paycheck".</div></div>
       <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Confirm</strong><br>Click <em>"Add Contribution"</em>. History is updated immediately with estimated interest and accumulated balance.</div></div>
       <div class="help-note">⚠️ Deleted contributions cannot be recovered. Closed projects have contributions locked.</div>
     </div>
@@ -3486,7 +3413,7 @@ boot();
     <!-- Module 04 -->
     <div class="help-panel" id="helpPanel3">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access the Portfolio Tab</strong><br>Click <em>"Portfolio"</em> in the navigation bar. Click <em>"+ New Entry"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Data</strong><br><em>Entry Date:</em> actual purchase date.<br><em>Ticker:</em> e.g. VOO, QQQ, IJH, IJR.<br><em>Shares:</em> quantity — e.g. 0.0102.<br><em>Price/Share ($):</em> price paid per share on purchase date.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Entry Date:</em> actual purchase date.<br><em>Ticker:</em> e.g. VOO, QQQ, IJH, IJR.<br><em>Shares:</em> quantity — e.g. 0.0102.<br><em>Price/Share ($):</em> price paid per share on purchase date.</div></div>
       <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Track Performance</strong><br>Click <em>"Save Entry"</em>. Use <em>"🔄 Refresh"</em> to update quotes. The app shows: current value, gain/loss in $ and %, and today's variation.</div></div>
       <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adding More Shares</strong><br>When you buy more shares, use <em>"+ Add Shares"</em> on the ETF card. The app calculates the difference and updates automatically.</div></div>
       <div class="help-note">📌 Portfolio data is saved in the cloud — accessible from any device where you log into KA$H.</div>
@@ -3524,7 +3451,7 @@ boot();
       <p>Access to KA$H Pro requires a subscription of $9.99/month, billed via Stripe. You may cancel at any time. Cancellation takes effect at the end of the current billing cycle. No refunds are issued for partial periods.</p>
       <h3>4. User Responsibilities</h3>
       <p>You are responsible for maintaining the confidentiality of your account credentials. You agree not to use the Service for unlawful purposes or in ways that could damage, disable or impair the Service.</p>
-      <h3>5. Data and Privacy</h3>
+      <h3>5. Date and Privacy</h3>
       <p>Your data is stored securely via Supabase. KA$H does not sell your personal data to third parties. See our Privacy Policy for full details.</p>
       <h3>6. Disclaimers</h3>
       <p>The Service is provided "as is" without warranties of any kind. KA$H does not guarantee accuracy of financial projections. Past performance does not guarantee future results. Use at your own risk.</p>
@@ -3549,14 +3476,14 @@ boot();
       <p>We collect information you provide directly: name, email address, date of birth, and financial projection data (project goals, contributions, portfolio entries). We also collect authentication data via Google OAuth or email/password through Supabase.</p>
       <h3>2. How We Use Your Information</h3>
       <p>Your data is used solely to provide and improve the KA$H Service: to display your financial projections, calculate estimates, and maintain your account. We do not use your data for advertising or sell it to third parties.</p>
-      <h3>3. Data Storage</h3>
+      <h3>3. Date Storage</h3>
       <p>Your data is stored securely in Supabase (AWS us-east-1). All connections are encrypted via HTTPS/TLS. Row-Level Security (RLS) ensures only you can access your own data.</p>
-      <h3>4. Payment Data</h3>
+      <h3>4. Payment Date</h3>
       <p>Payment processing is handled by Stripe. KA$H does not store credit card numbers or sensitive payment information. Stripe's privacy policy applies to payment data.</p>
-      <h3>5. Data Sharing</h3>
+      <h3>5. Date Sharing</h3>
       <p>We do not sell, trade or share your personal data with third parties except as required by law or as necessary to provide the Service (e.g. Supabase for storage, Stripe for payments).</p>
       <h3>6. Your Rights</h3>
-      <p>You may request deletion of your account and all associated data at any time by contacting <em>kash@kashsolutions.us</em>. Data deletion is processed within 30 days.</p>
+      <p>You may request deletion of your account and all associated data at any time by contacting <em>kash@kashsolutions.us</em>. Date deletion is processed within 30 days.</p>
       <h3>7. Cookies</h3>
       <p>KA$H uses minimal session cookies required for authentication. No tracking or advertising cookies are used.</p>
       <h3>8. Children's Privacy</h3>

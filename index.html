@@ -135,27 +135,6 @@ nav {
   color: var(--green);
   box-shadow: 0 0 16px rgba(57,255,20,0.15);
 }
-.lang-toggle {
-  display: flex;
-  align-items: center;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(57,255,20,0.2);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.lang-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  padding: 7px 12px;
-  background: transparent;
-  color: rgba(192,192,192,0.5);
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.lang-btn.active { background: rgba(57,255,20,0.15); color: var(--green); }
-.lang-btn:hover:not(.active) { color: var(--silver); }
 
 /* ── HERO ── */
 .hero {
@@ -986,10 +965,6 @@ footer {
     <a href="#pricing" id="navPricing">Pricing</a>
   </div>
   <div class="nav-right">
-    <div class="lang-toggle">
-      <button class="lang-btn" id="landingLangEN" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" id="landingLangPT" onclick="setLang('pt')">PT</button>
-    </div>
     <a class="btn-nav-login" id="navLoginBtn" href="/app">Login</a>
     <a class="btn-nav" id="navStartBtn" href="/app">Start Now — $9.99</a>
   </div>
@@ -1263,7 +1238,7 @@ footer {
 
 <script>
 // ── SIMULATOR ──
-let currentLang = localStorage.getItem('kash_lang') || 'en';
+let currentLang = 'en';
 
 function fmt(n) {
   return '$' + Math.round(n).toLocaleString('en-US');
@@ -1282,194 +1257,13 @@ function calcSim() {
   const contributed = monthly * months;
   const passive = (balance * (rate / 100)) / 12;
   document.getElementById('simResult').textContent = fmt(balance);
-  const contribLabel = currentLang === 'pt'
-    ? `Total aportado: ${fmt(contributed)} · Juros: ${fmt(balance - contributed)}`
-    : `Total contributed: ${fmt(contributed)} · Interest earned: ${fmt(balance - contributed)}`;
-  document.getElementById('simContribTotal').textContent = contribLabel;
-  document.getElementById('simPassive').textContent = fmt(passive) + (currentLang === 'pt' ? '/mês' : '/mo');
+  document.getElementById('simContribTotal').textContent =
+    `Total contributed: ${fmt(contributed)} · Interest earned: ${fmt(balance - contributed)}`;
+  document.getElementById('simPassive').textContent = fmt(passive) + '/mo';
 }
 
 
-// ── TRANSLATIONS ──
-const translations = {
-  en: {
-    navHow: 'How It Works', navFeatures: 'Features', navSimulator: 'Simulator', navPricing: 'Pricing',
-    navLogin: 'Login', navStart: 'Start Now — $9.99',
-    heroEyebrow: 'See where your financial behavior is taking you — before years are lost.',
-    heroTagline: 'Real Projection. Smart Decisions.',
-    heroSub: 'KA$H is a financial projection platform based on real goals, actual contributions, and plausible scenarios. We don\'t manage your money — we help you see the impact of each financial decision before it happens.',
-    heroCta1: '💳 Start for $9.99/mo', heroCta2: '🔑 Login',
-    heroNote: 'Cancel anytime · No contracts · Secure payment via Stripe',
-    heroScroll: 'Scroll',
-    problemLabel: 'The Problem',
-    problemTitle: 'Most people never<br><em>see where they\'re headed.</em>',
-    prob1: '"I\'ll start when I have more money" — and the years go by with no real progress.',
-    prob2: 'Complex platforms built for experts — not for people who want financial clarity.',
-    prob3: 'No visibility into how current behavior will impact the future.',
-    prob4: 'Irregular contributions with no system to measure the real cost of delay.',
-    prob5: 'An opaque financial system — with no honest reference point for where you actually stand.',
-    solutionTitle: 'The KA$H Approach',
-    solutionBody: 'KA$H was built so that <strong>anyone</strong> — regardless of income or background — can visualize the real impact of their financial behavior.<br><br>Create goals. Log your contributions. Compare your planned scenario with a plausible one based on your current pace. See how much time you can gain — or lose — with each decision.<br><br><strong>We use real market indices and fees</strong> so your projections are honest references — not promises.',
-    howLabel: 'How It Works', howTitle: 'Four steps to<br><em>real financial clarity.</em>',
-    step1Title: 'Define Your Goal', step1Desc: 'Create a project for each financial objective — a home, retirement, emergency fund, or any goal that matters to you.',
-    step2Title: 'Log Your Contributions', step2Desc: 'Record every deposit, no matter how small. KA$H calculates fees, net amounts, and projects the cumulative impact automatically.',
-    step3Title: 'Track Your Trajectory', step3Desc: 'Visualize three scenarios: planned, plausible (based on your current pace), and accelerated (with extra contributions). Know exactly how much time you can gain or lose.',
-    step4Title: 'Understand the Real Impact', step4Desc: 'Every amount accumulated generates a passive income estimate — even before reaching your goal. See the potential impact of continuing or pausing your contributions.',
-    num1: 'Minimum to start', num2: 'Goals you can create', num3: 'Estimated annual return (adjustable)', num4: 'Per month, all included',
-    featLabel: 'Features', featTitle: 'What you need.<br><em>Nothing you don\'t.</em>',
-    feat1Title: 'Unlimited Goals', feat1Desc: 'Create as many projects as you want. Home, car, college, retirement — each with its own projection and separate history.',
-    feat2Title: 'Cloud Sync', feat2Desc: 'Your data saved securely. Access your dashboard from any device, at any time.',
-    feat3Title: 'Passive Income Estimate', feat3Desc: 'See the potential impact of your accumulated balance as estimated monthly income — even before reaching your goal.',
-    feat4Title: 'Daily Contribution Guide', feat4Desc: 'KA$H calculates the exact amount you would need to contribute daily to keep your trajectory within the estimated deadline.',
-    feat5Title: 'Full History & CSV Export', feat5Desc: 'Every contribution logged with date, fee, net amount, and running total. Export anytime for analysis or tax purposes.',
-    feat6Title: 'Secure Access', feat6Desc: 'Sign in with Google or email/password. Your financial data stays private and encrypted.',
-    simLabel: 'Try It Now', simTitle: 'See where <em>your money</em><br>could be going.',
-    simDesc: 'Adjust the values below and visualize the estimated impact of your contributions over time.',
-    simMonthly: 'Monthly Contribution ($)', simRate: 'Estimated Annual Return (%)', simYears: 'Years',
-    simBalance: 'Estimated Balance', simPassiveLabel: 'Estimated monthly passive income',
-    manifestoQuote: 'You don\'t need to wait until you have <em>"enough"</em> money to start planning.',
-    manifestoSub: 'Every $1 contributed today has an estimated impact on your financial future.<br>Even without reaching your goal, accumulated balance works for you.<br>Consistent financial behavior beats perfect timing — every single time.',
-    pricingLabel: 'Pricing', pricingTitle: 'Simple. <em>Honest.</em> Affordable.',
-    pricingPeriod: 'per month · cancel anytime',
-    pricingF1: 'Unlimited projection goals', pricingF2: 'Cloud sync across all devices',
-    pricingF3: 'Passive income estimate', pricingF4: 'Daily contribution guide',
-    pricingF5: 'Full contribution history & CSV export', pricingF6: 'Projections with real market indices and fees',
-    pricingF7: 'Google & email/password login', pricingF8: 'Print-ready statements',
-    pricingBtn: '💳 Start Projecting Now',
-    pricingNote: 'No contracts · No setup fees · Cancel anytime · Powered by Stripe',
-    finalTitle: 'Start today.<br><span>Not someday.</span>',
-    finalSub: 'Your financial clarity starts with the next contribution.',
-    finalBtn: 'Open KA$H — $9.99/mo',
-    footerNote: 'KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice. Projections use real market indices and fees for reference only. Past performance does not guarantee future results. © 2026 KA$H · kashsolutions.us',
-  },
-  pt: {
-    navHow: 'Como Funciona', navFeatures: 'Funcionalidades', navSimulator: 'Simulador', navPricing: 'Planos',
-    navLogin: 'Entrar', navStart: 'Começar — $9.99',
-    heroEyebrow: 'Veja para onde seu comportamento financeiro está te levando — antes que anos sejam perdidos.',
-    heroTagline: 'Projeção real. Decisão inteligente.',
-    heroSub: 'O KA$H é uma plataforma de projeção financeira baseada em metas, aportes reais e cenários plausíveis. Não gerenciamos seu dinheiro — ajudamos você a enxergar o impacto de cada decisão financeira antes que ela aconteça.',
-    heroCta1: 'Começar por $9.99/mês', heroCta2: 'Entrar',
-    heroNote: 'Cancele quando quiser · Sem contratos · Pagamento seguro via Stripe',
-    heroScroll: 'Role',
-    problemLabel: 'O Problema',
-    problemTitle: 'A maioria das pessoas nunca<br><em>visualiza para onde está indo.</em>',
-    prob1: '"Vou começar quando tiver mais dinheiro" — e os anos passam sem nenhum progresso real.',
-    prob2: 'Plataformas complexas feitas para especialistas — não para quem quer clareza financeira.',
-    prob3: 'Nenhuma visão de como o comportamento atual vai impactar o futuro.',
-    prob4: 'Aportes irregulares sem nenhum sistema para medir o custo real do atraso.',
-    prob5: 'Um sistema financeiro opaco — sem referência honesta de onde você realmente está.',
-    solutionTitle: 'A Proposta do KA$H',
-    solutionBody: 'O KA$H foi desenvolvido para que <strong>qualquer pessoa</strong> — independente de renda ou origem — consiga visualizar o impacto real do seu comportamento financeiro.<br><br>Crie metas. Registre seus aportes. Compare o cenário planejado com o cenário plausível baseado no seu ritmo atual. Veja quanto tempo você pode ganhar — ou perder — com cada decisão.<br><br><strong>Usamos índices e taxas reais do mercado</strong> para que suas projeções sejam referências honestas — não promessas.',
-    howLabel: 'Como Funciona', howTitle: 'Quatro etapas para<br><em>clareza financeira de verdade.</em>',
-    step1Title: 'Defina sua Meta', step1Desc: 'Crie um projeto para cada objetivo financeiro — casa, aposentadoria, reserva de emergência ou qualquer meta que faça sentido para você.',
-    step2Title: 'Registre seus Aportes', step2Desc: 'Lance cada depósito, independente do valor. O KA$H calcula taxas, valores líquidos e projeta o impacto acumulado automaticamente.',
-    step3Title: 'Acompanhe sua Trajetória', step3Desc: 'Visualize três cenários: o planejado, o plausível (baseado no seu ritmo atual) e o acelerado (com aportes extras). Saiba exatamente quanto tempo você pode ganhar ou perder.',
-    step4Title: 'Entenda o Impacto Real', step4Desc: 'Cada valor acumulado gera estimativa de renda passiva — mesmo antes de atingir a meta. Veja o impacto potencial de continuar ou pausar seus aportes.',
-    num1: 'Valor mínimo para começar', num2: 'Metas que você pode criar', num3: 'Retorno anual estimado (ajustável)', num4: 'Por mês, tudo incluído',
-    featLabel: 'Funcionalidades', featTitle: 'O que você precisa.<br><em>Sem o que não precisa.</em>',
-    feat1Title: 'Metas Ilimitadas', feat1Desc: 'Crie quantos projetos quiser. Casa, carro, faculdade, aposentadoria — cada objetivo com sua própria projeção e histórico separado.',
-    feat2Title: 'Sincronização na Nuvem', feat2Desc: 'Seus dados salvos com segurança. Acesse seu painel de qualquer dispositivo, a qualquer momento.',
-    feat3Title: 'Estimativa de Renda Passiva', feat3Desc: 'Veja o impacto potencial do saldo acumulado em renda mensal estimada — mesmo antes de atingir sua meta.',
-    feat4Title: 'Guia de Aporte Diário', feat4Desc: 'O KA$H calcula o valor exato que você precisaria aportar por dia para manter sua trajetória dentro do prazo estimado.',
-    feat5Title: 'Histórico Completo & Exportação CSV', feat5Desc: 'Cada aporte registrado com data, taxa, valor líquido e total acumulado. Exporte quando quiser para análise ou controle fiscal.',
-    feat6Title: 'Acesso Seguro', feat6Desc: 'Entre com Google ou email/senha. Seus dados financeiros ficam privados e criptografados.',
-    simLabel: 'Experimente Agora', simTitle: 'Veja para onde <em>seu dinheiro</em><br>pode estar indo.',
-    simDesc: 'Ajuste os valores abaixo e visualize o impacto estimado dos seus aportes ao longo do tempo.',
-    simMonthly: 'Aporte Mensal ($)', simRate: 'Retorno Anual Estimado (%)', simYears: 'Anos',
-    simBalance: 'Saldo Estimado', simPassiveLabel: 'Estimativa de renda passiva mensal',
-    manifestoQuote: 'Você não precisa esperar ter <em>"dinheiro suficiente"</em> para começar a planejar.',
-    manifestoSub: 'Cada $1 aportado hoje gera impacto estimado no seu futuro financeiro.<br>Mesmo sem atingir a meta, o saldo acumulado trabalha por você.<br>Consistência no comportamento financeiro supera o momento perfeito — sempre.',
-    pricingLabel: 'Planos', pricingTitle: 'Simples. <em>Honesto.</em> Acessível.',
-    pricingPeriod: 'por mês · cancele quando quiser',
-    pricingF1: 'Metas de projeção ilimitadas', pricingF2: 'Sincronização na nuvem em todos os dispositivos',
-    pricingF3: 'Estimativa de renda passiva', pricingF4: 'Guia de aporte diário',
-    pricingF5: 'Histórico completo de aportes e exportação CSV', pricingF6: 'Projeções com taxas e índices reais de mercado',
-    pricingF7: 'Login com Google ou email/senha', pricingF8: 'Extratos prontos para impressão',
-    pricingBtn: 'Começar a Projetar Agora',
-    pricingNote: 'Sem contratos · Sem taxas de adesão · Cancele quando quiser · Powered by Stripe',
-    finalTitle: 'Comece hoje.<br><span>Não algum dia.</span>',
-    finalSub: 'Sua clareza financeira começa com o próximo aporte.',
-    finalBtn: 'Abrir o KA$H — $9.99/mês',
-    footerNote: 'O KA$H não é uma assessoria de investimentos registrada. Não gerenciamos fundos nem fornecemos aconselhamento financeiro personalizado. As projeções utilizam índices e taxas reais do mercado apenas como referência estimada. Resultados passados não garantem resultados futuros. © 2026 KA$H · kashsolutions.us',
-  }
-};
 
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('kash_lang', lang);
-  const t = translations[lang];
-
-  // Lang buttons
-  document.getElementById('landingLangEN').classList.toggle('active', lang === 'en');
-  document.getElementById('landingLangPT').classList.toggle('active', lang === 'pt');
-
-  // Helper: set innerHTML by id safely
-  const h = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
-  const t2 = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-  // Nav
-  t2('navLoginBtn', t.navLogin); t2('navStartBtn', t.navStart);
-  t2('navHow', t.navHow); t2('navFeatures', t.navFeatures);
-  t2('navSimulator', t.navSimulator); t2('navPricing', t.navPricing);
-
-  // Hero
-  t2('heroEyebrow', t.heroEyebrow); t2('heroTagline', t.heroTagline);
-  t2('heroSub', t.heroSub); t2('heroNote', t.heroNote); t2('heroScroll', t.heroScroll);
-  t2('heroCta1', t.heroCta1); t2('heroCta2', t.heroCta2);
-
-  // Problem
-  t2('problemLabel', t.problemLabel); h('problemTitle', t.problemTitle);
-  t2('prob1', t.prob1); t2('prob2', t.prob2); t2('prob3', t.prob3);
-  t2('prob4', t.prob4); t2('prob5', t.prob5);
-  t2('solutionTitle', t.solutionTitle); h('solutionBody', t.solutionBody);
-
-  // How it works
-  t2('howLabel', t.howLabel); h('howTitle', t.howTitle);
-  t2('step1Title', t.step1Title); t2('step1Desc', t.step1Desc);
-  t2('step2Title', t.step2Title); t2('step2Desc', t.step2Desc);
-  t2('step3Title', t.step3Title); t2('step3Desc', t.step3Desc);
-  t2('step4Title', t.step4Title); t2('step4Desc', t.step4Desc);
-
-  // Numbers
-  t2('num1', t.num1); t2('num2', t.num2); t2('num3', t.num3); t2('num4', t.num4);
-
-  // Features
-  t2('featLabel', t.featLabel); h('featTitle', t.featTitle);
-  t2('feat1Title', t.feat1Title); t2('feat1Desc', t.feat1Desc);
-  t2('feat2Title', t.feat2Title); t2('feat2Desc', t.feat2Desc);
-  t2('feat3Title', t.feat3Title); t2('feat3Desc', t.feat3Desc);
-  t2('feat4Title', t.feat4Title); t2('feat4Desc', t.feat4Desc);
-  t2('feat5Title', t.feat5Title); t2('feat5Desc', t.feat5Desc);
-  t2('feat6Title', t.feat6Title); t2('feat6Desc', t.feat6Desc);
-
-  // Simulator
-  t2('simLabel', t.simLabel); h('simTitle', t.simTitle);
-  t2('simDesc', t.simDesc); t2('simLabelMonthly', t.simMonthly);
-  t2('simLabelRate', t.simRate); t2('simLabelYears', t.simYears);
-  t2('simBalanceLabel', t.simBalance); t2('simPassiveLabelEl', t.simPassiveLabel);
-
-  // Manifesto
-  h('manifestoQuote', t.manifestoQuote); h('manifestoSub', t.manifestoSub);
-
-  // Pricing
-  t2('pricingLabel', t.pricingLabel); h('pricingTitle', t.pricingTitle);
-  t2('pricingPeriod', t.pricingPeriod);
-  t2('pricingF1', t.pricingF1); t2('pricingF2', t.pricingF2);
-  t2('pricingF3', t.pricingF3); t2('pricingF4', t.pricingF4);
-  t2('pricingF5', t.pricingF5); t2('pricingF6', t.pricingF6);
-  t2('pricingF7', t.pricingF7); t2('pricingF8', t.pricingF8);
-  t2('pricingBtn', t.pricingBtn); t2('pricingNote', t.pricingNote);
-
-  // Final CTA
-  h('finalTitle', t.finalTitle); t2('finalSub', t.finalSub); t2('finalBtn', t.finalBtn);
-
-  // Footer
-  t2('footerNote', t.footerNote);
-
-  calcSim();
-}
-
-setLang(currentLang);
 calcSim();
 
 // ── SCROLL ANIMATIONS ──
