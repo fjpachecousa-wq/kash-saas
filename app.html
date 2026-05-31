@@ -2198,8 +2198,12 @@ function calcProject(proj) {
   // Deduct total fees for entire project period from estimated balance
   estimatedBalance = Math.max(0, estimatedBalance - totalFeeAll);
 
-  const remaining = Math.max(0, proj.target - estimatedBalance);
-  const pct = Math.min(100, proj.target > 0 ? (estimatedBalance / proj.target) * 100 : 0);
+  const remaining = (proj.closed || proj.transferred)
+    ? 0
+    : Math.max(0, proj.target - estimatedBalance);
+  const pct = (proj.closed || proj.transferred)
+    ? 100
+    : Math.min(100, proj.target > 0 ? (estimatedBalance / proj.target) * 100 : 0);
 
   let suggestedDaily = 0;
   if (daysLeft > 0 && remaining > 0) {
