@@ -2980,7 +2980,7 @@ async function renderPortfolio() {
 async function refreshPortfolio() {
   etfPriceCache = {}; // clear cache
   const btn = document.querySelector('[onclick="refreshPortfolio()"]');
-  if (btn) { btn.textContent = '⏳ Atualizando...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ Updating...'; btn.disabled = true; }
   await renderPortfolio();
   if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
 }
