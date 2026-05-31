@@ -1266,28 +1266,28 @@
         </div>
         <div style="display:flex;gap:8px;">
           <button class="btn btn-sm" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:var(--silver);" title="Atualizar cotações">🔄 Refresh</button>
-          <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ Novo Aporte</button>
+          <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ New Entry</button>
         </div>
       </div>
 
       <!-- NEW ENTRY FORM (hidden by default) -->
       <div id="portfolioForm" style="display:none;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">REGISTRAR APORTE</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">NEW PORTFOLIO ENTRY</div>
         <div style="margin-bottom:12px;">
-          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE DO APORTE</label>
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ENTRY DATE</label>
           <input type="date" id="pfDate" style="width:200px;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
         </div>
 
-        <!-- ETFs com cotas -->
+        <!-- ETFs with shares -->
         <div style="margin-bottom:12px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <label style="font-size:0.75rem;color:var(--silver);">ATIVOS COMPRADOS</label>
-            <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="addEtfRow()">+ Adicionar ETF</button>
+            <label style="font-size:0.75rem;color:var(--silver);">ASSETS PURCHASED</label>
+            <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="addEtfRow()">+ Add ETF</button>
           </div>
           <div style="display:grid;grid-template-columns:100px 110px 120px 30px;gap:8px;margin-bottom:4px;">
             <span style="font-size:0.7rem;color:var(--silver);">TICKER</span>
-            <span style="font-size:0.7rem;color:var(--silver);">COTAS</span>
-            <span style="font-size:0.7rem;color:var(--silver);">PREÇO/COTA ($)</span>
+            <span style="font-size:0.7rem;color:var(--silver);">SHARES</span>
+            <span style="font-size:0.7rem;color:var(--silver);">PRICE/SHARE ($)</span>
             <span></span>
           </div>
           <div id="etfRows"></div>
@@ -1295,21 +1295,21 @@
 
         <!-- Alternative Portfolio for comparison -->
         <div style="margin-bottom:16px;">
-          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PORTFÓLIO ALTERNATIVO PARA COMPARAÇÃO (opcional)</label>
+          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ALTERNATIVE PORTFOLIO FOR COMPARISON (optional)</label>
           <div id="altEtfRows"></div>
-          <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;margin-top:6px;" onclick="addAltEtfRow()">+ Adicionar ETF alternativo</button>
+          <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;margin-top:6px;" onclick="addAltEtfRow()">+ Add Alternative ETF</button>
         </div>
 
         <div style="display:flex;gap:10px;">
-          <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Salvar Aporte</button>
+          <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Save Entry</button>
           <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancel</button>
         </div>
       </div>
 
-      <!-- LISTA DE CONTRIBUTIONS -->
+      <!-- CONTRIBUTIONS LIST -->
       <div id="portfolioList">
         <div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
-          No entries registered yet.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+          No entries registered yet.<br>Click <strong style="color:var(--green-neon);">+ New Entry</strong> to get started.
         </div>
       </div>
 
@@ -1371,9 +1371,9 @@
     </div>
 
     <!-- PORTFOLIO SUMMARY CARD -->
-    <div class="card" id="ovPortfolioCard" style="display:none;cursor:pointer;" onclick="switchTab('portfolio')" title="Ver portfólio completo">
+    <div class="card" id="ovPortfolioCard" style="display:none;cursor:pointer;" onclick="switchTab('portfolio')" title="View full portfolio">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>📈 Portfolio de Ativos</span>
+        <span>📈 Asset Portfolio</span>
         <span style="font-size:0.75rem;color:var(--green-neon);">View details →</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;" id="ovPortfolioGrid"></div>
@@ -2214,7 +2214,7 @@ function renderOverview() {
         <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('en-US')} · ${st.daysLeft} dias · ${proj.contributions.filter(c => !c.isTransfer).length} contribution(s)</div>
         <div class="passive-pill">${passiveMsg}</div>
         <button onclick="switchTab('proj-${proj.id}')" style="margin-top:10px;background:linear-gradient(135deg,${proj.color}22,${proj.color}44);border:1px solid ${proj.color}88;color:${proj.color};font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,${proj.color}44,${proj.color}66)'" onmouseout="this.style.background='linear-gradient(135deg,${proj.color}22,${proj.color}44)'">
-          📂 View Contributions Ver Aportes & Detalhes Details
+          📂 View Contributions & Details
         </button>
       </div>
       <div class="ov-right">
@@ -2563,7 +2563,7 @@ function addEtfRow(ticker='', shares='', price='') {
     <input type="text" placeholder="Ex: VOO" value="${ticker}" maxlength="10"
       style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;text-transform:uppercase;"
       oninput="this.value=this.value.toUpperCase()">
-    <input type="number" placeholder="Cotas ex: 0.0077" value="${shares}" min="0" step="0.00001"
+    <input type="number" placeholder="Shares e.g. 0.0077" value="${shares}" min="0" step="0.00001"
       style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
     <input type="number" placeholder="Price/share e.g. 693.91" value="${price}" min="0" step="0.01"
       style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
@@ -2580,7 +2580,7 @@ function addAltEtfRow(ticker='', shares='', price='') {
     <input type="text" placeholder="Ex: QQQ" value="${ticker}" maxlength="10"
       style="background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;text-transform:uppercase;"
       oninput="this.value=this.value.toUpperCase()">
-    <input type="number" placeholder="Cotas" value="${shares}" min="0" step="0.00001"
+    <input type="number" placeholder="Shares" value="${shares}" min="0" step="0.00001"
       style="background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
     <input type="number" placeholder="Price/share" value="${price}" min="0" step="0.01"
       style="background:var(--black);border:1px solid #4444aa;color:var(--white);padding:7px 10px;border-radius:8px;font-size:0.85rem;">
@@ -2643,13 +2643,13 @@ function addCotasToEntry(id) {
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
 
   const existingTickers = (entry.etfs||[]).map(et =>
-    `<option value="${et.ticker}" data-current="${et.shares}">${et.ticker} (atual: ${et.shares} cotas)</option>`
+    `<option value="${et.ticker}" data-current="${et.shares}">${et.ticker} (current: ${et.shares} shares)</option>`
   ).join('');
 
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,420px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 ATUALIZAR COTAS</div>
-      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Informe o total atual de cotas. O app calcula a diferença automaticamente.</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 UPDATE SHARES</div>
+      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Enter the current total shares. The app calculates the difference automatically.</div>
 
       <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE DO APORTE</label>
       <input type="date" id="cotasDate" value="${new Date().toISOString().split('T')[0]}"
@@ -2668,20 +2668,20 @@ function addCotasToEntry(id) {
 
       <div id="cotasCurrentInfo" style="font-size:0.75rem;color:var(--silver);margin-bottom:12px;padding:8px 12px;background:var(--black);border-radius:8px;"></div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">TOTAL DE COTAS ATUAL</label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">CURRENT TOTAL SHARES</label>
       <input type="number" id="cotasTotalShares" placeholder="Ex: 1.5432" min="0" step="0.00001"
         style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;"
         oninput="updateCotasDiff()">
 
       <div id="cotasDiffInfo" style="display:none;font-size:0.75rem;margin-bottom:12px;padding:8px 12px;background:var(--gray-mid);border-radius:8px;"></div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PREÇO/COTA ($) <span id="cotasPriceStatus" style="color:var(--green-neon);">buscando...</span></label>
-      <input type="number" id="cotasPrice" placeholder="Buscando..." min="0" step="0.01"
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PREÇO/COTA ($) <span id="cotasPriceStatus" style="color:var(--green-neon);">fetching...</span></label>
+      <input type="number" id="cotasPrice" placeholder="Fetching..." min="0" step="0.01"
         style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;"
         oninput="updateCotasDiff()">
 
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(${id}, this.closest('div[style*=fixed]'))">Salvar</button>
+        <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(${id}, this.closest('div[style*=fixed]'))">Save</button>
         <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
@@ -2702,7 +2702,7 @@ function addCotasToEntry(id) {
     info.textContent = isNew ? '' : `Cotas registradas atualmente: ${currentShares}`;
 
     if (ticker && ticker !== '__new__') {
-      modal.querySelector('#cotasPriceStatus').textContent = 'buscando...';
+      modal.querySelector('#cotasPriceStatus').textContent = 'fetching...';
       modal.querySelector('#cotasPrice').value = '';
       const result = await fetchEtfPrice(ticker);
       if (result.price) {
@@ -2727,7 +2727,7 @@ function addCotasToEntry(id) {
       diffInfo.style.display = 'block';
       const color = diff > 0 ? 'var(--green-neon)' : 'var(--red)';
       const valor = price > 0 ? ` · Amount: $${(Math.abs(diff) * price).toFixed(2)}` : '';
-      diffInfo.innerHTML = `Diferença: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} cotas</strong>${valor}`;
+      diffInfo.innerHTML = `Diferença: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} shares</strong>${valor}`;
     } else {
       diffInfo.style.display = 'none';
     }
@@ -2814,7 +2814,7 @@ async function renderPortfolio() {
 
   if (portfolioEntries.length === 0) {
     list.innerHTML = `<div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
-      No entries registered yet.<br>Clique em <strong style="color:var(--green-neon);">+ Novo Aporte</strong> para começar.
+      No entries registered yet.<br>Clique em <strong style="color:var(--green-neon);">+ New Entry</strong> para começar.
     </div>`;
     summary.style.display = 'none';
     return;
@@ -2858,7 +2858,7 @@ async function renderPortfolio() {
         <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
           <div>
             <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--green-neon);">${et.ticker}</span>
-            <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.shares} cotas @ $${(et.buyPrice||0).toFixed(2)}</span>
+            <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.shares} shares @ $${(et.buyPrice||0).toFixed(2)}</span>
           </div>
           <div style="text-align:right;">
             <div style="font-size:0.85rem;color:var(--white);">$${current.toFixed(2)}</div>
@@ -2888,7 +2888,7 @@ async function renderPortfolio() {
           <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(100,100,200,0.1);">
             <div>
               <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:#a78bfa;">${et.ticker}</span>
-              <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.shares} cotas @ $${(et.buyPrice||0).toFixed(2)}</span>
+              <span style="font-size:0.75rem;color:var(--silver);margin-left:6px;">${et.shares} shares @ $${(et.buyPrice||0).toFixed(2)}</span>
             </div>
             <div style="text-align:right;">
               <div style="font-size:0.85rem;color:var(--white);">$${current.toFixed(2)}</div>
@@ -2921,10 +2921,10 @@ async function renderPortfolio() {
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
           <div>
             <div style="font-size:0.75rem;color:var(--silver);">📅 ${new Date(entry.date+'T12:00:00').toLocaleDateString('en-US',{day:'numeric',month:'short',year:'numeric'})}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--white);letter-spacing:1px;">$${invested.toFixed(2)} investido</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--white);letter-spacing:1px;">$${invested.toFixed(2)} invested</div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:0.75rem;color:var(--silver);">Amount atual</div>
+            <div style="font-size:0.75rem;color:var(--silver);">Current Value</div>
             <div style="font-size:1.2rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};font-weight:700;">$${currentMain.toFixed(2)}</div>
             <div style="font-size:0.75rem;color:${mainGain>=0?'var(--green-neon)':'#ef4444'};">${mainGain>=0?'+':''}$${mainGain.toFixed(2)} (${mainGainPct.toFixed(2)}%)</div>
           </div>
@@ -2932,8 +2932,8 @@ async function renderPortfolio() {
         ${etfDetails}
         ${altSection}
         <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
-          <button class="btn btn-sm" style="font-size:0.72rem;padding:4px 12px;" onclick="addCotasToEntry(${entry.id})">+ Adicionar Cotas</button>
-          <button class="btn btn-sm" style="background:none;border:1px solid rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);font-size:0.72rem;padding:4px 10px;" onclick="deletePortfolioEntry(${entry.id})">🗑 Remover</button>
+          <button class="btn btn-sm" style="font-size:0.72rem;padding:4px 12px;" onclick="addCotasToEntry(${entry.id})">+ Add Shares</button>
+          <button class="btn btn-sm" style="background:none;border:1px solid rgba(239,68,68,0.3);color:rgba(239,68,68,0.7);font-size:0.72rem;padding:4px 10px;" onclick="deletePortfolioEntry(${entry.id})">🗑 Remove</button>
         </div>
       </div>`;
   }).join('');
@@ -2950,7 +2950,7 @@ async function renderPortfolio() {
   const grid = document.getElementById('portfolioSummaryGrid');
   const cells = [
     {label:'Total Invested', value:`$${totalInvested.toFixed(2)}`, color:'var(--white)'},
-    {label:'Amount Atual', value:`$${totalCurrentMain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
+    {label:'Current Value', value:`$${totalCurrentMain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
     {label:'Ganho/Perda', value:`${totalGain>=0?'+':''}$${totalGain.toFixed(2)}`, color: totalGain>=0?'var(--green-neon)':'#ef4444'},
     {label:'Return Total', value:`${totalGainPct>=0?'+':''}${totalGainPct.toFixed(2)}%`, color: totalGainPct>=0?'var(--green-neon)':'#ef4444'},
   ];
@@ -3014,7 +3014,7 @@ async function updateOverviewPortfolio() {
 
   grid.innerHTML = [
     {label: 'Invested', value: '$' + totalInvested.toFixed(2), color: 'var(--white)'},
-    {label: 'Amount Atual', value: '$' + totalCurrent.toFixed(2), color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
+    {label: 'Current Value', value: '$' + totalCurrent.toFixed(2), color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
     {label: 'Return', value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444'},
   ].map(c => `<div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
     <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">${c.label}</div>
