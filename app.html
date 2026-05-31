@@ -1201,7 +1201,8 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
-    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Perfil do Investedr">👤 Profile</button>
+    <button class="btn btn-sm no-print" id="dashboardBtn" onclick="switchTab('overview')" style="display:none;font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.5);color:var(--green-neon);font-weight:700;" title="Back to Dashboard">⬅ Dashboard</button>
+    <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Investor Profile">👤 Profile</button>
     <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
@@ -1265,7 +1266,8 @@
           <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Register your investments and track performance in real time</div>
         </div>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-sm" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:var(--silver);" title="Atualizar cotações">🔄 Refresh</button>
+          <button class="btn btn-sm" onclick="openEtfSearchModal()" style="border-color:rgba(96,165,250,0.5);color:#60a5fa;" title="Discover ETFs">🔍 Find ETFs</button>
+          <button class="btn btn-sm" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:var(--silver);" title="Update quotes">🔄 Refresh</button>
           <button class="btn btn-primary btn-sm" onclick="showAddPortfolioEntry()">+ New Entry</button>
         </div>
       </div>
@@ -2075,6 +2077,10 @@ function switchTab(tabId) {
   const panel = document.getElementById('panel-' + tabId);
   if (btn) btn.classList.add('active');
   if (panel) panel.classList.add('active');
+
+  // Show Dashboard button when not on overview
+  const dashBtn = document.getElementById('dashboardBtn');
+  if (dashBtn) dashBtn.style.display = tabId === 'overview' ? 'none' : 'inline-flex';
 
   if (tabId === 'portfolio') renderPortfolio();
 }
@@ -3368,6 +3374,121 @@ function showHelpTab(idx, btn) {
 }
 
 // ══════════════════════════════════════════════════
+// ETF SEARCH
+// ══════════════════════════════════════════════════
+const ETF_DATABASE = [
+  // Broad Market
+  { ticker:'VOO',  name:'Vanguard S&P 500 ETF',              risk:'moderate',    sector:'broad',         objective:['growth','diversification'], expense:0.03, description:'Tracks the S&P 500 — 500 largest US companies. The gold standard for long-term investors.' },
+  { ticker:'VTI',  name:'Vanguard Total Stock Market ETF',   risk:'moderate',    sector:'broad',         objective:['growth','diversification'], expense:0.03, description:'Covers the entire US stock market — large, mid, and small cap in one fund.' },
+  { ticker:'SPY',  name:'SPDR S&P 500 ETF Trust',            risk:'moderate',    sector:'broad',         objective:['growth','diversification'], expense:0.09, description:'The world\'s most traded ETF. Tracks the S&P 500 with high liquidity.' },
+  { ticker:'IVV',  name:'iShares Core S&P 500 ETF',          risk:'moderate',    sector:'broad',         objective:['growth','diversification'], expense:0.03, description:'Low-cost S&P 500 exposure from BlackRock. Ideal for buy-and-hold investors.' },
+  { ticker:'VEU',  name:'Vanguard FTSE All-World ex-US ETF', risk:'moderate',    sector:'international', objective:['diversification','growth'],  expense:0.07, description:'Exposure to developed and emerging markets outside the US.' },
+  // Technology
+  { ticker:'QQQ',  name:'Invesco QQQ Trust',                 risk:'aggressive',  sector:'tech',          objective:['growth'],                   expense:0.20, description:'Tracks the Nasdaq-100 — 100 largest non-financial companies. Heavy tech concentration.' },
+  { ticker:'VGT',  name:'Vanguard Information Technology ETF',risk:'aggressive', sector:'tech',          objective:['growth'],                   expense:0.10, description:'Pure US tech sector exposure — Apple, Microsoft, Nvidia and more.' },
+  { ticker:'SOXX', name:'iShares Semiconductor ETF',         risk:'aggressive',  sector:'tech',          objective:['growth'],                   expense:0.35, description:'Focused on the semiconductor industry — the backbone of modern tech.' },
+  { ticker:'ARKK', name:'ARK Innovation ETF',                risk:'aggressive',  sector:'tech',          objective:['growth'],                   expense:0.75, description:'Actively managed. Bets on disruptive innovation — high risk, high reward.' },
+  // Dividend / Income
+  { ticker:'VYM',  name:'Vanguard High Dividend Yield ETF',  risk:'conservative',sector:'dividend',      objective:['income','stability'],        expense:0.06, description:'High-dividend US stocks. Great for passive income seekers.' },
+  { ticker:'SCHD', name:'Schwab US Dividend Equity ETF',     risk:'conservative',sector:'dividend',      objective:['income','stability'],        expense:0.06, description:'Quality dividend stocks with strong fundamentals and consistent payouts.' },
+  { ticker:'DVY',  name:'iShares Select Dividend ETF',       risk:'conservative',sector:'dividend',      objective:['income'],                   expense:0.38, description:'Focuses on the highest-yielding US dividend stocks.' },
+  { ticker:'DGRO', name:'iShares Core Dividend Growth ETF',  risk:'moderate',    sector:'dividend',      objective:['income','growth'],           expense:0.08, description:'Companies with a history of growing their dividends year over year.' },
+  // Bonds / Fixed Income
+  { ticker:'BND',  name:'Vanguard Total Bond Market ETF',    risk:'conservative',sector:'bonds',         objective:['stability','income'],        expense:0.03, description:'Broad exposure to US bonds — government and corporate. Low volatility.' },
+  { ticker:'AGG',  name:'iShares Core US Aggregate Bond ETF',risk:'conservative',sector:'bonds',         objective:['stability','income'],        expense:0.03, description:'The benchmark for US investment-grade bonds. Defensive choice.' },
+  { ticker:'TIP',  name:'iShares TIPS Bond ETF',             risk:'conservative',sector:'bonds',         objective:['stability'],                 expense:0.19, description:'Treasury Inflation-Protected Securities. Guards against inflation.' },
+  { ticker:'LQD',  name:'iShares iBoxx $ Investment Grade Corporate Bond ETF', risk:'conservative', sector:'bonds', objective:['income','stability'], expense:0.14, description:'High-quality corporate bonds with better yield than Treasuries.' },
+  // International
+  { ticker:'EFA',  name:'iShares MSCI EAFE ETF',             risk:'moderate',    sector:'international', objective:['diversification'],           expense:0.32, description:'Developed markets in Europe, Australasia and Far East. Non-US diversification.' },
+  { ticker:'EEM',  name:'iShares MSCI Emerging Markets ETF', risk:'aggressive',  sector:'international', objective:['growth','diversification'],  expense:0.70, description:'Exposure to emerging economies — China, India, Brazil and more.' },
+  { ticker:'VWO',  name:'Vanguard FTSE Emerging Markets ETF',risk:'aggressive',  sector:'international', objective:['growth','diversification'],  expense:0.08, description:'Low-cost emerging markets fund. Higher growth potential, higher risk.' },
+  // Small Cap
+  { ticker:'IJH',  name:'iShares Core S&P Mid-Cap ETF',      risk:'moderate',    sector:'smallcap',      objective:['growth','diversification'],  expense:0.05, description:'Mid-cap US companies — often overlooked but strong long-term performers.' },
+  { ticker:'IJR',  name:'iShares Core S&P Small-Cap ETF',    risk:'aggressive',  sector:'smallcap',      objective:['growth'],                   expense:0.06, description:'Small US companies with high growth potential. More volatile than large caps.' },
+  { ticker:'VB',   name:'Vanguard Small-Cap ETF',            risk:'aggressive',  sector:'smallcap',      objective:['growth','diversification'],  expense:0.05, description:'Broad small-cap US exposure. Good complement to S&P 500 holdings.' },
+  // Real Estate
+  { ticker:'VNQ',  name:'Vanguard Real Estate ETF',          risk:'moderate',    sector:'real_estate',   objective:['income','diversification'],  expense:0.12, description:'US REITs — real estate investment trusts. Generates rental income as dividends.' },
+  { ticker:'SCHH', name:'Schwab US REIT ETF',                risk:'moderate',    sector:'real_estate',   objective:['income'],                   expense:0.07, description:'Low-cost REIT exposure. Good for passive income from real estate.' },
+];
+
+function openEtfSearchModal() {
+  document.getElementById('etfSearchModal').classList.add('open');
+  document.getElementById('etfSearchResults').innerHTML = '';
+}
+
+function searchEtfs() {
+  const risk = document.getElementById('etfFilterRisk').value;
+  const sector = document.getElementById('etfFilterSector').value;
+  const objective = document.getElementById('etfFilterObjective').value;
+
+  let results = ETF_DATABASE.filter(etf => {
+    if (risk !== 'all' && etf.risk !== risk) return false;
+    if (sector !== 'all' && etf.sector !== sector) return false;
+    if (objective !== 'all' && !etf.objective.includes(objective)) return false;
+    return true;
+  });
+
+  // Limit to 6 results max
+  results = results.slice(0, 6);
+
+  const container = document.getElementById('etfSearchResults');
+
+  if (results.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:30px;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--silver);">
+        No ETFs found matching your criteria.<br>Try broadening your filters.
+      </div>`;
+    return;
+  }
+
+  const riskColor = { conservative:'#22c55e', moderate:'#fbbf24', aggressive:'#ef4444' };
+  const riskLabel = { conservative:'🟢 Conservative', moderate:'🟡 Moderate', aggressive:'🔴 Aggressive' };
+
+  container.innerHTML = `
+    <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);margin-bottom:12px;letter-spacing:1px;">
+      ${results.length} ETF${results.length > 1 ? 's' : ''} found
+    </div>
+    ${results.map(etf => `
+      <div style="background:rgba(57,255,20,0.03);border:1px solid rgba(57,255,20,0.1);border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div>
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--green-neon);letter-spacing:2px;">${etf.ticker}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);margin-left:10px;">${etf.name}</span>
+          </div>
+          <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:${riskColor[etf.risk]};border:1px solid ${riskColor[etf.risk]}33;border-radius:4px;padding:2px 8px;white-space:nowrap;">${riskLabel[etf.risk]}</span>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);line-height:1.7;margin-bottom:10px;">${etf.description}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);">Expense ratio: ${etf.expense}%/yr</span>
+          <button class="btn btn-sm" onclick="useEtfFromSearch('${etf.ticker}')" style="font-size:0.7rem;padding:4px 14px;border-color:rgba(57,255,20,0.4);color:var(--green-neon);">+ Add to Portfolio</button>
+        </div>
+      </div>
+    `).join('')}`;
+}
+
+function useEtfFromSearch(ticker) {
+  closeModal('etfSearchModal');
+  showAddPortfolioEntry();
+  // Pre-fill the first ETF row ticker
+  setTimeout(() => {
+    const rows = document.getElementById('etfRows');
+    if (rows) {
+      const inputs = rows.querySelectorAll('input[type="text"]');
+      if (inputs.length > 0) {
+        inputs[0].value = ticker;
+      } else {
+        // Add a row if none exists
+        addEtfRow();
+        setTimeout(() => {
+          const newInputs = document.getElementById('etfRows').querySelectorAll('input[type="text"]');
+          if (newInputs.length > 0) newInputs[0].value = ticker;
+        }, 50);
+      }
+    }
+  }, 100);
+}
+
+// ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
 boot();
@@ -3493,6 +3614,58 @@ boot();
       <h3>10. Contact</h3>
       <p>Privacy questions? Contact us at <em>kash@kashsolutions.us</em>.</p>
     </div>
+  </div>
+</div>
+
+<!-- ══ ETF SEARCH MODAL ════════════════════════════ -->
+<div class="modal-overlay" id="etfSearchModal">
+  <div class="modal-lg">
+    <button class="modal-close" onclick="closeModal('etfSearchModal')">✕</button>
+    <div class="modal-title">🔍 FIND ETFs</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:0.5px;line-height:1.7;">
+      Filter by your preferences and discover ETFs that match your goals.
+    </div>
+
+    <!-- Filters -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
+      <div>
+        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">RISK PROFILE</label>
+        <select id="etfFilterRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
+          <option value="all">All</option>
+          <option value="conservative">🟢 Conservative</option>
+          <option value="moderate">🟡 Moderate</option>
+          <option value="aggressive">🔴 Aggressive</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">SECTOR / FOCUS</label>
+        <select id="etfFilterSector" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
+          <option value="all">All Sectors</option>
+          <option value="broad">Broad Market</option>
+          <option value="tech">Technology</option>
+          <option value="dividend">Dividend / Income</option>
+          <option value="bonds">Bonds / Fixed Income</option>
+          <option value="international">International</option>
+          <option value="smallcap">Small Cap</option>
+          <option value="real_estate">Real Estate (REIT)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">OBJECTIVE</label>
+        <select id="etfFilterObjective" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
+          <option value="all">All</option>
+          <option value="growth">Long-term Growth</option>
+          <option value="income">Passive Income</option>
+          <option value="stability">Capital Stability</option>
+          <option value="diversification">Diversification</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-sm" onclick="searchEtfs()" style="margin-bottom:24px;width:100%;">🔍 Search ETFs</button>
+
+    <!-- Results -->
+    <div id="etfSearchResults"></div>
   </div>
 </div>
 
