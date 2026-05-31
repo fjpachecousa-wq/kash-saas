@@ -1073,6 +1073,64 @@
     margin-top: 4px;
   }
   .client-number span { color: var(--green-neon); font-weight: 700; }
+
+  /* ── LARGE MODAL (Help / Terms / Privacy) ─────── */
+  .modal-lg {
+    background: linear-gradient(135deg, #0d1a0d, #111811);
+    border: 1px solid rgba(57,255,20,0.3);
+    border-radius: 20px;
+    padding: 36px;
+    width: min(92vw, 720px);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(57,255,20,0.1);
+    position: relative;
+  }
+  .modal-lg::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green-neon), transparent);
+  }
+  .help-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .help-tab {
+    font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 1px;
+    padding: 6px 14px; border-radius: 20px; cursor: pointer;
+    border: 1px solid rgba(57,255,20,0.2); color: var(--silver);
+    background: transparent; transition: all 0.2s;
+  }
+  .help-tab:hover { border-color: rgba(57,255,20,0.5); color: var(--white); }
+  .help-tab.active { background: rgba(57,255,20,0.15); border-color: var(--green-neon); color: var(--green-neon); }
+  .help-panel { display: none; }
+  .help-panel.active { display: block; }
+  .help-step {
+    display: flex; gap: 16px; margin-bottom: 20px;
+    padding: 16px; background: rgba(57,255,20,0.03);
+    border: 1px solid rgba(57,255,20,0.08); border-radius: 12px;
+  }
+  .help-step-num {
+    font-family: 'Bebas Neue', cursive; font-size: 2rem; color: var(--green-neon);
+    line-height: 1; flex-shrink: 0; width: 32px; text-align: center;
+    text-shadow: 0 0 10px rgba(57,255,20,0.4);
+  }
+  .help-step-content { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--silver); line-height: 1.8; }
+  .help-step-content strong { color: var(--white); }
+  .help-step-content em { color: var(--green-neon); font-style: normal; }
+  .help-note {
+    background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 10px; padding: 14px 16px; margin-top: 16px;
+    font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #fbbf24; line-height: 1.7;
+  }
+  .legal-content { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--silver); line-height: 1.9; }
+  .legal-content h3 { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--green-neon); letter-spacing: 2px; margin: 20px 0 8px; }
+  .legal-content p { margin-bottom: 12px; }
+  .legal-footer {
+    display: flex; gap: 16px; margin-top: 8px;
+    font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(192,192,192,0.4);
+  }
+  .legal-footer a { color: var(--green-neon); cursor: pointer; text-decoration: none; }
+  .legal-footer a:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -1172,6 +1230,7 @@
       <span id="headerDate"></span>
     </div>
     <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Perfil do Investidor">👤 Perfil</button>
+    <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:var(--silver);" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
@@ -3355,9 +3414,156 @@ function saveTransferValue(projId, contribId, modal) {
 }
 
 // ══════════════════════════════════════════════════
+// HELP / TERMS / PRIVACY MODALS
+// ══════════════════════════════════════════════════
+function openHelpModal() {
+  document.getElementById('helpModal').classList.add('open');
+  showHelpTab(0, document.querySelector('.help-tab'));
+}
+function openTermsModal() {
+  closeModal('helpModal');
+  document.getElementById('termsModal').classList.add('open');
+}
+function openPrivacyModal() {
+  closeModal('helpModal');
+  document.getElementById('privacyModal').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function showHelpTab(idx, btn) {
+  document.querySelectorAll('.help-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.help-tab').forEach((b,i) => b.classList.toggle('active', i === idx));
+}
+
+// ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
 boot();
 </script>
+<!-- ══ HELP MODAL ══════════════════════════════════ -->
+<div class="modal-overlay" id="helpModal">
+  <div class="modal-lg">
+    <button class="modal-close" onclick="closeModal('helpModal')">✕</button>
+    <div class="modal-title">❓ USER GUIDE</div>
+    <div class="help-tabs">
+      <button class="help-tab active" onclick="showHelpTab(0,this)">01 · Getting Started</button>
+      <button class="help-tab" onclick="showHelpTab(1,this)">02 · Projects</button>
+      <button class="help-tab" onclick="showHelpTab(2,this)">03 · Contributions</button>
+      <button class="help-tab" onclick="showHelpTab(3,this)">04 · Portfolio</button>
+      <button class="help-tab" onclick="showHelpTab(4,this)">05 · Closing & Transfer</button>
+    </div>
+
+    <!-- Module 01 -->
+    <div class="help-panel active" id="helpPanel0">
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access KA$H</strong><br>Open your browser and go to <em>kashsolutions.us</em> — no installation needed. Works on desktop, tablet and mobile.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Sign In</strong><br>Option A: Click <em>"Sign in with Google"</em>.<br>Option B: Enter email and password — click <em>"Create free account"</em>.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KA$H Pro</strong><br>Click <em>"Subscribe KA$H Pro"</em> — $9.99/month. Secure payment via Stripe. Cancel anytime.</div></div>
+      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Set Up Your Profile</strong><br>Click the <em>👤 Profile</em> button in the top right. Fill in: First Name, Last Name and Date of Birth. Email and client number are generated automatically. Click <em>"Save Profile"</em>.</div></div>
+      <div class="help-note">📌 <strong>Your Client Number</strong> is unique and permanent. Format: MMYYXXXXX (e.g. 0526 00247 = May/2026). Use it when contacting support.</div>
+    </div>
+
+    <!-- Module 02 -->
+    <div class="help-panel" id="helpPanel1">
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Open the Form</strong><br>In the <em>Overview</em> tab, click <em>"+ New Project"</em>.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Annual Interest Rate (%):</em> estimated return — e.g. 7%<br><em>Start Date / End Date:</em> define the timeline<br><em>Fee ($/month):</em> platform fee (e.g. Acorns $3.00). Zero if not applicable.<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Create the Project</strong><br>Click <em>"Create Project"</em>. The recommended daily contribution is calculated automatically using compound interest.</div></div>
+      <div class="help-note">📌 You can create multiple projects — each with its own goal, rate and timeline.</div>
+    </div>
+
+    <!-- Module 03 -->
+    <div class="help-panel" id="helpPanel2">
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Select the Project</strong><br>Click the project tab in the navigation bar. Scroll down to <em>"Add Contribution"</em>.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Data</strong><br><em>Amount ($):</em> e.g. $5.00<br><em>Date:</em> the actual contribution date (can be backdated).<br><em>Note (optional):</em> e.g. "Coffee savings", "Paycheck".</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Confirm</strong><br>Click <em>"Add Contribution"</em>. History is updated immediately with estimated interest and accumulated balance.</div></div>
+      <div class="help-note">⚠️ Deleted contributions cannot be recovered. Closed projects have contributions locked.</div>
+    </div>
+
+    <!-- Module 04 -->
+    <div class="help-panel" id="helpPanel3">
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access the Portfolio Tab</strong><br>Click <em>"Portfolio"</em> in the navigation bar. Click <em>"+ New Entry"</em>.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Data</strong><br><em>Entry Date:</em> actual purchase date.<br><em>Ticker:</em> e.g. VOO, QQQ, IJH, IJR.<br><em>Shares:</em> quantity — e.g. 0.0102.<br><em>Price/Share ($):</em> price paid per share on purchase date.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Track Performance</strong><br>Click <em>"Save Entry"</em>. Use <em>"🔄 Refresh"</em> to update quotes. The app shows: current value, gain/loss in $ and %, and today's variation.</div></div>
+      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adding More Shares</strong><br>When you buy more shares, use <em>"+ Add Shares"</em> on the ETF card. The app calculates the difference and updates automatically.</div></div>
+      <div class="help-note">📌 Portfolio data is saved in the cloud — accessible from any device where you log into KA$H.</div>
+    </div>
+
+    <!-- Module 05 -->
+    <div class="help-panel" id="helpPanel4">
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access the Project</strong><br>Click the project tab. Scroll to the bottom — click <em>"🔒 Close Project"</em>.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Define the Balance Source</strong><br><em>YES →</em> uses the current Portfolio ETF balance.<br><em>NO →</em> uses the estimated balance with interest calculated by the app.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Choose the Action</strong><br><em>Transfer:</em> balance goes as a contribution to the destination project.<br><em>Withdraw:</em> documents that the amount was withdrawn.<br><em>Pending:</em> decide later — waits for bank consolidation.</div></div>
+      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adjust Transferred Balance</strong><br>In the destination project, the contribution is marked with a <em>TRANSFER</em> badge. Click <em>✏️</em> to adjust the value when the balance consolidates in your account.</div></div>
+      <div class="help-note">📌 Closed projects remain in history and cannot be deleted. Their data is preserved permanently.</div>
+    </div>
+
+    <div class="legal-footer" style="margin-top:24px;">
+      <a onclick="openTermsModal()">Terms of Use</a>
+      <a onclick="openPrivacyModal()">Privacy Policy</a>
+      <span style="margin-left:auto;">kash@kashsolutions.us</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TERMS OF USE MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="termsModal">
+  <div class="modal-lg">
+    <button class="modal-close" onclick="closeModal('termsModal')">✕</button>
+    <div class="modal-title">📋 TERMS OF USE</div>
+    <div class="legal-content">
+      <p style="color:rgba(192,192,192,0.5);font-size:0.65rem;">Last updated: May 2026 · KASH Corporate Solutions LLC</p>
+      <h3>1. Acceptance of Terms</h3>
+      <p>By accessing or using KA$H ("the Service") at kashsolutions.us, you agree to be bound by these Terms of Use. If you do not agree, please do not use the Service.</p>
+      <h3>2. Description of Service</h3>
+      <p>KA$H is a financial projection and goal-tracking tool. It provides estimated calculations based on user-defined parameters. KA$H is not a licensed financial advisor and does not provide investment advice. All projections are estimates only.</p>
+      <h3>3. Subscription and Billing</h3>
+      <p>Access to KA$H Pro requires a subscription of $9.99/month, billed via Stripe. You may cancel at any time. Cancellation takes effect at the end of the current billing cycle. No refunds are issued for partial periods.</p>
+      <h3>4. User Responsibilities</h3>
+      <p>You are responsible for maintaining the confidentiality of your account credentials. You agree not to use the Service for unlawful purposes or in ways that could damage, disable or impair the Service.</p>
+      <h3>5. Data and Privacy</h3>
+      <p>Your data is stored securely via Supabase. KA$H does not sell your personal data to third parties. See our Privacy Policy for full details.</p>
+      <h3>6. Disclaimers</h3>
+      <p>The Service is provided "as is" without warranties of any kind. KA$H does not guarantee accuracy of financial projections. Past performance does not guarantee future results. Use at your own risk.</p>
+      <h3>7. Limitation of Liability</h3>
+      <p>KASH Corporate Solutions LLC shall not be liable for any indirect, incidental or consequential damages arising from your use of the Service.</p>
+      <h3>8. Changes to Terms</h3>
+      <p>We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the new Terms.</p>
+      <h3>9. Contact</h3>
+      <p>Questions about these Terms? Contact us at <em>kash@kashsolutions.us</em>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PRIVACY POLICY MODAL ════════════════════════ -->
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal-lg">
+    <button class="modal-close" onclick="closeModal('privacyModal')">✕</button>
+    <div class="modal-title">🔒 PRIVACY POLICY</div>
+    <div class="legal-content">
+      <p style="color:rgba(192,192,192,0.5);font-size:0.65rem;">Last updated: May 2026 · KASH Corporate Solutions LLC</p>
+      <h3>1. Information We Collect</h3>
+      <p>We collect information you provide directly: name, email address, date of birth, and financial projection data (project goals, contributions, portfolio entries). We also collect authentication data via Google OAuth or email/password through Supabase.</p>
+      <h3>2. How We Use Your Information</h3>
+      <p>Your data is used solely to provide and improve the KA$H Service: to display your financial projections, calculate estimates, and maintain your account. We do not use your data for advertising or sell it to third parties.</p>
+      <h3>3. Data Storage</h3>
+      <p>Your data is stored securely in Supabase (AWS us-east-1). All connections are encrypted via HTTPS/TLS. Row-Level Security (RLS) ensures only you can access your own data.</p>
+      <h3>4. Payment Data</h3>
+      <p>Payment processing is handled by Stripe. KA$H does not store credit card numbers or sensitive payment information. Stripe's privacy policy applies to payment data.</p>
+      <h3>5. Data Sharing</h3>
+      <p>We do not sell, trade or share your personal data with third parties except as required by law or as necessary to provide the Service (e.g. Supabase for storage, Stripe for payments).</p>
+      <h3>6. Your Rights</h3>
+      <p>You may request deletion of your account and all associated data at any time by contacting <em>kash@kashsolutions.us</em>. Data deletion is processed within 30 days.</p>
+      <h3>7. Cookies</h3>
+      <p>KA$H uses minimal session cookies required for authentication. No tracking or advertising cookies are used.</p>
+      <h3>8. Children's Privacy</h3>
+      <p>KA$H is not directed at children under 13. We do not knowingly collect personal information from children under 13.</p>
+      <h3>9. Changes to This Policy</h3>
+      <p>We may update this Privacy Policy periodically. We will notify users of significant changes via email or in-app notice.</p>
+      <h3>10. Contact</h3>
+      <p>Privacy questions? Contact us at <em>kash@kashsolutions.us</em>.</p>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
