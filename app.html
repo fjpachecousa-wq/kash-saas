@@ -1413,9 +1413,12 @@
 
         <!-- REAL column -->
         <div style="background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:18px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:#60a5fa;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-            📈 REAL
-            <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(96,165,250,0.5);font-weight:normal;letter-spacing:1px;">market value · updates daily</span>
+          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:#60a5fa;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              📈 REAL
+              <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(96,165,250,0.5);font-weight:normal;letter-spacing:1px;">market value · updates daily</span>
+            </div>
+            <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.6rem;padding:3px 10px;border:1px solid rgba(96,165,250,0.3);border-radius:6px;background:transparent;color:#60a5fa;cursor:pointer;">🔄 Refresh</button>
           </div>
           <div style="display:flex;flex-direction:column;gap:10px;" id="realColumn"></div>
         </div>
@@ -2108,17 +2111,22 @@ function addContribution(projId) {
   const amt = parseFloat(document.getElementById('amt-' + projId).value);
   const dt = document.getElementById('dt-' + projId).value || todayStr();
   const note = document.getElementById('note-' + projId).value.trim();
+  const pendingEl = document.getElementById('pending-' + projId);
+  const isPending = pendingEl ? pendingEl.checked : false;
 
   if (!amt || amt <= 0) return alert('Please enter a valid contribution amount.');
 
-  // No per-contribution fee — Acorns charges a flat daily rate, not per deposit
   const net = amt;
 
-  proj.contributions.push({ id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note });
+  proj.contributions.push({
+    id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note,
+    pending: isPending  // pending = not yet posted to Acorns
+  });
   proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   document.getElementById('amt-' + projId).value = '';
   document.getElementById('note-' + projId).value = '';
+  if (pendingEl) pendingEl.checked = false;
   save();
   renderProjectPanel(proj);
   renderOverview();
@@ -2315,7 +2323,11 @@ function renderOverview() {
   if (activeProj) {
     const st = calcProject(activeProj);
 
-    // REAL values from portfolio
+    // REAL values from portfolio — exclude pending contributions
+    const pendingTotal = (activeProj.contributions || [])
+      .filter(c => c.pending && !c.isTransfer)
+      .reduce((sum, c) => sum + (c.net || 0), 0);
+
     const portfolioReal = portfolioEntries.reduce((sum, entry) => {
       const entryVal = (entry.etfs || []).reduce((s, et) => {
         const cached = etfPriceCache && etfPriceCache[et.ticker];
@@ -2325,7 +2337,7 @@ function renderOverview() {
       return sum + entryVal;
     }, 0);
 
-    const realBalance = portfolioReal > 0 ? portfolioReal : sumInvested + st.transferBalance;
+    const realBalance = portfolioReal > 0 ? portfolioReal : (sumInvested - pendingTotal) + st.transferBalance;
     const realGoal = activeProj.target;
     const realRemaining = Math.max(0, realGoal - realBalance);
     const realProgress = Math.min(100, realGoal > 0 ? (realBalance / realGoal) * 100 : 0);
@@ -2367,8 +2379,12 @@ function renderOverview() {
     const diff = realBalance - st.estimatedBalance;
     const diffColor = diff >= 0 ? '#22c55e' : '#ef4444';
     const diffSign = diff >= 0 ? '+' : '';
+    const pendingNote = pendingTotal > 0
+      ? `<span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#f59e0b;margin-left:12px;">⏳ ${fmt(pendingTotal)} pending — posts tomorrow</span>`
+      : '';
+
     document.getElementById('netImpactRow').innerHTML =
-      `Market vs Projection: <strong style="color:${diffColor};">${diffSign}${fmt(diff)}</strong> &nbsp;${diff >= 0 ? '📈 Strategy working' : '📉 Review your strategy'}`;
+      `Market vs Projection: <strong style="color:${diffColor};">${diffSign}${fmt(diff)}</strong> &nbsp;${diff >= 0 ? '📈 Strategy working' : '📉 Review your strategy'}${pendingNote}`;
   }
 }
 
@@ -2452,12 +2468,18 @@ function renderProjectPanel(proj) {
             onfocus="this.showPicker && this.showPicker()">
         </div>
         <div class="form-group">
-          <label>Note (opcional)</label>
+          <label>Note (optional)</label>
           <input type="text" id="note-${proj.id}" placeholder="e.g. Paycheck, savings">
         </div>
       </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);cursor:pointer;">
+          <input type="checkbox" id="pending-${proj.id}" style="width:14px;height:14px;cursor:pointer;">
+          ⏳ <span>Pending — posts to Acorns tomorrow</span>
+        </label>
+      </div>
       <div class="btn-row">
-        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ ENCERRADO — ${proj.closedAcao || 'saldo transferido'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
+        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ CLOSED — ${proj.closedAcao || 'balance transferred'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
       </div>
     </div>
 
@@ -2523,7 +2545,8 @@ function renderProjectPanel(proj) {
                   <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('en-US')}</td>
                   <td class="amount-cell">
                     ${fmt(r.amount)}
-                    ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFERÊNCIA</span>` : ''}
+                    ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFER</span>` : ''}
+                    ${r.pending ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>` : ''}
                   </td>
                   <td style="color:#22c55e;">+${fmt(r.interestEst)}</td>
                   <td class="running-cell">${fmt(r.running)}</td>
@@ -3515,6 +3538,20 @@ function closeModal(id) {
 function showHelpTab(idx, btn) {
   document.querySelectorAll('.help-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
   document.querySelectorAll('.help-tab').forEach((b,i) => b.classList.toggle('active', i === idx));
+}
+
+async function refreshOverviewReal() {
+  const btn = document.getElementById('overviewRefreshBtn');
+  if (btn) { btn.textContent = '⏳ Updating...'; btn.disabled = true; }
+  etfPriceCache = {};
+  // Re-fetch all ETF prices
+  const tickers = [];
+  portfolioEntries.forEach(entry => {
+    (entry.etfs || []).forEach(et => { if (et.ticker && !tickers.includes(et.ticker)) tickers.push(et.ticker); });
+  });
+  await Promise.all(tickers.map(t => fetchEtfPrice(t)));
+  renderOverview();
+  if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
 }
 
 // ══════════════════════════════════════════════════
