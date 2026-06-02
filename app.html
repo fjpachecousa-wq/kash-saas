@@ -1044,6 +1044,31 @@
   .auth-msg.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
   .auth-msg.success { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.25); color: var(--green-neon); }
 
+  /* ── MOTIVATIONAL TICKER ─────────────────────── */
+  .ticker-wrap {
+    width: 100%; background: #000; border-top: 1px solid rgba(57,255,20,0.15);
+    border-bottom: 1px solid rgba(57,255,20,0.15); overflow: hidden;
+    padding: 7px 0; margin-bottom: 0;
+  }
+  .ticker-track {
+    display: flex; gap: 0;
+    animation: ticker-scroll 60s linear infinite;
+    width: max-content;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  .ticker-item {
+    font-family: 'Space Mono', monospace; font-size: 0.68rem;
+    letter-spacing: 1px; white-space: nowrap;
+    padding: 0 32px; color: var(--silver);
+  }
+  .ticker-item .ticker-icon { margin-right: 6px; }
+  .ticker-item.up { color: #22c55e; }
+  .ticker-item.down { color: #ef4444; }
+  @keyframes ticker-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
   /* ── CLIENT NUMBER ────────────────────────────── */
   .client-number {
     font-family: 'Space Mono', monospace; font-size: 0.7rem;
@@ -1176,6 +1201,9 @@
       Cancel anytime · Secure payment via Stripe
     </div>
     <button class="btn-logout" style="margin-top:16px;width:100%;" onclick="logoutUser()" id="paywallLogoutBtn">Sign Out</button>
+    <div style="text-align:center;margin-top:12px;">
+      <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;text-decoration:underline;">Manage or cancel subscription</a>
+    </div>
   </div>
 </div>
 
@@ -1216,11 +1244,38 @@
     <span id="statusText">Set up your profile and create your first project to get started.</span>
   </div>
 
+  <!-- MOTIVATIONAL TICKER -->
+  <div class="ticker-wrap no-print">
+    <div class="ticker-track" id="tickerTrack">
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
+      <!-- Duplicate for seamless loop -->
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+      <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
+    </div>
+  </div>
+
   <!-- USER SETUP CARD -->
   <div class="card no-print" id="userSetupCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div>
-        <div class="card-title" style="margin-bottom:2px;">👤 Profile do Investedr</div>
+        <div class="card-title" style="margin-bottom:2px;">👤 Investor Profile</div>
         <div class="client-number">Client <span id="clientNumber">—</span></div>
       </div>
       <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Edit</button>
@@ -2761,19 +2816,31 @@ function saveCotasToEntry(id, modal) {
   // Find existing ETF in entry or add new one
   const existing = entry.etfs.find(et => et.ticker === ticker);
   const currentShares = existing ? existing.shares : 0;
-  const shares = +(totalShares - currentShares).toFixed(8); // difference only
+  const shares = +(totalShares - currentShares).toFixed(8); // difference (negative = sale)
 
-  if (shares <= 0 && existing) {
-    alert('The total entered is less than or equal to the amount already registered.');
+  if (shares === 0 && existing) {
+    alert('No change detected — the total entered matches the current shares.');
+    return;
+  }
+  if (totalShares < 0) {
+    alert('Total shares cannot be negative.');
     return;
   }
 
   if (existing) {
-    // Weighted average price + sum shares
-    const oldValue = existing.shares * existing.buyPrice;
-    const newValue = shares * buyPrice;
-    existing.shares = +(existing.shares + shares).toFixed(8);
-    existing.buyPrice = +((oldValue + newValue) / existing.shares).toFixed(4);
+    if (shares < 0) {
+      // Partial sale — reduce shares, keep buy price
+      existing.shares = +totalShares.toFixed(8);
+      if (existing.shares === 0) {
+        entry.etfs = entry.etfs.filter(et => et.ticker !== ticker);
+      }
+    } else {
+      // Adding shares — weighted average price
+      const oldValue = existing.shares * existing.buyPrice;
+      const newValue = shares * buyPrice;
+      existing.shares = +(existing.shares + shares).toFixed(8);
+      existing.buyPrice = +((oldValue + newValue) / existing.shares).toFixed(4);
+    }
   } else {
     entry.etfs.push({ticker, shares: totalShares, buyPrice});
   }
@@ -3546,10 +3613,16 @@ boot();
       <div class="help-note">📌 Closed projects remain in history and cannot be deleted. Their data is preserved permanently.</div>
     </div>
 
-    <div class="legal-footer" style="margin-top:24px;">
-      <a onclick="openTermsModal()">Terms of Use</a>
-      <a onclick="openPrivacyModal()">Privacy Policy</a>
-      <span style="margin-left:auto;">kash@kashsolutions.us</span>
+    <div class="legal-footer" style="margin-top:24px;flex-direction:column;gap:10px;">
+      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.5);line-height:1.7;border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 14px;background:rgba(251,191,36,0.03);">
+        ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KA$H. Each browser stores its own session independently.
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <a onclick="openTermsModal()">Terms of Use</a>
+        <a onclick="openPrivacyModal()">Privacy Policy</a>
+        <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
+        <span style="margin-left:auto;">kash@kashsolutions.us</span>
+      </div>
     </div>
   </div>
 </div>
