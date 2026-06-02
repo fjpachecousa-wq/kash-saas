@@ -2213,10 +2213,13 @@ function calcProject(proj) {
     const interestEst = estimateInterest(c.net, daysLeft, rate);
     if (c.isTransfer) {
       transferBalance += c.net;
-    } else {
+    } else if (!c.pending) {
+      // Exclude pending contributions — not yet posted to Acorns
       totalInvested += c.net;
     }
-    estimatedBalance += c.net + interestEst;
+    if (!c.pending) {
+      estimatedBalance += c.net + interestEst;
+    }
     rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
   });
 
