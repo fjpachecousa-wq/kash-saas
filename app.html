@@ -1396,28 +1396,47 @@
       Even if you don't reach your goal, the accumulated money generates passive income — forever.
     </div>
 
-    <!-- TOTAL BANNER -->
-    <div class="total-banner" id="totalBanner" style="display:none; grid-template-columns: repeat(5,1fr);">
-      <div class="kpi">
-        <span class="kpi-value gold" id="ovTotalInvested">$0.00</span>
-        <span class="kpi-label">Total Invested</span>
+    <!-- STATEMENT — ESTIMATED vs REAL -->
+    <div id="totalBanner" style="display:none;">
+
+      <!-- Comparativo header -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+        <!-- ESTIMATED column -->
+        <div style="background:rgba(57,255,20,0.04);border:1px solid rgba(57,255,20,0.15);border-radius:14px;padding:18px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            📊 PROJECTED
+            <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(57,255,20,0.5);font-weight:normal;letter-spacing:1px;">7% est. · math only</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;" id="estimatedColumn"></div>
+        </div>
+
+        <!-- REAL column -->
+        <div style="background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:18px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:#60a5fa;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+            📈 REAL
+            <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(96,165,250,0.5);font-weight:normal;letter-spacing:1px;">market value · updates daily</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;" id="realColumn"></div>
+        </div>
+
       </div>
-      <div class="kpi">
-        <span class="kpi-value" id="ovTotalBalance">$0.00</span>
-        <span class="kpi-label">Est. Total Balance</span>
+
+      <!-- Net impact row -->
+      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:1px;">
+          Active Projects: <strong style="color:var(--white);" id="ovTotalProjects">0</strong>
+          &nbsp;·&nbsp;
+          Contributions: <strong style="color:var(--white);" id="ovTotalContribs">0</strong>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:1px;" id="netImpactRow"></div>
       </div>
-      <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
-        <span class="kpi-value" style="color:var(--green-mid);" id="ovTotalPassive">$0.00</span>
-        <span class="kpi-label">Passive Income/mo</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value silver" id="ovTotalProjects">0</span>
-        <span class="kpi-label">Active Projects</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value gold" id="ovTotalContribs">0</span>
-        <span class="kpi-label">Total Contributions</span>
-      </div>
+
+      <!-- Hidden spans for compatibility -->
+      <span id="ovTotalInvested" style="display:none;">$0.00</span>
+      <span id="ovTotalBalance" style="display:none;">$0.00</span>
+      <span id="ovTotalPassive" style="display:none;">$0.00</span>
+
     </div>
 
     <!-- PORTFOLIO SUMMARY CARD -->
@@ -2250,12 +2269,12 @@ function renderOverview() {
     const st = calcProject(proj);
     // Only count active projects in totals
     if (!proj.closed && !proj.transferred) {
-      sumInvested += st.totalInvested; // excludes transfers
+      sumInvested += st.totalInvested;
       sumBalance += st.estimatedBalance;
       sumPassive += st.monthlyPassive;
+      // Only count real contributions from active projects
+      sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
     }
-    // Count only real contributions (not transfers)
-    sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
 
     const passiveMsg = st.monthlyPassive >= 0.01
       ? `🌿 <span>+${fmt(st.monthlyPassive)}/mo</span> in passive income`
@@ -2269,7 +2288,7 @@ function renderOverview() {
         <div class="ov-bar-bg">
           <div class="ov-bar-fill" style="width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 8px ${proj.color}66;"></div>
         </div>
-        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('en-US')} · ${st.daysLeft} dias · ${proj.contributions.filter(c => !c.isTransfer).length} contribution(s)</div>
+        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('en-US')} · ${st.daysLeft} days · ${proj.contributions.filter(c => !c.isTransfer).length} contribution(s)</div>
         <div class="passive-pill">${passiveMsg}</div>
         <button onclick="switchTab('proj-${proj.id}')" style="margin-top:10px;background:linear-gradient(135deg,${proj.color}22,${proj.color}44);border:1px solid ${proj.color}88;color:${proj.color};font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,${proj.color}44,${proj.color}66)'" onmouseout="this.style.background='linear-gradient(135deg,${proj.color}22,${proj.color}44)'">
           📂 View Contributions & Details
@@ -2290,6 +2309,67 @@ function renderOverview() {
   const activeProjects = state.projects.filter(p => !p.closed && !p.transferred).length;
   document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
+
+  // Build ESTIMATED vs REAL columns using active project data + portfolio real value
+  const activeProj = state.projects.find(p => !p.closed && !p.transferred);
+  if (activeProj) {
+    const st = calcProject(activeProj);
+
+    // REAL values from portfolio
+    const portfolioReal = portfolioEntries.reduce((sum, entry) => {
+      const entryVal = (entry.etfs || []).reduce((s, et) => {
+        const cached = etfPriceCache && etfPriceCache[et.ticker];
+        const price = cached ? cached.price : et.buyPrice;
+        return s + (et.shares || 0) * price;
+      }, 0);
+      return sum + entryVal;
+    }, 0);
+
+    const realBalance = portfolioReal > 0 ? portfolioReal : sumInvested + st.transferBalance;
+    const realGoal = activeProj.target;
+    const realRemaining = Math.max(0, realGoal - realBalance);
+    const realProgress = Math.min(100, realGoal > 0 ? (realBalance / realGoal) * 100 : 0);
+    const realDaysLeft = Math.max(1, st.daysLeft);
+    const realDaily = realRemaining / realDaysLeft;
+    const realMonthlyRate = (activeProj.interestRate ?? 7) / 100 / 12;
+    const realPassive = realBalance * realMonthlyRate;
+
+    const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
+    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
+
+    const fields = [
+      { label: 'Goal',            est: fmt(activeProj.target),         real: fmt(realGoal),       estColor: 'var(--white)',       realColor: 'var(--white)' },
+      { label: 'Transferred',     est: fmt(st.transferBalance),         real: fmt(st.transferBalance), estColor:'var(--silver)',   realColor:'var(--silver)' },
+      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested), estColor:'#fbbf24',          realColor:'#fbbf24' },
+      { label: 'Total Balance',   est: fmt(st.estimatedBalance),        real: fmt(realBalance),    estColor:'var(--green-neon)',   realColor:'#60a5fa' },
+      { label: 'Still Needed',    est: fmt(st.remaining),               real: fmt(realRemaining),  estColor:'#f59e0b',            realColor: realRemaining > st.remaining ? '#ef4444' : '#22c55e' },
+      { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
+      { label: 'Passive/mo (est)',est: fmt(st.monthlyPassive),          real: fmt(realPassive),    estColor:'#22c55e',            realColor:'#60a5fa' },
+      { label: 'Progress',        est: st.pct.toFixed(1) + '%',         real: realProgress.toFixed(1) + '%', estColor:'var(--green-neon)', realColor:'#60a5fa' },
+    ];
+
+    const estCol = document.getElementById('estimatedColumn');
+    const realCol = document.getElementById('realColumn');
+
+    estCol.innerHTML = fields.map(f => `
+      <div style="${rowStyle}">
+        <span style="${labelStyle}">${f.label}</span>
+        <strong style="font-family:'Space Mono',monospace;font-size:0.75rem;color:${f.estColor};">${f.est}</strong>
+      </div>`).join('');
+
+    realCol.innerHTML = fields.map(f => `
+      <div style="${rowStyle}">
+        <span style="${labelStyle}">${f.label}</span>
+        <strong style="font-family:'Space Mono',monospace;font-size:0.75rem;color:${f.realColor};">${f.real}</strong>
+      </div>`).join('');
+
+    // Net impact
+    const diff = realBalance - st.estimatedBalance;
+    const diffColor = diff >= 0 ? '#22c55e' : '#ef4444';
+    const diffSign = diff >= 0 ? '+' : '';
+    document.getElementById('netImpactRow').innerHTML =
+      `Market vs Projection: <strong style="color:${diffColor};">${diffSign}${fmt(diff)}</strong> &nbsp;${diff >= 0 ? '📈 Strategy working' : '📉 Review your strategy'}`;
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -2311,11 +2391,11 @@ function renderProjectPanel(proj) {
       </div>
       <div class="kpi">
         <span class="kpi-value silver">${fmt(st.estimatedBalance)}</span>
-        <span class="kpi-label">Saldo Est. c/ Juros</span>
+        <span class="kpi-label">EST. BALANCE</span>
       </div>
       <div class="kpi">
         <span class="kpi-value gold">${fmt(st.remaining)}</span>
-        <span class="kpi-label">Falta para Meta</span>
+        <span class="kpi-label">REMAINING</span>
       </div>
       <div class="kpi">
         <span class="kpi-value" style="color:${proj.color};">${st.daysLeft}</span>
