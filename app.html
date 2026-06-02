@@ -1908,6 +1908,19 @@ async function initApp() {
   if (!state.portfolio) state.portfolio = [];
   if (!state.projects) state.projects = [];
   portfolioEntries = state.portfolio;
+
+  // Auto-clear pending contributions whose date has passed
+  const today = todayStr();
+  let pendingCleared = false;
+  state.projects.forEach(proj => {
+    (proj.contributions || []).forEach(c => {
+      if (c.pending && c.date < today) {
+        c.pending = false;
+        pendingCleared = true;
+      }
+    });
+  });
+  if (pendingCleared) await save();
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
     state.name = currentUser.user_metadata.full_name;
