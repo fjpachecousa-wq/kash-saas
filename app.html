@@ -1946,6 +1946,24 @@ function fmt(n) {
 
 function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
+function todayMMDDYYYY() { const d = new Date(); return String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0') + '/' + d.getFullYear(); }
+
+function maskDateInput(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 8);
+  if (v.length >= 5) v = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4);
+  else if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+  el.value = v;
+}
+
+function parseDateInput(val) {
+  // Converts MM/DD/YYYY to YYYY-MM-DD for storage
+  const parts = val.split('/');
+  if (parts.length === 3 && parts[2].length === 4) {
+    return parts[2] + '-' + parts[0].padStart(2,'0') + '-' + parts[1].padStart(2,'0');
+  }
+  return todayStr();
+}
+
 function daysUntil(dateStr) {
   const today = new Date(); today.setHours(0,0,0,0);
   const target = new Date(dateStr + 'T12:00:00'); target.setHours(0,0,0,0);
@@ -2125,7 +2143,8 @@ function addContribution(projId) {
   if (!proj) return;
 
   const amt = parseFloat(document.getElementById('amt-' + projId).value);
-  const dt = document.getElementById('dt-' + projId).value || todayStr();
+  const dtRaw = document.getElementById('dt-' + projId).value || todayMMDDYYYY();
+  const dt = parseDateInput(dtRaw);
   const note = document.getElementById('note-' + projId).value.trim();
   const pendingEl = document.getElementById('pending-' + projId);
   const isPending = pendingEl ? pendingEl.checked : false;
@@ -2481,10 +2500,12 @@ function renderProjectPanel(proj) {
           <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00" min="0.01" step="0.01">
         </div>
         <div class="form-group">
-          <label>Date <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:0.5px;">(MM/DD/YYYY)</span></label>
-          <input type="date" id="dt-${proj.id}" value="${todayStr()}"
-            onclick="this.showPicker && this.showPicker()"
-            onfocus="this.showPicker && this.showPicker()">
+          <label>Date</label>
+          <input type="text" id="dt-${proj.id}" placeholder="MM/DD/YYYY"
+            maxlength="10" autocomplete="off"
+            oninput="maskDateInput(this)"
+            value="${todayMMDDYYYY()}"
+            style="letter-spacing:1px;">
         </div>
         <div class="form-group">
           <label>Note (optional)</label>
