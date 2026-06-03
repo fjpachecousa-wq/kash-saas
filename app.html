@@ -1483,7 +1483,7 @@
     <div class="modal-title">🆕 New Project</div>
 
     <div class="form-group" style="margin-bottom:16px;">
-      <label>First Name do Projeto</label>
+      <label>Project Name</label>
       <input type="text" id="projName" placeholder="e.g. Home Purchase">
     </div>
 
@@ -2434,21 +2434,21 @@ function renderProjectPanel(proj) {
       </div>
       <div class="kpi">
         <span class="kpi-value" style="color:${proj.color};">${st.daysLeft}</span>
-        <span class="kpi-label">Dias Restantes</span>
+        <span class="kpi-label">Days Left</span>
       </div>
       <div class="kpi">
         <span class="kpi-value silver">${proj.contributions.filter(c => !c.isTransfer).length}</span>
-        <span class="kpi-label">Aportes</span>
+        <span class="kpi-label">Contributions</span>
       </div>
       <div class="kpi">
         <span class="kpi-value gold">${st.pct.toFixed(1)}%</span>
-        <span class="kpi-label">Progresso</span>
+        <span class="kpi-label">Progress</span>
       </div>
     </div>
 
     <!-- PROGRESS BAR -->
     <div class="card">
-      <div class="card-title" style="color:${proj.color};">📈 Progresso — ${proj.name}</div>
+      <div class="card-title" style="color:${proj.color};">📈 Progress — ${proj.name}</div>
       <div class="progress-wrap">
         <div class="progress-label">
           <span>${fmt(st.estimatedBalance)} / ${fmt(proj.target)}</span>
@@ -2459,7 +2459,7 @@ function renderProjectPanel(proj) {
         </div>
       </div>
       ${st.pct >= 100 ? `<div class="alert" style="display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;">🎉 Meta Atingida! Parabéns!</div>` : ''}
-      ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class="alert" style="display:block;">⚠ Prazo próximo e meta abaixo de 30%. Aumente seus aportes.</div>` : ''}
+      ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class="alert" style="display:block;">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}
     </div>
 
     <!-- DAILY SUGGESTION -->
@@ -2481,7 +2481,7 @@ function renderProjectPanel(proj) {
           <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00" min="0.01" step="0.01">
         </div>
         <div class="form-group">
-          <label>Date</label>
+          <label>Date <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:0.5px;">(MM/DD/YYYY)</span></label>
           <input type="date" id="dt-${proj.id}" value="${todayStr()}"
             onclick="this.showPicker && this.showPicker()"
             onfocus="this.showPicker && this.showPicker()">
@@ -2504,7 +2504,7 @@ function renderProjectPanel(proj) {
 
     <!-- PASSIVE INCOME -->
     <div class="card">
-      <div class="card-title">🌿 Renda Passiva — ${proj.name}</div>
+      <div class="card-title">🌿 Passive Income — ${proj.name}</div>
       <div class="kpi-grid">
         <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
           <span class="kpi-value" style="color:var(--green-mid);">${fmt(st.monthlyPassive)}</span>
@@ -2521,11 +2521,11 @@ function renderProjectPanel(proj) {
         </div>` : `
         <div class="kpi">
           <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * (proj.interestRate ?? state.interestRate ?? 7) / 100)}</span>
-          <span class="kpi-label">Renda Passiva Anual Est.</span>
+          <span class="kpi-label">Annual Passive Income Est.</span>
         </div>
         <div class="kpi">
           <span class="kpi-value gold">${proj.interestRate ?? state.interestRate ?? 7}%</span>
-          <span class="kpi-label">Taxa de Return</span>
+          <span class="kpi-label">Return Rate</span>
         </div>`}
       </div>
       ${st.monthlyPassive < 1 && proj.contributions.filter(c => !c.isTransfer).length === 0 ? `
@@ -2539,7 +2539,7 @@ function renderProjectPanel(proj) {
 
     <!-- HISTORY TABLE -->
     <div class="card">
-      <div class="card-title">📋 Histórico de Aportes
+      <div class="card-title">📋 Contribution History
         ${st.totalFeeAll > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa total: -${fmt(st.totalFeeAll)} (${st.monthsTotal} ciclos × $${st.monthlyFeeUSD.toFixed(2)}/mês)</span>` : ''}
       </div>
       <div class="table-wrap">
@@ -2664,7 +2664,7 @@ function exportCSV(projId) {
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
   const st = calcProject(proj);
-  const rows = [['Projeto', 'Nº', 'Date', 'Amount', 'Est. Interest', 'Accumulated', 'Note']];
+  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Est. Interest', 'Accumulated', 'Note']];
   st.rows.forEach(r => {
     rows.push([proj.name, r.idx, r.date, r.amount.toFixed(2),
                r.interestEst.toFixed(2), r.running.toFixed(2), r.note || '']);
