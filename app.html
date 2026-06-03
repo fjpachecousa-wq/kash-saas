@@ -2217,9 +2217,12 @@ function calcProject(proj) {
     if (c.isTransfer) {
       transferBalance += c.net;
     } else {
+
       totalInvested += c.net;
     }
+
     estimatedBalance += c.net + interestEst;
+
     rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
   });
 
@@ -2368,7 +2371,7 @@ function renderOverview() {
     const fields = [
       { label: 'Goal',            est: fmt(activeProj.target),         real: fmt(realGoal),       estColor: 'var(--white)',       realColor: 'var(--white)' },
       { label: 'Transferred',     est: fmt(st.transferBalance),         real: fmt(st.transferBalance), estColor:'var(--silver)',   realColor:'var(--silver)' },
-      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested), estColor:'#fbbf24',          realColor:'#fbbf24' },
+      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested - pendingTotal), estColor:'#fbbf24',          realColor:'#fbbf24' },
       { label: 'Total Balance',   est: fmt(st.estimatedBalance),        real: fmt(realBalance),    estColor:'var(--green-neon)',   realColor:'#60a5fa' },
       { label: 'Still Needed',    est: fmt(st.remaining),               real: fmt(realRemaining),  estColor:'#f59e0b',            realColor: realRemaining > st.remaining ? '#ef4444' : '#22c55e' },
       { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
