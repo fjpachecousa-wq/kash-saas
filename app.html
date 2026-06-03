@@ -1944,7 +1944,7 @@ function fmt(n) {
   return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
 function daysUntil(dateStr) {
   const today = new Date(); today.setHours(0,0,0,0);
@@ -2216,13 +2216,13 @@ function calcProject(proj) {
     const interestEst = estimateInterest(c.net, daysLeft, rate);
     if (c.isTransfer) {
       transferBalance += c.net;
-    } else {
-
+    } else if (!c.pending) {
+      // Exclude pending contributions — not yet posted to Acorns
       totalInvested += c.net;
     }
-
-    estimatedBalance += c.net + interestEst;
-
+    if (!c.pending) {
+      estimatedBalance += c.net + interestEst;
+    }
     rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
   });
 
@@ -2356,7 +2356,7 @@ function renderOverview() {
       return sum + entryVal;
     }, 0);
 
-    const realBalance = portfolioReal > 0 ? portfolioReal : (sumInvested - pendingTotal) + st.transferBalance;
+    const realBalance = portfolioReal > 0 ? portfolioReal : st.totalInvested + st.transferBalance;
     const realGoal = activeProj.target;
     const realRemaining = Math.max(0, realGoal - realBalance);
     const realProgress = Math.min(100, realGoal > 0 ? (realBalance / realGoal) * 100 : 0);
@@ -2371,7 +2371,7 @@ function renderOverview() {
     const fields = [
       { label: 'Goal',            est: fmt(activeProj.target),         real: fmt(realGoal),       estColor: 'var(--white)',       realColor: 'var(--white)' },
       { label: 'Transferred',     est: fmt(st.transferBalance),         real: fmt(st.transferBalance), estColor:'var(--silver)',   realColor:'var(--silver)' },
-      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested - pendingTotal), estColor:'#fbbf24',          realColor:'#fbbf24' },
+      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested), estColor:'#fbbf24',          realColor:'#fbbf24' },
       { label: 'Total Balance',   est: fmt(st.estimatedBalance),        real: fmt(realBalance),    estColor:'var(--green-neon)',   realColor:'#60a5fa' },
       { label: 'Still Needed',    est: fmt(st.remaining),               real: fmt(realRemaining),  estColor:'#f59e0b',            realColor: realRemaining > st.remaining ? '#ef4444' : '#22c55e' },
       { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
