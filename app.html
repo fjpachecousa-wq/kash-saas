@@ -2149,12 +2149,12 @@ function addContribution(projId) {
   if (!amt || amt <= 0) return alert('Please enter a valid contribution amount.');
 
   const net = amt;
-  // Pending is derived automatically: deposits dated today haven't posted to Acorns yet
-  const pending = dt === todayStr();
+  // pending derived automatically: today or future = not yet posted to Acorns
+  const pending = dt >= todayStr();
 
   proj.contributions.push({
     id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note,
-    pending  // true = today's deposit, clears automatically next day via auto-clear
+    pending
   });
   proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -2499,11 +2499,20 @@ function renderProjectPanel(proj) {
         </div>
         <div class="form-group">
           <label>Date</label>
-          <input type="text" id="dt-${proj.id}" placeholder="MM/DD/YYYY"
-            maxlength="10" autocomplete="off"
-            oninput="maskDateInput(this)"
-            value="${todayMMDDYYYY()}"
-            style="letter-spacing:1px;">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" id="dt-${proj.id}" placeholder="MM/DD/YYYY"
+              maxlength="10" autocomplete="off"
+              oninput="maskDateInput(this)"
+              value="${todayMMDDYYYY()}"
+              style="letter-spacing:1px;flex:1;">
+            <input type="date" id="dtPicker-${proj.id}"
+              style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;"
+              onchange="(function(p){const v=document.getElementById('dtPicker-'+p).value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dt-'+p).value=m+'/'+d+'/'+y;})('${proj.id}')">
+            <button type="button"
+              onclick="const el=document.getElementById('dtPicker-${proj.id}');el.showPicker&&el.showPicker();"
+              style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;"
+              title="Open calendar">📅</button>
+          </div>
         </div>
         <div class="form-group">
           <label>Note (optional)</label>
