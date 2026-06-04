@@ -2146,22 +2146,20 @@ function addContribution(projId) {
   const dtRaw = document.getElementById('dt-' + projId).value || todayMMDDYYYY();
   const dt = parseDateInput(dtRaw);
   const note = document.getElementById('note-' + projId).value.trim();
-  const pendingEl = document.getElementById('pending-' + projId);
-  const isPending = pendingEl ? pendingEl.checked : false;
-
   if (!amt || amt <= 0) return alert('Please enter a valid contribution amount.');
 
   const net = amt;
+  // Pending is derived automatically: deposits dated today haven't posted to Acorns yet
+  const pending = dt === todayStr();
 
   proj.contributions.push({
     id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note,
-    pending: isPending  // pending = not yet posted to Acorns
+    pending  // true = today's deposit, clears automatically next day via auto-clear
   });
   proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   document.getElementById('amt-' + projId).value = '';
   document.getElementById('note-' + projId).value = '';
-  if (pendingEl) pendingEl.checked = false;
   save();
   renderProjectPanel(proj);
   renderOverview();
@@ -2511,12 +2509,6 @@ function renderProjectPanel(proj) {
           <label>Note (optional)</label>
           <input type="text" id="note-${proj.id}" placeholder="e.g. Paycheck, savings">
         </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-        <label style="display:flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);cursor:pointer;">
-          <input type="checkbox" id="pending-${proj.id}" style="width:14px;height:14px;cursor:pointer;">
-          ⏳ <span>Pending — posts to Acorns tomorrow</span>
-        </label>
       </div>
       <div class="btn-row">
         ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ CLOSED — ${proj.closedAcao || 'balance transferred'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
