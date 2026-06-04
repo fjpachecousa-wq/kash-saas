@@ -2852,8 +2852,8 @@ function addCotasToEntry(id) {
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 UPDATE SHARES</div>
       <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Enter the current total shares. The app calculates the difference automatically.</div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE DO APORTE</label>
-      <input type="date" id="cotasDate" value="${new Date().toISOString().split('T')[0]}"
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE</label>
+      <input type="date" id="cotasDate" value="${todayStr()}"
         style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
 
       <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ETF</label>
@@ -2876,7 +2876,7 @@ function addCotasToEntry(id) {
 
       <div id="cotasDiffInfo" style="display:none;font-size:0.75rem;margin-bottom:12px;padding:8px 12px;background:var(--gray-mid);border-radius:8px;"></div>
 
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PREÇO/COTA ($) <span id="cotasPriceStatus" style="color:var(--green-neon);">fetching...</span></label>
+      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">PRICE/SHARE ($) <span id="cotasPriceStatus" style="color:var(--green-neon);">fetching...</span></label>
       <input type="number" id="cotasPrice" placeholder="Fetching..." min="0" step="0.01"
         style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;"
         oninput="updateCotasDiff()">
@@ -2900,7 +2900,7 @@ function addCotasToEntry(id) {
     const currentShares = isNew ? 0 : parseFloat(sel.selectedOptions[0]?.dataset.current || 0);
 
     const info = modal.querySelector('#cotasCurrentInfo');
-    info.textContent = isNew ? '' : `Cotas registradas atualmente: ${currentShares}`;
+    info.textContent = isNew ? '' : `Currently registered: ${currentShares}`;
 
     if (ticker && ticker !== '__new__') {
       modal.querySelector('#cotasPriceStatus').textContent = 'fetching...';
@@ -2928,7 +2928,7 @@ function addCotasToEntry(id) {
       diffInfo.style.display = 'block';
       const color = diff > 0 ? 'var(--green-neon)' : 'var(--red)';
       const valor = price > 0 ? ` · Amount: $${(Math.abs(diff) * price).toFixed(2)}` : '';
-      diffInfo.innerHTML = `Diferença: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} shares</strong>${valor}`;
+      diffInfo.innerHTML = `Difference: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} shares</strong>${valor}`;
     } else {
       diffInfo.style.display = 'none';
     }
