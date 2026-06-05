@@ -2430,7 +2430,7 @@ function renderOverview() {
     const savingsRate   = 0.5 / 100 / 365;
     const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
     const savingsBalance = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = marketGenerated - savingsGainAtEnd; // KA$H gain minus savings gain
+    const savingsAdvantage = portfolioReal - savingsBalance; // ETF final value vs Savings final value
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
@@ -2558,8 +2558,8 @@ function renderOverview() {
         const savColor  = savingsGain >= 0 ? '#6b7280' : '#ef4444';
         chartWrap.innerHTML =
           '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--silver);letter-spacing:1px;margin-bottom:8px;">GAIN / LOSS</div>' +
-          lineRow('Savings', savingsGain, savColor) +
-          lineRow('KA$H',    kashGain,    kashColor);
+          lineRow('KA$H',    kashGain,    kashColor) +
+          lineRow('Savings', savingsGain, savColor);
       }
     }
   }
