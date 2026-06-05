@@ -2423,7 +2423,7 @@ function renderOverview() {
     const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
 
     // You invested = confirmed contributions + transfer - total fee
-    const totalInvestedReal = st.totalInvested + st.transferBalance - st.totalFeeAll;
+    const totalInvestedReal = st.totalInvested + st.transferBalance;
 
     // Market generated = portfolio current value - you invested (gain if +, loss if -)
     const marketGenerated = portfolioReal > 0 ? portfolioReal - totalInvestedReal : 0;
