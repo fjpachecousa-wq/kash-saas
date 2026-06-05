@@ -1436,8 +1436,8 @@
           Contributions: <strong style="color:var(--white);" id="ovTotalContribs">0</strong>
         </div>
         <div style="font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:1px;" id="netImpactRow"></div>
-        <div id="kashVsSavingsBlock" style="margin-top:14px;"></div>
       </div>
+      <div id="kashVsSavingsBlock" style="margin-top:12px;"></div>
 
       <!-- Hidden spans for compatibility -->
       <span id="ovTotalInvested" style="display:none;">$0.00</span>
@@ -2419,7 +2419,7 @@ function renderOverview() {
       { label: 'Total Balance',   est: fmt(st.estimatedBalance),        real: fmt(realBalance),    estColor:'var(--green-neon)',   realColor:'#60a5fa' },
       { label: 'Still Needed',    est: fmt(st.remaining),               real: fmt(realRemaining),  estColor:'#f59e0b',            realColor: realRemaining > st.remaining ? '#ef4444' : '#22c55e' },
       { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
-      { label: 'Market Generated', est: fmt(marketGenerated),           real: fmt(marketGenerated), estColor:'#22c55e',           realColor:'#22c55e' },
+      { label: 'Market Generated', est: fmt(Math.max(0, st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance)), real: fmt(marketGenerated), estColor:'#22c55e', realColor: marketGenerated >= (st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance) ? '#22c55e' : '#f59e0b' },
       { label: 'Progress',        est: st.pct.toFixed(1) + '%',         real: realProgress.toFixed(1) + '%', estColor:'var(--green-neon)', realColor:'#60a5fa' },
     ];
 
@@ -2498,30 +2498,33 @@ function renderOverview() {
           </div>
         </div>`;
 
-      // Chart: horizontal bars showing GAIN only (not total balance)
+      // Chart: horizontal bars — fixed width container, label + bar + value aligned
       const chartWrap = document.getElementById('comparisonChartWrap');
       if (chartWrap) {
-        const savingsGain = savingsBalance - totalInvestedReal;
-        const kashGain    = marketGenerated;
+        const savingsGain = Math.max(0, savingsBalance - totalInvestedReal);
+        const kashGain    = Math.max(0, marketGenerated);
         const maxGain     = Math.max(savingsGain, kashGain, 0.01);
-        const maxBarW     = 90;
-        function barW(val) { return Math.max(3, Math.round((val / maxGain) * maxBarW)); }
-        chartWrap.innerHTML =
-          '<div style="font-family:Space Mono,monospace;font-size:0.58rem;color:var(--silver);letter-spacing:1px;margin-bottom:8px;">GAIN ONLY</div>' +
-          '<div style="margin-bottom:8px;">' +
-            '<div style="font-size:0.65rem;color:#9ca3af;margin-bottom:3px;">Savings</div>' +
-            '<div style="display:flex;align-items:center;gap:6px;">' +
-              '<div style="height:10px;width:' + barW(savingsGain) + 'px;background:#4b5563;border-radius:3px;"></div>' +
-              '<span style="font-family:Space Mono,monospace;font-size:0.62rem;color:#9ca3af;">+$' + savingsGain.toFixed(2) + '</span>' +
+        const FULL        = 80; // px — full bar width
+        // Minimum bar width 8px so it's always visible
+        // Log scale so small values remain visible
+        function bw(val) { if (val <= 0) return 8; return Math.max(8, Math.round((Math.log(val+1) / Math.log(maxGain+1)) * FULL)); }
+        function row(label, val, barColor, textColor, glow) {
+          const w = bw(val);
+          const glowStyle = glow ? 'box-shadow:0 0 6px rgba(57,255,20,0.5);' : '';
+          return '<div style="margin-bottom:10px;">' +
+            '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
+              '<span style="font-size:0.62rem;color:' + textColor + ';font-family:Space Mono,monospace;">' + label + '</span>' +
+              '<span style="font-size:0.62rem;color:' + textColor + ';font-family:Space Mono,monospace;">+$' + val.toFixed(2) + '</span>' +
             '</div>' +
-          '</div>' +
-          '<div>' +
-            '<div style="font-size:0.65rem;color:#39ff14;margin-bottom:3px;">KA$H</div>' +
-            '<div style="display:flex;align-items:center;gap:6px;">' +
-              '<div style="height:10px;width:' + barW(kashGain) + 'px;background:#39ff14;border-radius:3px;box-shadow:0 0 6px rgba(57,255,20,0.4);"></div>' +
-              '<span style="font-family:Space Mono,monospace;font-size:0.62rem;color:#39ff14;">+$' + kashGain.toFixed(2) + '</span>' +
+            '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:8px;width:' + FULL + 'px;">' +
+              '<div style="height:8px;width:' + w + 'px;background:' + barColor + ';border-radius:4px;' + glowStyle + '"></div>' +
             '</div>' +
           '</div>';
+        }
+        chartWrap.innerHTML =
+          '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--silver);letter-spacing:1px;margin-bottom:10px;">GAIN ONLY</div>' +
+          row('Savings', savingsGain, '#4b5563', '#6b7280', false) +
+          row('KA$H',    kashGain,    '#39ff14', '#39ff14', true);
       }
     }
   }
