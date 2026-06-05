@@ -1956,6 +1956,7 @@ async function initApp() {
     document.getElementById('firstName').value = parts[0] || '';
     document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
   }
+  etfPriceCache = {}; // clear on load — forces fresh prices on first render
   renderAll();
   // Show profile card on first access if name not set
   if (!state.name) {
