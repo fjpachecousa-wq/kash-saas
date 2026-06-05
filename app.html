@@ -2430,7 +2430,7 @@ function renderOverview() {
     const savingsRate   = 0.5 / 100 / 365;
     const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
     const savingsBalance = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = portfolioReal - savingsBalance; // ETF final value vs Savings final value
+    const savingsAdvantage = marketGenerated - savingsGainAtEnd; // ETF result minus Savings result
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
@@ -2516,10 +2516,7 @@ function renderOverview() {
                 <span style="color:var(--silver);">Savings would give</span>
                 <span style="font-family:'Space Mono',monospace;color:var(--silver);">${(savingsBalance - totalInvestedReal) >= 0 ? '+$' : '-$'}${Math.abs(savingsBalance - totalInvestedReal).toFixed(2)}</span>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:7px 0 0;font-weight:600;">
-                <span style="color:var(--white);">vs Savings account</span>
-                <span style="font-family:'Space Mono',monospace;color:${savingsAdvantage >= 0 ? '#22c55e' : '#ef4444'};">${savingsAdvantage >= 0 ? '+$' : '-$'}${Math.abs(savingsAdvantage).toFixed(2)}</span>
-              </div>
+
             </div>
             <div style="width:160px;flex-shrink:0;" id="comparisonChartWrap"></div>
           </div>
