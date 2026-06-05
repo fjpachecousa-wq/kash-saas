@@ -2422,19 +2422,14 @@ function renderOverview() {
     const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
     const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
 
-    // Real gain observed so far — can be negative (market loss)
-    const marketGeneratedSoFar = realBalance - totalInvestedReal;
-    // Real daily rate observed — negative if loss
-    const realDailyRateObs = totalInvestedReal > 0 ? marketGeneratedSoFar / totalInvestedReal / daysElapsed : 0;
-    // Project gain/loss to end of project using observed rate
-    const realGainAtEnd = realBalance * realDailyRateObs * realDaysLeft;
-    const marketGenerated = marketGeneratedSoFar + realGainAtEnd;
+    // Real gain/loss observed so far — no future projection (REAL = what happened, not what will happen)
+    const marketGenerated = realBalance - totalInvestedReal;
 
     // Savings projected over full project period at 0.5% aa
     const savingsRate   = 0.5 / 100 / 365;
     const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
     const savingsBalance = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = (realBalance + realGainAtEnd) - savingsBalance;
+    const savingsAdvantage = realBalance - savingsBalance;
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
