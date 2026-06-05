@@ -2443,7 +2443,7 @@ function renderOverview() {
       { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
       { label: 'Market Generated',
           est: fmt(st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance),
-          real: (marketGenerated >= 0 ? '+' : '') + fmt(marketGenerated),
+          real: (marketGenerated >= 0 ? '+' : '-') + '$' + Math.abs(marketGenerated).toFixed(2),
           estColor: (st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance) >= 0 ? '#22c55e' : '#ef4444',
           realColor: marketGenerated >= 0 ? '#22c55e' : '#ef4444' },
       { label: 'Progress',        est: st.pct.toFixed(1) + '%',         real: realProgress.toFixed(1) + '%', estColor:'var(--green-neon)', realColor:'#60a5fa' },
@@ -2513,50 +2513,15 @@ function renderOverview() {
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <span style="color:var(--silver);">Savings would give</span>
-                <span style="font-family:'Space Mono',monospace;color:var(--silver);">${(savingsBalance - totalInvestedReal) >= 0 ? '+$' : '-$'}${Math.abs(savingsBalance - totalInvestedReal).toFixed(2)}</span>
+                <span style="font-family:'Space Mono',monospace;color:var(--silver);">$${(st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance).toFixed(2)}</span>
               </div>
 
             </div>
-            <div style="width:160px;flex-shrink:0;" id="comparisonChartWrap"></div>
+
           </div>
         </div>`;
 
-      // Chart: sparkline lines showing gain/loss trend — up=green, down=red
-      const chartWrap = document.getElementById('comparisonChartWrap');
-      if (chartWrap) {
-        const savingsGain = savingsBalance - totalInvestedReal;
-        const kashGain    = marketGenerated;
-        function fmtVal(val) { return (val >= 0 ? '+$' : '-$') + Math.abs(val).toFixed(2); }
 
-        function sparkline(val, color) {
-          // SVG line: flat start, then up or down based on sign
-          const W = 80, H = 36, mid = H / 2;
-          const endY = val >= 0 ? 6 : H - 6;  // up if positive, down if negative
-          const glow = val >= 0 ? 'drop-shadow(0 0 3px ' + color + ')' : '';
-          return '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="filter:' + glow + ';">' +
-            '<polyline points="0,' + mid + ' ' + (W*0.35) + ',' + mid + ' ' + W + ',' + endY + '" ' +
-              'fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
-            '<circle cx="' + W + '" cy="' + endY + '" r="3" fill="' + color + '"/>' +
-          '</svg>';
-        }
-
-        function lineRow(label, val, color) {
-          return '<div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
-            '<div style="display:flex;flex-direction:column;">' +
-              '<span style="font-size:0.58rem;color:#9ca3af;font-family:Space Mono,monospace;margin-bottom:2px;">' + label + '</span>' +
-              '<span style="font-size:0.68rem;color:' + color + ';font-family:Space Mono,monospace;font-weight:700;">' + fmtVal(val) + '</span>' +
-            '</div>' +
-            sparkline(val, color) +
-          '</div>';
-        }
-
-        const kashColor = kashGain >= 0 ? '#39ff14' : '#ef4444';
-        const savColor  = savingsGain >= 0 ? '#6b7280' : '#ef4444';
-        chartWrap.innerHTML =
-          '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--silver);letter-spacing:1px;margin-bottom:8px;">GAIN / LOSS</div>' +
-          lineRow('KA$H',    kashGain,    kashColor) +
-          lineRow('Savings', savingsGain, savColor);
-      }
     }
   }
 }
