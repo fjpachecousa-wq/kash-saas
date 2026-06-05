@@ -2412,7 +2412,11 @@ function renderOverview() {
       ? (realRemaining / realDaysLeft) / Math.pow(1 + realDailyRate, realAvgDays) + (realMonthlyFee / 30)
       : 0;
     // All gains projected to end of project period
-    const totalInvestedReal = st.totalInvested + st.transferBalance;
+    // totalInvestedReal excludes pending — mirrors PROJECTED logic
+    const totalInvestedReal = (activeProj.contributions || [])
+      .filter(c => !c.pending)
+      .reduce((sum, c) => sum + (c.isTransfer ? 0 : c.net || 0), 0)
+      + st.transferBalance;
     const projStartDate = new Date((activeProj.startDate || activeProj.date) + 'T12:00:00');
     const projEndDate   = new Date(activeProj.date + 'T12:00:00');
     const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
