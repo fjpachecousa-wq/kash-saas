@@ -2430,7 +2430,7 @@ function renderOverview() {
     const savingsRate   = 0.5 / 100 / 365;
     const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
     const savingsBalance = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = realBalance - savingsBalance;
+    const savingsAdvantage = marketGenerated - savingsGainAtEnd; // KA$H gain minus savings gain
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
@@ -2510,56 +2510,56 @@ function renderOverview() {
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <span style="color:var(--silver);">Market generated</span>
-                <span style="font-family:'Space Mono',monospace;color:#22c55e;">+$${marketGenerated.toFixed(2)}</span>
+                <span style="font-family:'Space Mono',monospace;color:${marketGenerated >= 0 ? '#22c55e' : '#ef4444'};">${marketGenerated >= 0 ? '+$' : '-$'}${Math.abs(marketGenerated).toFixed(2)}</span>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
                 <span style="color:var(--silver);">Savings would give</span>
-                <span style="font-family:'Space Mono',monospace;color:var(--silver);">+$${(savingsBalance - totalInvestedReal).toFixed(2)}</span>
+                <span style="font-family:'Space Mono',monospace;color:var(--silver);">${(savingsBalance - totalInvestedReal) >= 0 ? '+$' : '-$'}${Math.abs(savingsBalance - totalInvestedReal).toFixed(2)}</span>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:7px 0 0;font-weight:600;">
-                <span style="color:var(--white);">Your advantage</span>
-                <span style="font-family:'Space Mono',monospace;color:#22c55e;">+$${savingsAdvantage.toFixed(2)}</span>
+                <span style="color:var(--white);">vs Savings account</span>
+                <span style="font-family:'Space Mono',monospace;color:${savingsAdvantage >= 0 ? '#22c55e' : '#ef4444'};">${savingsAdvantage >= 0 ? '+$' : '-$'}${Math.abs(savingsAdvantage).toFixed(2)}</span>
               </div>
             </div>
             <div style="width:160px;flex-shrink:0;" id="comparisonChartWrap"></div>
           </div>
         </div>`;
 
-      // Chart: horizontal bars — proportional scale, handles gain and loss
+      // Chart: sparkline lines showing gain/loss trend — up=green, down=red
       const chartWrap = document.getElementById('comparisonChartWrap');
       if (chartWrap) {
         const savingsGain = savingsBalance - totalInvestedReal;
         const kashGain    = marketGenerated;
-        const FULL        = 120;
-        // Scale: each bar scaled relative to its own sign group
-        // If both same sign: largest = full bar
-        // If different signs: each scaled independently (gain vs loss shown separately)
-        const maxPos = Math.max(savingsGain > 0 ? savingsGain : 0, kashGain > 0 ? kashGain : 0, 0.001);
-        const maxNeg = Math.max(savingsGain < 0 ? Math.abs(savingsGain) : 0, kashGain < 0 ? Math.abs(kashGain) : 0, 0.001);
-        function barPx(val) {
-          if (val >= 0) return Math.max(4, Math.round((val / maxPos) * FULL));
-          return Math.max(4, Math.round((Math.abs(val) / maxNeg) * FULL));
-        }
         function fmtVal(val) { return (val >= 0 ? '+$' : '-$') + Math.abs(val).toFixed(2); }
-        function chartRow(label, val, barColor, textColor, glow) {
-          const w = barPx(val);
-          const glowStyle = glow ? 'box-shadow:0 0 6px rgba(57,255,20,0.5);' : '';
-          return '<div style="margin-bottom:10px;">' +
-            '<div style="display:flex;justify-content:space-between;margin-bottom:4px;">' +
-              '<span style="font-size:0.62rem;color:' + textColor + ';font-family:Space Mono,monospace;">' + label + '</span>' +
-              '<span style="font-size:0.62rem;color:' + textColor + ';font-family:Space Mono,monospace;">' + fmtVal(val) + '</span>' +
+
+        function sparkline(val, color) {
+          // SVG line: flat start, then up or down based on sign
+          const W = 80, H = 36, mid = H / 2;
+          const endY = val >= 0 ? 6 : H - 6;  // up if positive, down if negative
+          const glow = val >= 0 ? 'drop-shadow(0 0 3px ' + color + ')' : '';
+          return '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="filter:' + glow + ';">' +
+            '<polyline points="0,' + mid + ' ' + (W*0.35) + ',' + mid + ' ' + W + ',' + endY + '" ' +
+              'fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '<circle cx="' + W + '" cy="' + endY + '" r="3" fill="' + color + '"/>' +
+          '</svg>';
+        }
+
+        function lineRow(label, val, color) {
+          return '<div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+            '<div style="display:flex;flex-direction:column;">' +
+              '<span style="font-size:0.58rem;color:#9ca3af;font-family:Space Mono,monospace;margin-bottom:2px;">' + label + '</span>' +
+              '<span style="font-size:0.68rem;color:' + color + ';font-family:Space Mono,monospace;font-weight:700;">' + fmtVal(val) + '</span>' +
             '</div>' +
-            '<div style="background:rgba(255,255,255,0.06);border-radius:4px;height:8px;width:' + FULL + 'px;">' +
-              '<div style="height:8px;width:' + w + 'px;background:' + barColor + ';border-radius:4px;' + glowStyle + '"></div>' +
-            '</div>' +
+            sparkline(val, color) +
           '</div>';
         }
+
         const kashColor = kashGain >= 0 ? '#39ff14' : '#ef4444';
         const savColor  = savingsGain >= 0 ? '#6b7280' : '#ef4444';
         chartWrap.innerHTML =
-          '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--silver);letter-spacing:1px;margin-bottom:10px;">GAIN / LOSS</div>' +
-          chartRow('Savings', savingsGain, savColor,  '#9ca3af', false) +
-          chartRow('KA$H',    kashGain,    kashColor, kashColor, kashGain >= 0);
+          '<div style="font-family:Space Mono,monospace;font-size:0.55rem;color:var(--silver);letter-spacing:1px;margin-bottom:8px;">GAIN / LOSS</div>' +
+          lineRow('Savings', savingsGain, savColor) +
+          lineRow('KA$H',    kashGain,    kashColor);
       }
     }
   }
