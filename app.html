@@ -1626,7 +1626,29 @@ async function loginGoogle() {
   });
 }
 
+// ── AUTO-LOGOUT AFTER 10 MINUTES OF INACTIVITY ─────────────────────────
+let _inactivityTimer = null;
+const INACTIVITY_MS = 10 * 60 * 1000; // 10 minutes
+
+function resetInactivityTimer() {
+  clearTimeout(_inactivityTimer);
+  _inactivityTimer = setTimeout(async () => {
+    if (_supabase && (await _supabase.auth.getSession()).data.session) {
+      await logoutUser();
+      alert('You have been signed out due to 10 minutes of inactivity.');
+    }
+  }, INACTIVITY_MS);
+}
+
+function startInactivityWatcher() {
+  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+  resetInactivityTimer();
+}
+
 async function logoutUser() {
+  clearTimeout(_inactivityTimer);
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
@@ -1892,6 +1914,7 @@ async function initApp() {
 
   document.getElementById('appContent').style.display = 'block';
   document.body.classList.add('app-visible');
+  startInactivityWatcher(); // start 10-min auto-logout
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
   // Migrate portfolio from localStorage to Supabase (one-time migration)
@@ -2494,7 +2517,7 @@ function renderOverview() {
                 <span style="font-family:'Space Mono',monospace;color:#22c55e;">+$${savingsAdvantage.toFixed(2)}</span>
               </div>
             </div>
-            <div style="width:130px;flex-shrink:0;" id="comparisonChartWrap"></div>
+            <div style="width:160px;flex-shrink:0;" id="comparisonChartWrap"></div>
           </div>
         </div>`;
 
@@ -2504,7 +2527,7 @@ function renderOverview() {
         const savingsGain = Math.max(0, savingsBalance - totalInvestedReal);
         const kashGain    = Math.max(0, marketGenerated);
         const maxGain     = Math.max(savingsGain, kashGain, 0.01);
-        const FULL        = 80; // px — full bar width
+        const FULL        = 120; // px — full bar width
         // Minimum bar width 8px so it's always visible
         // Log scale so small values remain visible
         function bw(val) { if (val <= 0) return 8; return Math.max(8, Math.round((Math.log(val+1) / Math.log(maxGain+1)) * FULL)); }
