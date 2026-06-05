@@ -1494,7 +1494,7 @@
         <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
       </div>
       <div class="form-group">
-        <label>Annual Interest Rate (%)</label>
+        <label>Expected Return Rate (%)</label>
         <input type="number" id="projInterestRate" placeholder="ex: 7" min="0" max="50" step="0.01" value="7">
       </div>
     </div>
@@ -2388,13 +2388,26 @@ function renderOverview() {
     const realDaily = (realDaysLeft > 0 && realRemaining > 0)
       ? (realRemaining / realDaysLeft) / Math.pow(1 + realDailyRate, realAvgDays) + (realMonthlyFee / 30)
       : 0;
-    // Real rate observed from portfolio vs actual invested
+    // All gains projected to end of project period
     const totalInvestedReal = st.totalInvested + st.transferBalance;
-    const marketGenerated = Math.max(0, realBalance - totalInvestedReal);
-    const savingsRate = 0.5 / 100 / 365;
-    const daysElapsed = Math.max(1, 60 - realDaysLeft);
-    const savingsBalance = totalInvestedReal > 0 ? totalInvestedReal * Math.pow(1 + savingsRate, daysElapsed) : 0;
-    const savingsAdvantage = realBalance - savingsBalance;
+    const projStartDate = new Date((activeProj.startDate || activeProj.date) + 'T12:00:00');
+    const projEndDate   = new Date(activeProj.date + 'T12:00:00');
+    const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
+    const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
+
+    // Real gain observed so far
+    const marketGeneratedSoFar = Math.max(0, realBalance - totalInvestedReal);
+    // Real daily rate observed
+    const realDailyRateObs = totalInvestedReal > 0 ? marketGeneratedSoFar / totalInvestedReal / daysElapsed : 0;
+    // Project real gain to end of project using observed rate
+    const realGainAtEnd = realBalance * realDailyRateObs * realDaysLeft;
+    const marketGenerated = marketGeneratedSoFar + realGainAtEnd;
+
+    // Savings projected over full project period at 0.5% aa
+    const savingsRate   = 0.5 / 100 / 365;
+    const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
+    const savingsBalance = totalInvestedReal + savingsGainAtEnd;
+    const savingsAdvantage = (realBalance + realGainAtEnd) - savingsBalance;
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
@@ -2461,7 +2474,7 @@ function renderOverview() {
           </div>
         </div>
         <div style="background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.12);border-radius:10px;padding:14px 16px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);letter-spacing:1.5px;margin-bottom:10px;">MARKET VS SAVINGS ACCOUNT</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);letter-spacing:1.5px;margin-bottom:10px;">MARKET VS SAVINGS — AT PROJECT END</div>
           <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
             <span style="color:var(--silver);">You invested</span>
             <span style="font-family:'Space Mono',monospace;color:var(--white);">$${totalInvestedReal.toFixed(2)}</span>
@@ -2478,7 +2491,34 @@ function renderOverview() {
             <span style="color:var(--white);">Your advantage</span>
             <span style="font-family:'Space Mono',monospace;color:#22c55e;">+$${savingsAdvantage.toFixed(2)}</span>
           </div>
+          <div style="margin-top:16px;" id="comparisonChartWrap"></div>
         </div>`;
+
+      // Render comparison chart separately to avoid template literal nesting issues
+      const chartWrap = document.getElementById('comparisonChartWrap');
+      if (chartWrap) {
+        const bars = [
+          { label: 'Invested', val: totalInvestedReal, color: '#4b5563', textColor: '#9ca3af' },
+          { label: 'Savings',  val: savingsBalance,    color: '#6b7280', textColor: '#9ca3af' },
+          { label: 'KA$H',     val: realBalance,       color: '#39ff14', textColor: '#39ff14' },
+        ];
+        const maxVal = Math.max(...bars.map(b => b.val)) * 1.15 || 1;
+        const barW = 28, gap = 8, svgH = 80;
+        const svgW = bars.length * (barW + gap) - gap + 40;
+        const header = '<div style="font-family:Space Mono,monospace;font-size:0.58rem;color:var(--silver);letter-spacing:1.5px;margin-bottom:10px;">BALANCE COMPARISON</div>';
+        let barsHTML = '';
+        bars.forEach(function(b, i) {
+          const pct = b.val / maxVal;
+          const bH = Math.max(4, Math.round(pct * 54));
+          const x = 20 + i * (barW + gap);
+          const y = 58 - bH;
+          barsHTML += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + bH + '" rx="3" fill="' + b.color + '" opacity="0.9"/>';
+          barsHTML += '<text x="' + (x + barW/2) + '" y="72" text-anchor="middle" font-family="Space Mono,monospace" font-size="6.5" fill="' + b.textColor + '">' + b.label + '</text>';
+          barsHTML += '<text x="' + (x + barW/2) + '" y="' + (y - 3) + '" text-anchor="middle" font-family="Space Mono,monospace" font-size="6" fill="' + b.textColor + '">$' + b.val.toFixed(0) + '</text>';
+        });
+        const svg = '<svg width="100%" viewBox="0 0 ' + svgW + ' ' + svgH + '" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">' + barsHTML + '</svg>';
+        chartWrap.innerHTML = header + svg;
+      }
     }
   }
 }
@@ -2593,7 +2633,7 @@ function renderProjectPanel(proj) {
         </div>
         <div class="kpi">
           <span class="kpi-value gold">${proj.interestRate ?? state.interestRate ?? 7}%</span>
-          <span class="kpi-label">Return Rate</span>
+          <span class="kpi-label">Target Rate</span>
         </div>
         <div class="kpi">
           <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * (proj.interestRate ?? state.interestRate ?? 7) / 100)}</span>
@@ -2621,7 +2661,7 @@ function renderProjectPanel(proj) {
               <th>#</th>
               <th>Date</th>
               <th>Amount</th>
-              <th>Est. Interest</th>
+              <th>Est. Gain</th>
               <th>Accumulated</th>
               <th>Note</th>
               <th class="no-print"></th>
@@ -2736,7 +2776,7 @@ function exportCSV(projId) {
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
   const st = calcProject(proj);
-  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Est. Interest', 'Accumulated', 'Note']];
+  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Est. Gain', 'Accumulated', 'Note']];
   st.rows.forEach(r => {
     rows.push([proj.name, r.idx, r.date, r.amount.toFixed(2),
                r.interestEst.toFixed(2), r.running.toFixed(2), r.note || '']);
@@ -3790,7 +3830,7 @@ boot();
     <!-- Module 02 -->
     <div class="help-panel" id="helpPanel1">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Open the Form</strong><br>In the <em>Overview</em> tab, click <em>"+ New Project"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Annual Interest Rate (%):</em> estimated return — e.g. 7%<br><em>Start Date / End Date:</em> define the timeline<br><em>Fee ($/month):</em> platform fee (e.g. Acorns $3.00). Zero if not applicable.<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Expected Return Rate (%):</em> avg market return — e.g. 7%<br><em>Start Date / End Date:</em> define the timeline<br><em>Fee ($/month):</em> platform fee (e.g. Acorns $3.00). Zero if not applicable.<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
       <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Create the Project</strong><br>Click <em>"Create Project"</em>. The recommended daily contribution is calculated automatically using compound interest.</div></div>
       <div class="help-note">📌 You can create multiple projects — each with its own goal, rate and timeline.</div>
     </div>
