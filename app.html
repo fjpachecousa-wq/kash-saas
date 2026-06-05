@@ -2411,26 +2411,25 @@ function renderOverview() {
     const realDaily = (realDaysLeft > 0 && realRemaining > 0)
       ? (realRemaining / realDaysLeft) / Math.pow(1 + realDailyRate, realAvgDays) + (realMonthlyFee / 30)
       : 0;
-    // totalInvestedReal = cost basis recalculated from shares × buyPrice — identical to Asset Portfolio "Invested"
-    const totalInvestedReal = portfolioReal > 0
-      ? portfolioEntries.reduce((sum, entry) =>
-          sum + (entry.etfs || []).reduce((s, et) => s + ((et.shares||0) * (et.buyPrice||0)), 0), 0)
-      : (activeProj.contributions || [])
-          .filter(c => !c.pending)
-          .reduce((sum, c) => sum + (c.isTransfer ? 0 : c.net || 0), 0) + st.transferBalance;
+    // You invested = confirmed contributions of THIS project only (no pending)
+    const totalInvestedReal = st.totalInvested + st.transferBalance;
+
     const projStartDate = new Date((activeProj.startDate || activeProj.date) + 'T12:00:00');
     const projEndDate   = new Date(activeProj.date + 'T12:00:00');
     const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
     const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
 
-    // Real gain/loss observed so far — no future projection (REAL = what happened, not what will happen)
-    const marketGenerated = realBalance - totalInvestedReal;
+    // Market generated = portfolio Return% applied to project invested amount
+    const portfolioCostBasis = portfolioEntries.reduce((sum, entry) =>
+      sum + (entry.etfs || []).reduce((s, et) => s + ((et.shares||0) * (et.buyPrice||0)), 0), 0);
+    const portfolioReturnPct = portfolioCostBasis > 0 ? (portfolioReal - portfolioCostBasis) / portfolioCostBasis : 0;
+    const marketGenerated = totalInvestedReal * portfolioReturnPct;
 
-    // Savings projected over full project period at 0.5% aa
-    const savingsRate   = 0.5 / 100 / 365;
-    const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, projTotalDays) - totalInvestedReal;
-    const savingsBalance = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = marketGenerated - savingsGainAtEnd; // ETF result minus Savings result
+    // Savings = same amount invested in savings account for days elapsed
+    const savingsRate      = 0.5 / 100 / 365;
+    const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, daysElapsed) - totalInvestedReal;
+    const savingsBalance   = totalInvestedReal + savingsGainAtEnd;
+    const savingsAdvantage = marketGenerated - savingsGainAtEnd;
 
     const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
     const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
