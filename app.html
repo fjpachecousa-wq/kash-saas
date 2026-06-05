@@ -2417,19 +2417,16 @@ function renderOverview() {
     const realDaily = (realDaysLeft > 0 && realRemaining > 0)
       ? (realRemaining / realDaysLeft) / Math.pow(1 + realDailyRate, realAvgDays) + (realMonthlyFee / 30)
       : 0;
-    // You invested = confirmed contributions of THIS project only (no pending)
-    const totalInvestedReal = st.totalInvested + st.transferBalance;
-
     const projStartDate = new Date((activeProj.startDate || activeProj.date) + 'T12:00:00');
     const projEndDate   = new Date(activeProj.date + 'T12:00:00');
     const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
     const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
 
-    // Market generated = portfolio Return% applied to project invested amount
-    const portfolioCostBasis = portfolioEntries.reduce((sum, entry) =>
-      sum + (entry.etfs || []).reduce((s, et) => s + ((et.shares||0) * (et.buyPrice||0)), 0), 0);
-    const portfolioReturnPct = portfolioCostBasis > 0 ? (portfolioReal - portfolioCostBasis) / portfolioCostBasis : 0;
-    const marketGenerated = totalInvestedReal * portfolioReturnPct;
+    // You invested = confirmed contributions + transfer - total fee
+    const totalInvestedReal = st.totalInvested + st.transferBalance - st.totalFeeAll;
+
+    // Market generated = portfolio current value - you invested (gain if +, loss if -)
+    const marketGenerated = portfolioReal > 0 ? portfolioReal - totalInvestedReal : 0;
 
     // Savings = same amount invested in savings account for days elapsed
     const savingsRate      = 0.5 / 100 / 365;
