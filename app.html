@@ -2200,8 +2200,8 @@ function addContribution(projId) {
   if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
 
   const net = amt;
-  // pending derived automatically: today or future = not yet posted to Acorns
-  const pending = dt >= todayStr();
+  // pending: true if the next US business day after the contribution date hasn't arrived yet
+  const pending = nextBusinessDay(dt) > todayStr();
 
   proj.contributions.push({
     id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note,
