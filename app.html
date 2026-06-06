@@ -2315,9 +2315,6 @@ function renderOverview() {
     container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No projects yet.<br>Create your first goal!</p></div>`;
     totalBanner.style.display = 'none';
     manifesto.style.display = 'none';
-    document.getElementById('ovTotalInvested').textContent = fmt(0);
-    document.getElementById('ovTotalBalance').textContent = fmt(0);
-    document.getElementById('ovTotalPassive').textContent = fmt(0);
     document.getElementById('ovTotalProjects').textContent = '0';
     document.getElementById('ovTotalContribs').textContent = '0';
     document.getElementById('ovTotalPending').textContent = '0';
@@ -2369,9 +2366,6 @@ function renderOverview() {
 
   container.innerHTML = cards;
 
-  document.getElementById('ovTotalInvested').textContent = fmt(sumInvested);
-  document.getElementById('ovTotalBalance').textContent = fmt(sumBalance);
-  document.getElementById('ovTotalPassive').textContent = fmt(sumPassive);
   const activeProjects = state.projects.filter(p => !p.closed && !p.transferred).length;
   document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
@@ -2418,7 +2412,10 @@ function renderOverview() {
       <div style="${rowStyle}">
         <span style="${labelStyle}">${m.label}</span>
         <strong style="${valStyle}color:${m.color};">${m.value}</strong>
-      </div>`).join('');
+      </div>`).join('') + (portfolioReal === 0 ? `
+      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(251,191,36,0.7);padding:8px 0;letter-spacing:0.5px;">
+        ⚠ No portfolio shares registered. Go to <strong style="color:#fbbf24;">Portfolio → + New Entry</strong> to track your real balance.
+      </div>` : '');
 
     // Progress bar
     document.getElementById('ovProgressLabel').textContent = fmt(portfolioReal) + ' / ' + fmt(activeProj.target);
