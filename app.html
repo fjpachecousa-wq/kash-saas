@@ -1436,6 +1436,7 @@
           &nbsp;·&nbsp;
           Pending: <strong style="color:#f59e0b;" id="ovTotalPending">0</strong>
         </div>
+        <div id="ovStreak" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#f97316;letter-spacing:1px;"></div>
       </div>
 
     </div>
@@ -2033,6 +2034,76 @@ function nextBusinessDay(dateStr) {
 }
 
 
+// Returns YYYY-MM-DD of the previous US business day before a given date
+function prevBusinessDay(dateStr) {
+  function usHolidays(y) {
+    function nthDay(y,m,n,weekday){const d=new Date(y,m-1,1);let count=0;while(true){if(d.getDay()===weekday){count++;if(count===n)break;}d.setDate(d.getDate()+1);}return d.toISOString().slice(0,10);}
+    function lastDay(y,m,weekday){const d=new Date(y,m,0);while(d.getDay()!==weekday)d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
+    function observed(ds){const d=new Date(ds+'T12:00:00');const dow=d.getDay();if(dow===6)d.setDate(d.getDate()-1);if(dow===0)d.setDate(d.getDate()+1);return d.toISOString().slice(0,10);}
+    return new Set([observed(y+'-01-01'),nthDay(y,1,3,1),nthDay(y,2,3,1),lastDay(y,5,1),observed(y+'-06-19'),observed(y+'-07-04'),nthDay(y,9,1,1),nthDay(y,10,2,1),observed(y+'-11-11'),nthDay(y,11,4,4),observed(y+'-12-25')]);
+  }
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() - 1);
+  while (true) {
+    const dow = d.getDay();
+    const iso = d.toISOString().slice(0, 10);
+    if (dow !== 0 && dow !== 6 && !usHolidays(d.getFullYear()).has(iso)) return iso;
+    d.setDate(d.getDate() - 1);
+  }
+}
+
+// Returns current contribution streak (consecutive business days with at least 1 confirmed contribution)
+function calcStreak(projects) {
+  // Collect all confirmed, non-transfer, positive contribution dates across all active projects
+  const dateset = new Set();
+  (projects || []).forEach(proj => {
+    (proj.contributions || []).forEach(c => {
+      if (!c.pending && !c.isTransfer && c.amount > 0) dateset.add(c.date);
+    });
+  });
+  if (dateset.size === 0) return 0;
+
+  // Find the most recent business day (today or last business day if weekend/holiday)
+  function isBusinessDay(dateStr) {
+    function usHolidays(y) {
+      function nthDay(y,m,n,weekday){const d=new Date(y,m-1,1);let count=0;while(true){if(d.getDay()===weekday){count++;if(count===n)break;}d.setDate(d.getDate()+1);}return d.toISOString().slice(0,10);}
+      function lastDay(y,m,weekday){const d=new Date(y,m,0);while(d.getDay()!==weekday)d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
+      function observed(ds){const d=new Date(ds+'T12:00:00');const dow=d.getDay();if(dow===6)d.setDate(d.getDate()-1);if(dow===0)d.setDate(d.getDate()+1);return d.toISOString().slice(0,10);}
+      return new Set([observed(y+'-01-01'),nthDay(y,1,3,1),nthDay(y,2,3,1),lastDay(y,5,1),observed(y+'-06-19'),observed(y+'-07-04'),nthDay(y,9,1,1),nthDay(y,10,2,1),observed(y+'-11-11'),nthDay(y,11,4,4),observed(y+'-12-25')]);
+    }
+    const d = new Date(dateStr + 'T12:00:00');
+    const dow = d.getDay();
+    return dow !== 0 && dow !== 6 && !usHolidays(d.getFullYear()).has(dateStr);
+  }
+
+  // Start from today; if today is not a business day, step back to last business day
+  let cursor = todayStr();
+  if (!isBusinessDay(cursor)) cursor = prevBusinessDay(cursor);
+
+  // If the most recent business day has no contribution yet, check the one before
+  // (grace: user may not have contributed today yet — don't break streak prematurely)
+  // But only one grace step — if that day also has no contribution, streak is 0
+  if (!dateset.has(cursor)) cursor = prevBusinessDay(cursor);
+
+  // Count consecutive business days with contributions
+  let streak = 0;
+  while (dateset.has(cursor)) {
+    streak++;
+    cursor = prevBusinessDay(cursor);
+    if (streak > 365) break;
+  }
+  return streak;
+}
+
+// Returns streak display string
+function streakDisplay(streak) {
+  if (streak === 0) return '';
+  const flames = streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : '🔥';
+  const suffix = streak >= 7 ? ' — keep going!' : '';
+  return `${flames} ${streak}-day streak${suffix}`;
+}
+
+
 function nextProjectNum() {
   if (!state.projects.length) return 1;
   return Math.max(...state.projects.map(p => p.num)) + 1;
@@ -2363,6 +2434,11 @@ function renderOverview() {
   document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
 
+  // Streak
+  const streak = calcStreak(state.projects);
+  const streakEl = document.getElementById('ovStreak');
+  if (streakEl) streakEl.textContent = streakDisplay(streak);
+
   // ── NEW SINGLE PANEL — portfolioReal-based ─────────────────────────────
   const activeProj = state.projects.find(p => !p.closed && !p.transferred);
   if (activeProj) {
@@ -2479,6 +2555,7 @@ function renderProjectPanel(proj) {
         <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
         <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transfer Balance</button>'}</div>
+        ${streakDisplay(calcStreak(state.projects)) ? `<div style="margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;">${streakDisplay(calcStreak(state.projects))}</div>` : ''}
       </div>
     </div>
 
