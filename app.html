@@ -1402,33 +1402,32 @@
     <!-- STATEMENT — ESTIMATED vs REAL -->
     <div id="totalBanner" style="display:none;">
 
-      <!-- Comparativo header -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <!-- SINGLE GOAL PANEL -->
+      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.25);border-radius:14px;padding:22px 26px;margin-bottom:12px;">
 
-        <!-- ESTIMATED column -->
-        <div style="background:rgba(57,255,20,0.04);border:1px solid rgba(57,255,20,0.15);border-radius:14px;padding:18px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
-            📊 PROJECTED
-            <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(57,255,20,0.5);font-weight:normal;letter-spacing:1px;">7% est. · math only</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:10px;" id="estimatedColumn"></div>
+        <!-- Goal header -->
+        <div style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span id="ovGoalHeader">GOAL</span>
+          <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.6rem;padding:3px 10px;border:1px solid rgba(57,255,20,0.25);border-radius:6px;background:transparent;color:var(--green-neon);cursor:pointer;">🔄 Refresh</button>
         </div>
 
-        <!-- REAL column -->
-        <div style="background:rgba(96,165,250,0.04);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:18px;">
-          <div style="font-family:'Bebas Neue',cursive;font-size:0.9rem;color:#60a5fa;letter-spacing:3px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              📈 REAL
-              <span style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(96,165,250,0.5);font-weight:normal;letter-spacing:1px;">market value · updates daily</span>
-            </div>
-            <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.6rem;padding:3px 10px;border:1px solid rgba(96,165,250,0.3);border-radius:6px;background:transparent;color:#60a5fa;cursor:pointer;">🔄 Refresh</button>
+        <!-- Metrics rows -->
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;" id="ovMetricsRows"></div>
+
+        <!-- Progress bar -->
+        <div class="progress-wrap" style="margin:0;">
+          <div class="progress-label">
+            <span id="ovProgressLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">$0.00 / $0.00</span>
+            <span id="ovProgressPct" style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--green-neon);">0%</span>
           </div>
-          <div style="display:flex;flex-direction:column;gap:10px;" id="realColumn"></div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="ovProgressFill" style="width:0%;"></div>
+          </div>
         </div>
 
       </div>
 
-      <!-- Net impact row -->
+      <!-- Stats footer -->
       <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
         <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:1px;">
           Active Projects: <strong style="color:var(--white);" id="ovTotalProjects">0</strong>
@@ -1437,14 +1436,7 @@
           &nbsp;·&nbsp;
           Pending: <strong style="color:#f59e0b;" id="ovTotalPending">0</strong>
         </div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;letter-spacing:1px;" id="netImpactRow"></div>
       </div>
-      <div id="kashVsSavingsBlock" style="margin-top:12px;"></div>
-
-      <!-- Hidden spans for compatibility -->
-      <span id="ovTotalInvested" style="display:none;">$0.00</span>
-      <span id="ovTotalBalance" style="display:none;">$0.00</span>
-      <span id="ovTotalPassive" style="display:none;">$0.00</span>
 
     </div>
 
@@ -2173,7 +2165,7 @@ function addContribution(projId) {
   const dtRaw = document.getElementById('dt-' + projId).value || todayMMDDYYYY();
   const dt = parseDateInput(dtRaw);
   const note = document.getElementById('note-' + projId).value.trim();
-  if (!amt || amt <= 0) return alert('Please enter a valid contribution amount.');
+  if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
 
   const net = amt;
   // pending derived automatically: today or future = not yet posted to Acorns
@@ -2384,147 +2376,54 @@ function renderOverview() {
   document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
 
-  // Build ESTIMATED vs REAL columns using active project data + portfolio real value
+  // ── NEW SINGLE PANEL — portfolioReal-based ─────────────────────────────
   const activeProj = state.projects.find(p => !p.closed && !p.transferred);
   if (activeProj) {
     const st = calcProject(activeProj);
 
-    // REAL values from portfolio — exclude pending contributions
-    const pendingTotal = (activeProj.contributions || [])
-      .filter(c => c.pending && !c.isTransfer)
-      .reduce((sum, c) => sum + (c.net || 0), 0);
-    const pendingCount = (activeProj.contributions || []).filter(c => c.pending).length;
-    document.getElementById('ovTotalPending').textContent = pendingCount;
-
+    // portfolioReal = shares × current price (from cache or buyPrice fallback)
     const portfolioReal = portfolioEntries.reduce((sum, entry) => {
-      const entryVal = (entry.etfs || []).reduce((s, et) => {
+      return sum + (entry.etfs || []).reduce((s, et) => {
         const cached = etfPriceCache && etfPriceCache[et.ticker];
         const price = cached ? cached.price : et.buyPrice;
         return s + (et.shares || 0) * price;
       }, 0);
-      return sum + entryVal;
     }, 0);
 
-    const realBalance = portfolioReal > 0 ? portfolioReal : st.totalInvested + st.transferBalance;
-    const realGoal = activeProj.target;
-    const realRemaining = Math.max(0, realGoal - realBalance);
-    const realProgress = Math.min(100, realGoal > 0 ? (realBalance / realGoal) * 100 : 0);
-    const realDaysLeft = Math.max(1, st.daysLeft);
-    // realDaily mirrors suggestedDaily — discounts future interest
-    const realDailyRate = (activeProj.interestRate ?? 7) / 100 / 365;
-    const realAvgDays = realDaysLeft / 2;
-    const realMonthlyFee = activeProj.acornsDailyFee || 0;
-    const realDaily = (realDaysLeft > 0 && realRemaining > 0)
-      ? (realRemaining / realDaysLeft) / Math.pow(1 + realDailyRate, realAvgDays) + (realMonthlyFee / 30)
-      : 0;
-    const projStartDate = new Date((activeProj.startDate || activeProj.date) + 'T12:00:00');
-    const projEndDate   = new Date(activeProj.date + 'T12:00:00');
-    const projTotalDays = Math.max(1, Math.round((projEndDate - projStartDate) / 86400000));
-    const daysElapsed   = Math.max(1, Math.round((new Date() - projStartDate) / 86400000));
+    const falta         = Math.max(0, activeProj.target - portfolioReal);
+    const diasRestantes = Math.max(1, st.daysLeft);
+    const aporteNec     = (falta > 0 && diasRestantes > 0) ? falta / diasRestantes : 0;
+    const progresso     = Math.min(100, activeProj.target > 0 ? (portfolioReal / activeProj.target) * 100 : 0);
 
-    // You invested = confirmed contributions + transfer - total fee
-    const totalInvestedReal = st.totalInvested + st.transferBalance;
+    const pendingCount  = (activeProj.contributions || []).filter(c => c.pending).length;
+    document.getElementById('ovTotalPending').textContent = pendingCount;
 
-    // Market generated = portfolio current value - you invested (gain if +, loss if -)
-    const marketGenerated = portfolioReal > 0 ? portfolioReal - totalInvestedReal : 0;
+    // Goal header
+    const deadlineFmt = new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
+    document.getElementById('ovGoalHeader').textContent = `GOAL: ${activeProj.name} · ${fmt(activeProj.target)} by ${deadlineFmt}`;
 
-    // Savings = same amount invested in savings account for days elapsed
-    const savingsRate      = 0.5 / 100 / 365;
-    const savingsGainAtEnd = totalInvestedReal * Math.pow(1 + savingsRate, daysElapsed) - totalInvestedReal;
-    const savingsBalance   = totalInvestedReal + savingsGainAtEnd;
-    const savingsAdvantage = marketGenerated - savingsGainAtEnd;
+    // Metrics rows
+    const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
+    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.68rem;color:var(--silver);letter-spacing:0.5px;';
+    const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.82rem;font-weight:700;';
 
-    const rowStyle = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
-    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.62rem;color:var(--silver);letter-spacing:0.5px;';
-
-    const fields = [
-      { label: 'Goal',            est: fmt(activeProj.target),         real: fmt(realGoal),       estColor: 'var(--white)',       realColor: 'var(--white)' },
-      { label: 'Transferred',     est: fmt(st.transferBalance),         real: fmt(st.transferBalance), estColor:'var(--silver)',   realColor:'var(--silver)' },
-      { label: 'Contributed',     est: fmt(st.totalInvested),           real: fmt(st.totalInvested), estColor:'#fbbf24',          realColor:'#fbbf24' },
-      { label: 'Total Balance',   est: fmt(st.estimatedBalance),        real: fmt(realBalance),    estColor:'var(--green-neon)',   realColor:'#60a5fa' },
-      { label: 'Still Needed',    est: fmt(st.remaining),               real: fmt(realRemaining),  estColor:'#f59e0b',            realColor: realRemaining > st.remaining ? '#ef4444' : '#22c55e' },
-      { label: 'Daily Required',  est: '$' + st.suggestedDaily.toFixed(2), real: '$' + realDaily.toFixed(2), estColor:'var(--silver)', realColor: realDaily > st.suggestedDaily ? '#ef4444' : '#22c55e' },
-      { label: 'Market Generated',
-          est: fmt(st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance),
-          real: (marketGenerated >= 0 ? '+' : '-') + '$' + Math.abs(marketGenerated).toFixed(2),
-          estColor: (st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance) >= 0 ? '#22c55e' : '#ef4444',
-          realColor: marketGenerated >= 0 ? '#22c55e' : '#ef4444' },
-      { label: 'Progress',        est: st.pct.toFixed(1) + '%',         real: realProgress.toFixed(1) + '%', estColor:'var(--green-neon)', realColor:'#60a5fa' },
+    const metrics = [
+      { label: 'Current balance (portfolio)',  value: fmt(portfolioReal),          color: 'var(--green-neon)' },
+      { label: 'Still needed',                 value: fmt(falta),                  color: '#fbbf24' },
+      { label: 'Days remaining',               value: diasRestantes + ' days',     color: 'var(--silver-light)' },
+      { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: portfolioReal >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
     ];
 
-    const estCol = document.getElementById('estimatedColumn');
-    const realCol = document.getElementById('realColumn');
-
-    estCol.innerHTML = fields.map(f => `
+    document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => `
       <div style="${rowStyle}">
-        <span style="${labelStyle}">${f.label}</span>
-        <strong style="font-family:'Space Mono',monospace;font-size:0.75rem;color:${f.estColor};">${f.est}</strong>
+        <span style="${labelStyle}">${m.label}</span>
+        <strong style="${valStyle}color:${m.color};">${m.value}</strong>
       </div>`).join('');
 
-    realCol.innerHTML = fields.map(f => `
-      <div style="${rowStyle}">
-        <span style="${labelStyle}">${f.label}</span>
-        <strong style="font-family:'Space Mono',monospace;font-size:0.75rem;color:${f.realColor};">${f.real}</strong>
-      </div>`).join('');
-
-    // Net impact
-    const diff = realBalance - st.estimatedBalance;
-    const diffColor = diff >= 0 ? '#22c55e' : '#ef4444';
-    const diffFmt = (diff >= 0 ? '+$' : '-$') + Math.abs(diff).toFixed(2);
-    const pendingNote = pendingTotal > 0
-      ? `<span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:#f59e0b;margin-left:12px;">⏳ ${fmt(pendingTotal)} pending — posts tomorrow</span>`
-      : '';
-
-    document.getElementById('netImpactRow').innerHTML = '';
-
-    // ── KA$H vs Poupança + Feedback emocional ──────────────────────────────
-    const savingsEl = document.getElementById('kashVsSavingsBlock');
-    if (savingsEl) {
-      const feedbackType = diff > 0.50 ? 'ahead' : diff < -0.50 ? 'behind' : 'ontrack';
-      const feedbackMap = {
-        ahead:   { icon: '📈', color: '#22c55e', bg: 'rgba(34,197,94,0.07)', border: 'rgba(34,197,94,0.2)',
-                   title: 'You are ahead of the plan.',
-                   sub: `Your real balance is <strong style="color:#f0f0f0;">$${Math.abs(diff).toFixed(2)} above</strong> the projection. Daily required dropped from <strong style="color:#f0f0f0;">$${st.suggestedDaily.toFixed(2)}</strong> to <strong style="color:#22c55e;">$${realDaily.toFixed(2)}</strong>. The market is working for you.` },
-        behind:  { icon: '📉', color: '#ef4444', bg: 'rgba(239,68,68,0.07)', border: 'rgba(239,68,68,0.2)',
-                   title: 'Balance below projection.',
-                   sub: `Your real balance is <strong style="color:#f0f0f0;">$${Math.abs(diff).toFixed(2)} below</strong> the projection. Daily required rose from <strong style="color:#f0f0f0;">$${st.suggestedDaily.toFixed(2)}</strong> to <strong style="color:#ef4444;">$${realDaily.toFixed(2)}</strong>. An extra contribution will recover the pace.` },
-        ontrack: { icon: '✅', color: '#60a5fa', bg: 'rgba(96,165,250,0.07)', border: 'rgba(96,165,250,0.2)',
-                   title: 'Right on track.',
-                   sub: `Balance aligned with projection. Keep your <strong style="color:#f0f0f0;">$${st.suggestedDaily.toFixed(2)}/day</strong> and you'll reach your goal in <strong style="color:#f0f0f0;">${realDaysLeft} days</strong>.` },
-      };
-      const fb = feedbackMap[feedbackType];
-      savingsEl.innerHTML = `
-        <div style="background:${fb.bg};border:1px solid ${fb.border};border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;">
-          <span style="font-size:1.2rem;flex-shrink:0;">${fb.icon}</span>
-          <div>
-            <div style="font-size:0.85rem;font-weight:600;color:${fb.color};margin-bottom:4px;">${fb.title}</div>
-            <div style="font-size:0.75rem;color:var(--silver);line-height:1.5;">${fb.sub}</div>
-          </div>
-        </div>
-        <div style="background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.12);border-radius:10px;padding:14px 16px;">
-          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);letter-spacing:1.5px;margin-bottom:12px;">MARKET VS SAVINGS — AT PROJECT END</div>
-          <div style="display:flex;gap:16px;align-items:stretch;">
-            <div style="flex:1;">
-              <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span style="color:var(--silver);">You invested</span>
-                <span style="font-family:'Space Mono',monospace;color:var(--white);">$${totalInvestedReal.toFixed(2)}</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span style="color:var(--silver);">Market generated</span>
-                <span style="font-family:'Space Mono',monospace;color:${marketGenerated >= 0 ? '#22c55e' : '#ef4444'};">${marketGenerated >= 0 ? '+$' : '-$'}${Math.abs(marketGenerated).toFixed(2)}</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-                <span style="color:var(--silver);">Savings would give</span>
-                <span style="font-family:'Space Mono',monospace;color:var(--silver);">$${(st.estimatedBalance + st.totalFeeAll - st.totalInvested - st.transferBalance).toFixed(2)}</span>
-              </div>
-
-            </div>
-
-          </div>
-        </div>`;
-
-
-    }
+    // Progress bar
+    document.getElementById('ovProgressLabel').textContent = fmt(portfolioReal) + ' / ' + fmt(activeProj.target);
+    document.getElementById('ovProgressPct').textContent   = progresso.toFixed(1) + '%';
+    document.getElementById('ovProgressFill').style.width  = progresso.toFixed(1) + '%';
   }
 }
 
@@ -2599,7 +2498,7 @@ function renderProjectPanel(proj) {
       <div class="form-row three">
         <div class="form-group">
           <label>Amount ($)</label>
-          <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00" min="0.01" step="0.01">
+          <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00 or -3.00" step="0.01">
         </div>
         <div class="form-group">
           <label>Date</label>
