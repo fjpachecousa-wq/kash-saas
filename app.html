@@ -2616,6 +2616,38 @@ function renderProjectPanel(proj) {
       </div>`}
     </div>
 
+    <!-- ETF SUGGESTIONS -->
+    ${(() => {
+      const suggested = getSuggestedEtfs(proj);
+      if (!suggested.length) return '';
+      const sectorLabel = { dividend:'Dividend', bonds:'Bonds', broad:'Broad Market', tech:'Technology', international:'International', smallcap:'Small Cap', real_estate:'Real Estate' };
+      const sectorColor = { dividend:'#fbbf24', bonds:'#60a5fa', broad:'var(--green-neon)', tech:'#a78bfa', international:'#22d3ee', smallcap:'#fb923c', real_estate:'#f472b6' };
+      const riskLabel = { conservative:'🟢 Conservative', moderate:'🟡 Moderate', aggressive:'🔴 Aggressive' };
+      return `
+      <div class="card">
+        <div class="card-title">💡 ETFs for Your Profile
+          <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--silver);font-weight:400;letter-spacing:1px;margin-left:8px;">not in your portfolio · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+          ${suggested.map(e => `
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--green-neon);letter-spacing:2px;">${e.ticker}</span>
+                <span style="font-family:'Space Mono',monospace;font-size:0.6rem;background:${sectorColor[e.sector] || 'var(--silver)'}22;color:${sectorColor[e.sector] || 'var(--silver)'};border:1px solid ${sectorColor[e.sector] || 'var(--silver)'}44;border-radius:4px;padding:2px 7px;letter-spacing:1px;">${sectorLabel[e.sector] || e.sector}</span>
+                ${e.sector === 'dividend' || e.objective.includes('income') ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:2px 7px;letter-spacing:1px;">💰 Dividend</span>` : ''}
+              </div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);">
+                ${riskLabel[e.risk] || e.risk} &nbsp;·&nbsp; <span style="color:rgba(192,192,192,0.6);">expense ${e.expense}%</span>
+              </div>
+            </div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);line-height:1.5;">${e.name}</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.55);margin-top:4px;line-height:1.5;">${e.description}</div>
+          </div>`).join('')}
+        </div>
+      </div>`;
+    })()}
+
     <!-- HISTORY TABLE -->
     <div class="card">
       <div class="card-title">📋 Contribution History</div>
@@ -3646,6 +3678,40 @@ async function refreshOverviewReal() {
   await Promise.all(tickers.map(t => fetchEtfPrice(t)));
   renderOverview();
   if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
+}
+
+// ══════════════════════════════════════════════════
+// ETF SUGGESTIONS BY RISK PROFILE
+// ══════════════════════════════════════════════════
+function getSuggestedEtfs(proj) {
+  // Tickers already in user's portfolio
+  const owned = new Set();
+  (portfolioEntries || []).forEach(e => {
+    (e.etfs || []).forEach(et => owned.add(et.ticker));
+  });
+
+  // Risk mapping: project risk (pt) → catalog risk values (en), in priority order
+  const riskMap = {
+    conservador: ['conservative', 'moderate'],
+    moderado:    ['moderate', 'conservative'],
+    agressivo:   ['aggressive', 'moderate'],
+  };
+  const allowed = riskMap[proj.risk] || ['moderate', 'conservative'];
+
+  // Filter: not owned + allowed risk
+  const candidates = ETF_DATABASE.filter(e =>
+    !owned.has(e.ticker) && allowed.includes(e.risk)
+  );
+
+  // Sort: sector=dividend first, then income objective, then by expense ratio asc
+  candidates.sort((a, b) => {
+    const aDiv = a.sector === 'dividend' ? 0 : a.objective.includes('income') ? 1 : 2;
+    const bDiv = b.sector === 'dividend' ? 0 : b.objective.includes('income') ? 1 : 2;
+    if (aDiv !== bDiv) return aDiv - bDiv;
+    return a.expense - b.expense;
+  });
+
+  return candidates.slice(0, 3);
 }
 
 // ══════════════════════════════════════════════════
