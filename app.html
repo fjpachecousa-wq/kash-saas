@@ -2594,28 +2594,6 @@ function renderProjectPanel(proj) {
       </div>
     </div>
 
-    <!-- PASSIVE INCOME -->
-    <div class="card">
-      <div class="card-title">🌿 Market Performance — ${proj.name}</div>
-      <div class="kpi-grid">
-        <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
-          <span class="kpi-value" style="color:var(--green-mid);">${fmt(Math.max(0, st.estimatedBalance - st.totalInvested - st.transferBalance))}</span>
-          <span class="kpi-label">Market Generated</span>
-        </div>
-        <div class="kpi">
-          <span class="kpi-value gold">${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'}</span>
-          <span class="kpi-label">Risk Profile</span>
-        </div>
-      </div>
-      ${Math.max(0, st.estimatedBalance - st.totalInvested - st.transferBalance) >= 0.01 ? `
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--green-mid);margin-top:8px;letter-spacing:1px;">
-        ✅ The market already generated <strong>${fmt(Math.max(0, st.estimatedBalance - st.totalInvested - st.transferBalance))}</strong> on top of your contributions.
-      </div>` : `
-      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:rgba(192,192,192,0.5);margin-top:8px;letter-spacing:1px;">
-        💬 Every contribution here earns more than a savings account. There is no zero result.
-      </div>`}
-    </div>
-
     <!-- ETF SUGGESTIONS -->
     ${(() => {
       const suggested = getSuggestedEtfs(proj);
@@ -2623,10 +2601,14 @@ function renderProjectPanel(proj) {
       const sectorLabel = { dividend:'Dividend', bonds:'Bonds', broad:'Broad Market', tech:'Technology', international:'International', smallcap:'Small Cap', real_estate:'Real Estate' };
       const sectorColor = { dividend:'#fbbf24', bonds:'#60a5fa', broad:'var(--green-neon)', tech:'#a78bfa', international:'#22d3ee', smallcap:'#fb923c', real_estate:'#f472b6' };
       const riskLabel = { conservative:'🟢 Conservative', moderate:'🟡 Moderate', aggressive:'🔴 Aggressive' };
+      const projRiskLabel = { conservador:'🟢 Conservative', moderado:'🟡 Moderate', agressivo:'🔴 Aggressive' };
       return `
       <div class="card">
-        <div class="card-title">💡 ETFs for Your Profile
-          <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--silver);font-weight:400;letter-spacing:1px;margin-left:8px;">not in your portfolio · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk</span>
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <span>💡 ETFs for Your Profile</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.65rem;font-weight:400;letter-spacing:1px;color:var(--silver);">
+            ${projRiskLabel[proj.risk] || '🟡 Moderate'} &nbsp;·&nbsp; <span style="color:rgba(192,192,192,0.5);">suggestions update with your risk profile</span>
+          </span>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
           ${suggested.map(e => `
@@ -2637,8 +2619,9 @@ function renderProjectPanel(proj) {
                 <span style="font-family:'Space Mono',monospace;font-size:0.6rem;background:${sectorColor[e.sector] || 'var(--silver)'}22;color:${sectorColor[e.sector] || 'var(--silver)'};border:1px solid ${sectorColor[e.sector] || 'var(--silver)'}44;border-radius:4px;padding:2px 7px;letter-spacing:1px;">${sectorLabel[e.sector] || e.sector}</span>
                 ${e.sector === 'dividend' || e.objective.includes('income') ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:2px 7px;letter-spacing:1px;">💰 Dividend</span>` : ''}
               </div>
-              <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);">
-                ${riskLabel[e.risk] || e.risk} &nbsp;·&nbsp; <span style="color:rgba(192,192,192,0.6);">expense ${e.expense}%</span>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <span style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);">${riskLabel[e.risk] || e.risk} &nbsp;·&nbsp; <span style="color:rgba(192,192,192,0.6);">expense ${e.expense}%</span></span>
+                <button onclick="switchTab('portfolio')" style="font-family:'Space Mono',monospace;font-size:0.58rem;padding:3px 10px;border:1px solid rgba(57,255,20,0.3);border-radius:5px;background:rgba(57,255,20,0.05);color:var(--green-neon);cursor:pointer;letter-spacing:1px;white-space:nowrap;">+ Add to Portfolio</button>
               </div>
             </div>
             <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);line-height:1.5;">${e.name}</div>
