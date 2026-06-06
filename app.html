@@ -31,14 +31,13 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body { height: 100%; overflow: hidden; }
+  html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
 
   body {
     background: var(--black);
     color: var(--white);
     font-family: 'Rajdhani', sans-serif;
-    display: grid;
-    grid-template-rows: auto auto auto 1fr;
+    height: 100%;
     background-image:
       radial-gradient(ellipse at 10% 20%, rgba(57,255,20,0.06) 0%, transparent 50%),
       radial-gradient(ellipse at 90% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
@@ -46,30 +45,43 @@
       repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(57,255,20,0.01) 60px, rgba(57,255,20,0.01) 61px);
   }
 
-  /* ── TABS BAR (row 2) ────────────────────────── */
+  /* appContent: flex column — header + tabs + ticker shrink, content grows */
+  #appContent {
+    display: none;
+  }
+  #appContent.visible {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── TABS BAR ────────────────────────────────── */
   .tabs-bar {
     background: rgba(8,15,8,0.98);
     border-bottom: 1px solid rgba(57,255,20,0.2);
     z-index: 90;
+    flex-shrink: 0;
   }
 
-  /* ── CONTENT ROW (row 4) ─────────────────────── */
+  /* ── CONTENT ROW — fills remaining height ────── */
   .content-row {
     display: grid;
     grid-template-columns: 1fr 340px;
-    overflow: hidden;
+    flex: 1;
     min-height: 0;
+    overflow: hidden;
   }
 
   .col-main {
     overflow-y: auto;
-    height: 100%;
+    min-height: 0;
     padding: 28px 32px 60px;
   }
 
   .col-side {
     overflow-y: auto;
-    height: 100%;
+    min-height: 0;
     padding: 24px 20px;
     background: rgba(0,0,0,0.3);
     border-left: 1px solid rgba(57,255,20,0.08);
@@ -128,8 +140,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    position: sticky;
-    top: 0;
+    flex-shrink: 0;
     z-index: 200;
   }
 
@@ -1150,7 +1161,7 @@
     color: var(--red);
     background: rgba(239,68,68,0.08);
   }
-  #appContent { display: none; }
+  /* appContent shown/hidden via .visible class */
   #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 
   /* ── AUTH EMAIL FORM ─────────────────────────── */
@@ -1185,7 +1196,7 @@
   .ticker-wrap {
     width: 100%; background: #000; border-top: 1px solid rgba(57,255,20,0.15);
     border-bottom: 1px solid rgba(57,255,20,0.15); overflow: hidden;
-    padding: 7px 0; margin-bottom: 0;
+    padding: 7px 0; margin-bottom: 0; flex-shrink: 0;
   }
   .ticker-track {
     display: flex; gap: 0;
@@ -1668,6 +1679,8 @@
 
 </div><!-- /content-row -->
 
+</div><!-- /appContent -->
+
 <!-- ══ NEW PROJECT MODAL ══════════════════════════ -->
 <div class="modal-overlay" id="newProjectModal">
   <div class="modal">
@@ -1724,7 +1737,6 @@
     </div>
   </div>
 </div>
-<!-- /appContent -->
 
 <script>
 // ══════════════════════════════════════════════════
@@ -1768,7 +1780,7 @@ async function checkSubscription() {
     const { data, error } = await Promise.race([query, timeout]);
     if (error && error.code !== 'PGRST116') {
       // If RLS error or network issue and app was already loaded, keep access
-      if (document.getElementById('appContent').style.display === 'block') return true;
+      if (document.getElementById('appContent').classList.contains('visible')) return true;
       return false;
     }
     const isActive = data?.status === 'active' || data?.status === 'inactive';
@@ -1776,7 +1788,7 @@ async function checkSubscription() {
     return isActive;
   } catch (e) {
     console.warn('Subscription check failed:', e);
-    if (document.getElementById('appContent').style.display === 'block') return true;
+    if (document.getElementById('appContent').classList.contains('visible')) return true;
     return false;
   }
 }
@@ -2072,7 +2084,7 @@ async function boot() {
 async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('paywallScreen').style.display = 'none';
-  document.getElementById('appContent').style.display = 'none';
+  document.getElementById('appContent').classList.remove('visible');
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
@@ -2091,7 +2103,7 @@ async function initApp() {
     return;
   }
 
-  document.getElementById('appContent').style.display = 'block';
+  document.getElementById('appContent').classList.add('visible');
   document.body.classList.add('app-visible');
   startInactivityWatcher(); // start 10-min auto-logout
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
