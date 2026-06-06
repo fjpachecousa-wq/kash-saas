@@ -1482,15 +1482,9 @@
       <input type="text" id="projName" placeholder="e.g. Home Purchase">
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Goal ($)</label>
-        <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>Expected Return Rate (%)</label>
-        <input type="number" id="projInterestRate" placeholder="ex: 7" min="0" max="50" step="0.01" value="7">
-      </div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>Goal ($)</label>
+      <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
     </div>
 
     <div class="form-row">
@@ -1504,19 +1498,13 @@
       </div>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Fee ($/month)</label>
-        <input type="number" id="projAcornsPlan" placeholder="ex: 3.00" min="0" step="0.01" value="0">
-      </div>
-      <div class="form-group">
-        <label>Risk Profile</label>
-        <select id="projRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-          <option value="conservador">🟢 Conservative</option>
-          <option value="moderado" selected>🟡 Moderate</option>
-          <option value="agressivo">🔴 Aggressive</option>
-        </select>
-      </div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>Risk Profile</label>
+      <select id="projRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
+        <option value="conservador">🟢 Conservative</option>
+        <option value="moderado" selected>🟡 Moderate</option>
+        <option value="agressivo">🔴 Aggressive</option>
+      </select>
     </div>
 
     <div class="form-group" style="margin-bottom:20px;">
@@ -1930,12 +1918,12 @@ async function initApp() {
   if (!state.projects) state.projects = [];
   portfolioEntries = state.portfolio;
 
-  // Auto-clear pending contributions whose date has passed
+  // Auto-clear pending contributions: release only on/after next US business day
   const today = todayStr();
   let pendingCleared = false;
   state.projects.forEach(proj => {
     (proj.contributions || []).forEach(c => {
-      if (c.pending && c.date < today) {
+      if (c.pending && nextBusinessDay(c.date) <= today) {
         c.pending = false;
         pendingCleared = true;
       }
@@ -1989,11 +1977,61 @@ function daysUntil(dateStr) {
   return Math.ceil((target - today) / 86400000);
 }
 
-function estimateInterest(amount, days, rate) {
-  if (days <= 0) return 0;
-  const dailyRate = rate / 100 / 365;
-  return amount * Math.pow(1 + dailyRate, days) - amount;
+// Returns YYYY-MM-DD of the next US business day after a given YYYY-MM-DD date
+function nextBusinessDay(dateStr) {
+  // Federal US holidays (computed dynamically per year)
+  function usHolidays(y) {
+    // Helper: nth weekday of a month (1=Mon..7=Sun)
+    function nthDay(y, m, n, weekday) { // weekday: 0=Sun,1=Mon...6=Sat
+      const d = new Date(y, m - 1, 1);
+      let count = 0;
+      while (true) {
+        if (d.getDay() === weekday) { count++; if (count === n) break; }
+        d.setDate(d.getDate() + 1);
+      }
+      return d.toISOString().slice(0, 10);
+    }
+    // Last weekday of a month
+    function lastDay(y, m, weekday) {
+      const d = new Date(y, m, 0); // last day of month
+      while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+    // Observed date when holiday falls on weekend
+    function observed(dateStr) {
+      const d = new Date(dateStr + 'T12:00:00');
+      const dow = d.getDay();
+      if (dow === 6) { d.setDate(d.getDate() - 1); } // Sat → Fri
+      if (dow === 0) { d.setDate(d.getDate() + 1); } // Sun → Mon
+      return d.toISOString().slice(0, 10);
+    }
+    const pad = n => String(n).padStart(2, '0');
+    return new Set([
+      observed(`${y}-01-01`),              // New Year's Day
+      nthDay(y, 1, 3, 1),                  // MLK Day — 3rd Mon Jan
+      nthDay(y, 2, 3, 1),                  // Presidents' Day — 3rd Mon Feb
+      lastDay(y, 5, 1),                    // Memorial Day — last Mon May
+      observed(`${y}-06-19`),              // Juneteenth
+      observed(`${y}-07-04`),              // Independence Day
+      nthDay(y, 9, 1, 1),                  // Labor Day — 1st Mon Sep
+      nthDay(y, 10, 2, 1),                 // Columbus Day — 2nd Mon Oct
+      observed(`${y}-11-11`),              // Veterans Day
+      nthDay(y, 11, 4, 4),                 // Thanksgiving — 4th Thu Nov
+      observed(`${y}-12-25`),              // Christmas Day
+    ]);
+  }
+
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + 1); // start from day after contribution
+  while (true) {
+    const dow = d.getDay();
+    const iso = d.toISOString().slice(0, 10);
+    const holidays = usHolidays(d.getFullYear());
+    if (dow !== 0 && dow !== 6 && !holidays.has(iso)) return iso;
+    d.setDate(d.getDate() + 1);
+  }
 }
+
 
 function nextProjectNum() {
   if (!state.projects.length) return 1;
@@ -2078,8 +2116,6 @@ function openNewProjectModal() {
   document.getElementById('projTarget').value = '';
   document.getElementById('projStartDate').value = todayStr();
   document.getElementById('projDate').value = '';
-  document.getElementById('projAcornsPlan').value = '0';
-  document.getElementById('projInterestRate').value = '7';
   document.getElementById('projRisk').value = 'moderado';
   selectedColor = '#39ff14';
   document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
@@ -2099,8 +2135,6 @@ function createProject() {
   const target = parseFloat(document.getElementById('projTarget').value);
   const startDate = document.getElementById('projStartDate').value || todayStr();
   const date = document.getElementById('projDate').value;
-  const acornsDailyFee = parseFloat(document.getElementById('projAcornsPlan').value) || 0;
-  const interestRate = parseFloat(document.getElementById('projInterestRate').value) || 7;
   const risk = document.getElementById('projRisk').value || 'moderado';
 
   if (!name) return alert('Please enter a project name.');
@@ -2112,9 +2146,7 @@ function createProject() {
     id: Date.now().toString(),
     num: nextProjectNum(),
     name, target, startDate, date,
-    acornsDailyFee,
     fee: 0,
-    interestRate,
     risk,
     color: selectedColor,
     contributions: []
@@ -2220,28 +2252,7 @@ function switchTab(tabId) {
 // CALC PROJECT STATS
 // ══════════════════════════════════════════════════
 function calcProject(proj) {
-  const rate = proj.interestRate ?? state.interestRate ?? 7;
   const daysLeft = Math.max(0, daysUntil(proj.date));
-  const monthlyFeeUSD = proj.acornsDailyFee || 0;
-
-  // Calculate elapsed months from startDate to today
-  const startDate = proj.startDate || proj.date;
-  const start = new Date(startDate + 'T12:00:00');
-  const today = new Date();
-  const end = new Date(proj.date + 'T12:00:00');
-
-  // Months elapsed since start (fee already charged cycles)
-  const msElapsed = Math.max(0, today - start);
-  const monthsElapsed = Math.floor(msElapsed / (30 * 24 * 3600 * 1000));
-
-  // Total months of full project duration
-  const msTotal = Math.max(1, end - start);
-  const monthsTotal = Math.ceil(msTotal / (30 * 24 * 3600 * 1000));
-
-  // Fee already charged (past cycles) + remaining cycles
-  const totalFeeCharged = monthlyFeeUSD * monthsElapsed;
-  const totalFeeRemaining = monthlyFeeUSD * Math.max(0, monthsTotal - monthsElapsed);
-  const totalFeeAll = monthlyFeeUSD * monthsTotal;
 
   let totalInvested = 0;
   let transferBalance = 0;
@@ -2249,21 +2260,16 @@ function calcProject(proj) {
   const rows = [];
 
   proj.contributions.forEach((c, i) => {
-    const interestEst = estimateInterest(c.net, daysLeft, rate);
     if (c.isTransfer) {
       transferBalance += c.net;
     } else if (!c.pending) {
-      // Exclude pending contributions — not yet posted to Acorns
       totalInvested += c.net;
     }
     if (!c.pending) {
-      estimatedBalance += c.net + interestEst;
+      estimatedBalance += c.net;
     }
-    rows.push({ ...c, interestEst, running: estimatedBalance, idx: i + 1 });
+    rows.push({ ...c, running: estimatedBalance, idx: i + 1 });
   });
-
-  // Deduct total fees for entire project period from estimated balance
-  estimatedBalance = Math.max(0, estimatedBalance - totalFeeAll);
 
   const remaining = (proj.closed || proj.transferred)
     ? 0
@@ -2274,20 +2280,12 @@ function calcProject(proj) {
 
   let suggestedDaily = 0;
   if (daysLeft > 0 && remaining > 0) {
-    const dailyRate = rate / 100 / 365;
-    const avgDays = daysLeft / 2;
-    suggestedDaily = (remaining / daysLeft) / Math.pow(1 + dailyRate, avgDays) + (monthlyFeeUSD / 30);
+    suggestedDaily = remaining / daysLeft;
   }
-
-  const monthlyRate = rate / 100 / 12;
-  const monthlyPassive = estimatedBalance * monthlyRate;
-  const neededForPassive = proj.passive > 0 ? proj.passive / monthlyRate : 0;
 
   return {
     totalInvested, transferBalance, estimatedBalance, remaining, pct, daysLeft,
-    suggestedDaily, monthlyPassive, neededForPassive, rows,
-    totalFeeAll, totalFeeCharged, totalFeeRemaining,
-    monthlyFeeUSD, monthsElapsed, monthsTotal
+    suggestedDaily, rows
   };
 }
 
@@ -2324,16 +2322,11 @@ function renderOverview() {
   totalBanner.style.display = '';
   manifesto.style.display = '';
 
-  let sumInvested = 0, sumBalance = 0, sumContribs = 0, sumPassive = 0;
+  let sumContribs = 0;
 
   const cards = state.projects.map(proj => {
     const st = calcProject(proj);
-    // Only count active projects in totals
     if (!proj.closed && !proj.transferred) {
-      sumInvested += st.totalInvested;
-      sumBalance += st.estimatedBalance;
-      sumPassive += st.monthlyPassive;
-      // Only count real contributions from active projects
       sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
     }
 
@@ -2485,7 +2478,7 @@ function renderProjectPanel(proj) {
       <div class="suggestion-text">
         <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
         <div class="suggestion-amount" style="color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;">${fmt(st.suggestedDaily)}</div>
-        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left · Fee: $${st.monthlyFeeUSD.toFixed(2)}/mo · ${st.monthsElapsed}/${st.monthsTotal} cycles · ${(proj.interestRate ?? state.interestRate ?? 7)}% interest · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'}` : 'Deadline reached. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transfer Balance</button>'}</div>
+        <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class="btn btn-sm" style="padding:2px 8px;font-size:0.72rem;margin-left:8px;" onclick="openTransferModal(' + proj.id + ')">Transfer Balance</button>'}</div>
       </div>
     </div>
 
@@ -2526,19 +2519,15 @@ function renderProjectPanel(proj) {
 
     <!-- PASSIVE INCOME -->
     <div class="card">
-      <div class="card-title">🌿 Passive Income — ${proj.name}</div>
+      <div class="card-title">🌿 Market Performance — ${proj.name}</div>
       <div class="kpi-grid">
         <div class="kpi" style="border-color:rgba(34,197,94,0.3);">
           <span class="kpi-value" style="color:var(--green-mid);">${fmt(Math.max(0, st.estimatedBalance - st.totalInvested - st.transferBalance))}</span>
           <span class="kpi-label">Market Generated</span>
         </div>
         <div class="kpi">
-          <span class="kpi-value gold">${proj.interestRate ?? state.interestRate ?? 7}%</span>
-          <span class="kpi-label">Target Rate</span>
-        </div>
-        <div class="kpi">
-          <span class="kpi-value silver">${fmt(st.estimatedBalance * 12 * (proj.interestRate ?? state.interestRate ?? 7) / 100)}</span>
-          <span class="kpi-label">Annual Est. Gain</span>
+          <span class="kpi-value gold">${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'}</span>
+          <span class="kpi-label">Risk Profile</span>
         </div>
       </div>
       ${Math.max(0, st.estimatedBalance - st.totalInvested - st.transferBalance) >= 0.01 ? `
@@ -2552,9 +2541,7 @@ function renderProjectPanel(proj) {
 
     <!-- HISTORY TABLE -->
     <div class="card">
-      <div class="card-title">📋 Contribution History
-        ${st.totalFeeAll > 0 ? `<span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);font-weight:400;letter-spacing:1px;margin-left:12px;">Taxa total: -${fmt(st.totalFeeAll)} (${st.monthsTotal} ciclos × $${st.monthlyFeeUSD.toFixed(2)}/mês)</span>` : ''}
-      </div>
+      <div class="card-title">📋 Contribution History</div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -2562,7 +2549,6 @@ function renderProjectPanel(proj) {
               <th>#</th>
               <th>Date</th>
               <th>Amount</th>
-              <th>Est. Gain</th>
               <th>Accumulated</th>
               <th>Note</th>
               <th class="no-print"></th>
@@ -2570,7 +2556,7 @@ function renderProjectPanel(proj) {
           </thead>
           <tbody>
             ${st.rows.length === 0
-              ? `<tr><td colspan="7" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
+              ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
               : st.rows.map(r => `
                 <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
                   <td>${r.idx}</td>
@@ -2580,7 +2566,6 @@ function renderProjectPanel(proj) {
                     ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFER</span>` : ''}
                     ${r.pending ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>` : ''}
                   </td>
-                  <td style="color:#22c55e;">+${fmt(r.interestEst)}</td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note || '—'}</td>
                   <td class="no-print">
@@ -2677,10 +2662,10 @@ function exportCSV(projId) {
   const proj = state.projects.find(p => p.id === projId);
   if (!proj) return;
   const st = calcProject(proj);
-  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Est. Gain', 'Accumulated', 'Note']];
+  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Accumulated', 'Note']];
   st.rows.forEach(r => {
     rows.push([proj.name, r.idx, r.date, r.amount.toFixed(2),
-               r.interestEst.toFixed(2), r.running.toFixed(2), r.note || '']);
+               r.running.toFixed(2), r.note || '']);
   });
   const csv = rows.map(r => r.map(x => `"${x}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -3731,16 +3716,16 @@ boot();
     <!-- Module 02 -->
     <div class="help-panel" id="helpPanel1">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Open the Form</strong><br>In the <em>Overview</em> tab, click <em>"+ New Project"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Expected Return Rate (%):</em> avg market return — e.g. 7%<br><em>Start Date / End Date:</em> define the timeline<br><em>Fee ($/month):</em> platform fee (e.g. Acorns $3.00). Zero if not applicable.<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Create the Project</strong><br>Click <em>"Create Project"</em>. The recommended daily contribution is calculated automatically using compound interest.</div></div>
-      <div class="help-note">📌 You can create multiple projects — each with its own goal, rate and timeline.</div>
+      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Start Date / End Date:</em> define the timeline<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Create the Project</strong><br>Click <em>"Create Project"</em>. The recommended daily contribution is calculated automatically based on your goal and remaining days.</div></div>
+      <div class="help-note">📌 You can create multiple projects — each with its own goal and timeline.</div>
     </div>
 
     <!-- Module 03 -->
     <div class="help-panel" id="helpPanel2">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Select the Project</strong><br>Click the project tab in the navigation bar. Scroll down to <em>"Add Contribution"</em>.</div></div>
       <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Amount ($):</em> e.g. $5.00<br><em>Date:</em> the actual contribution date (can be backdated).<br><em>Note (optional):</em> e.g. "Coffee savings", "Paycheck".</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Confirm</strong><br>Click <em>"Add Contribution"</em>. History is updated immediately with estimated interest and accumulated balance.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Confirm</strong><br>Click <em>"Add Contribution"</em>. History is updated immediately with the running accumulated balance.</div></div>
       <div class="help-note">⚠️ Deleted contributions cannot be recovered. Closed projects have contributions locked.</div>
     </div>
 
