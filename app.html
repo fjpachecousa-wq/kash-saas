@@ -106,7 +106,54 @@
     align-items: start;
   }
   .col-main { min-width: 0; }
-  .col-side { width: 360px; }
+  .col-side { width: 360px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── SIDE WIDGETS ────────────────────────────── */
+  .side-widget {
+    background: linear-gradient(135deg, rgba(0,0,0,0.5), rgba(17,24,17,0.8));
+    border: 1px solid rgba(57,255,20,0.15);
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .side-widget::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(57,255,20,0.4), transparent);
+  }
+  .side-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.95rem;
+    letter-spacing: 3px;
+    color: rgba(57,255,20,0.75);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .streak-widget { text-align: center; padding: 6px 0 10px; }
+  .streak-flames { font-size: 2rem; line-height: 1; margin-bottom: 4px; }
+  .streak-number { font-family: 'Bebas Neue', cursive; font-size: 3rem; color: #f97316; line-height: 1; text-shadow: 0 0 20px rgba(249,115,22,0.5); }
+  .streak-sub { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(249,115,22,0.6); letter-spacing: 1.5px; margin-top: 5px; }
+  .port-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .port-row:last-of-type { border-bottom: none; }
+  .port-label { font-family: 'Space Mono', monospace; font-size: 0.66rem; color: var(--silver); }
+  .port-value { font-family: 'Space Mono', monospace; font-size: 0.86rem; font-weight: 700; }
+  .side-link { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(57,255,20,0.5); letter-spacing: 1px; margin-top: 12px; display: block; text-align: right; cursor: pointer; }
+  .etf-row { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .etf-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .etf-ticker { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; color: var(--green-neon); letter-spacing: 2px; }
+  .etf-name { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--silver); margin-top: 2px; }
+  .etf-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
+  .badge { font-family: 'Space Mono', monospace; font-size: 0.55rem; padding: 2px 7px; border-radius: 4px; }
+  .badge-div { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
+  .badge-cons { background: rgba(34,197,94,0.08); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+  .badge-mod { background: rgba(251,191,36,0.06); color: #d4a017; border: 1px solid rgba(251,191,36,0.15); }
+  .badge-agg { background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
+  .exp { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: rgba(192,192,192,0.4); }
 
   /* ── NAV BAR ─────────────────────────────────── */
   .nav-bar {
@@ -1593,7 +1640,44 @@
     </div><!-- /col-main -->
 
     <div class="col-side">
-      <!-- sidebar — será alimentada na próxima etapa -->
+
+      <!-- WIDGET 1: CONTRIBUTION STREAK -->
+      <div class="side-widget">
+        <div class="side-title">🔥 Contribution Streak</div>
+        <div class="streak-widget">
+          <div class="streak-flames" id="sideStreakFlames">🔥</div>
+          <div class="streak-number" id="sideStreakNum">0</div>
+          <div class="streak-sub">CONSECUTIVE BUSINESS DAYS</div>
+        </div>
+      </div>
+
+      <!-- WIDGET 2: ASSET PORTFOLIO -->
+      <div class="side-widget" style="border-color:rgba(96,165,250,0.2);">
+        <div class="side-title" style="color:rgba(96,165,250,0.75);">📈 Asset Portfolio</div>
+        <div class="port-row">
+          <span class="port-label">Invested</span>
+          <span class="port-value" id="sideInvested" style="color:var(--white);">—</span>
+        </div>
+        <div class="port-row">
+          <span class="port-label">Current Value</span>
+          <span class="port-value" id="sideCurrVal" style="color:var(--green-neon);">—</span>
+        </div>
+        <div class="port-row">
+          <span class="port-label">Return</span>
+          <span class="port-value" id="sideReturn">—</span>
+        </div>
+        <span class="side-link" onclick="switchTab('portfolio')">View full portfolio →</span>
+      </div>
+
+      <!-- WIDGET 3: ETFs FOR YOUR PROFILE -->
+      <div class="side-widget">
+        <div class="side-title">💡 ETFs for Your Profile <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></div>
+        <div id="sideEtfList">
+          <!-- injetado por renderOverview() -->
+        </div>
+        <span class="side-link" onclick="switchTab('portfolio')">+ Add to Portfolio →</span>
+      </div>
+
     </div><!-- /col-side -->
 
   </div><!-- /content-row -->
@@ -2500,6 +2584,29 @@ function renderOverview() {
   // Update portfolio summary card in overview
   updateOverviewPortfolio();
 
+  // Alimentar side ETF widget
+  const activeProj2 = state.projects.find(p => !p.closed && !p.transferred);
+  const sideEtfList = document.getElementById('sideEtfList');
+  const sideEtfProfile = document.getElementById('sideEtfProfile');
+  if (sideEtfList && activeProj2) {
+    const suggested = getSuggestedEtfs(activeProj2).slice(0, 3);
+    const projRiskLabel = { conservador:'🟢 Conservative', moderado:'🟡 Moderate', agressivo:'🔴 Aggressive' };
+    if (sideEtfProfile) sideEtfProfile.textContent = projRiskLabel[activeProj2.risk] || '🟡 Moderate';
+    sideEtfList.innerHTML = suggested.map(e => {
+      const isDividend = e.sector === 'dividend' || (e.objective && e.objective.includes('income'));
+      const riskBadge = e.risk === 'conservative' ? `<span class="badge badge-cons">🟢 Conservative</span>` : e.risk === 'aggressive' ? `<span class="badge badge-agg">🔴 Aggressive</span>` : `<span class="badge badge-mod">🟡 Moderate</span>`;
+      return `<div class="etf-row">
+        <div class="etf-ticker">${e.ticker}</div>
+        <div class="etf-name">${e.name}</div>
+        <div class="etf-badges">
+          ${isDividend ? `<span class="badge badge-div">💰 Dividend</span>` : ''}
+          ${riskBadge}
+          <span class="exp">exp ${e.expense}%</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
   // Show saldo disponivel banner
   const saldoBanner = document.getElementById('saldoDisponivelBanner');
   if (state.saldoDisponivel && state.saldoDisponivel > 0) {
@@ -2567,6 +2674,12 @@ function renderOverview() {
   const streak = calcStreak(state.projects);
   const streakEl = document.getElementById('ovStreak');
   if (streakEl) streakEl.textContent = streakDisplay(streak);
+
+  // Side streak widget
+  const sideStreakNum = document.getElementById('sideStreakNum');
+  const sideStreakFlames = document.getElementById('sideStreakFlames');
+  if (sideStreakNum) sideStreakNum.textContent = streak;
+  if (sideStreakFlames) sideStreakFlames.textContent = streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : streak >= 1 ? '🔥' : '—';
 
   // ── NEW SINGLE PANEL — portfolioReal-based ─────────────────────────────
   const activeProj = state.projects.find(p => !p.closed && !p.transferred);
@@ -3460,6 +3573,14 @@ async function updateOverviewPortfolio() {
 
   const gain = totalCurrent - totalInvested;
   const gainPct = totalInvested > 0 ? (gain / totalInvested) * 100 : 0;
+
+  // Alimentar side widget portfolio
+  const sideInvested = document.getElementById('sideInvested');
+  const sideCurrVal = document.getElementById('sideCurrVal');
+  const sideReturn = document.getElementById('sideReturn');
+  if (sideInvested) sideInvested.textContent = '$' + totalInvested.toFixed(2);
+  if (sideCurrVal) { sideCurrVal.textContent = '$' + totalCurrent.toFixed(2); sideCurrVal.style.color = gain >= 0 ? 'var(--green-neon)' : '#ef4444'; }
+  if (sideReturn) { sideReturn.textContent = (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%'; sideReturn.style.color = gain >= 0 ? '#22c55e' : '#ef4444'; }
 
   grid.innerHTML = [
     {label: 'Invested', value: '$' + totalInvested.toFixed(2), color: 'var(--white)'},
