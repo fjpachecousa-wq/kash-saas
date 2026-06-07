@@ -94,7 +94,7 @@
   .header-user strong { color: var(--green-neon); font-size: 1.1rem; display: block; }
 
   /* ── MAIN CONTAINER ──────────────────────────── */
-  .container { max-width: 1100px; margin: 0; padding: 32px 32px 60px; }
+  .container { max-width: 1100px; margin: 0; padding: 26px 32px 60px; }
 
   /* ── NAV BAR ─────────────────────────────────── */
   .nav-bar {
@@ -245,9 +245,8 @@
     background: linear-gradient(135deg, var(--gray-dark) 0%, var(--gray-mid) 100%);
     border: 1px solid rgba(57,255,20,0.2);
     border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(57,255,20,0.1);
+    padding: 24px 28px;
+    margin-bottom: 20px;
     position: relative;
     overflow: hidden;
   }
@@ -258,7 +257,7 @@
     top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--green-neon), transparent);
-    opacity: 0.6;
+    opacity: 0.5;
   }
 
   .card-title {
@@ -266,8 +265,10 @@
     font-size: 1.3rem;
     color: var(--green-neon);
     letter-spacing: 3px;
-    margin-bottom: 20px;
-    text-shadow: 0 0 10px rgba(57,255,20,0.4);
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   /* ── PROJECTS LIST ───────────────────────────── */
@@ -730,10 +731,10 @@
   /* ── OVERVIEW SUMMARY ────────────────────────── */
   .overview-card {
     background: linear-gradient(135deg, rgba(57,255,20,0.04), rgba(0,0,0,0.5));
-    border: 1px solid rgba(57,255,20,0.3);
+    border: 1px solid rgba(57,255,20,0.25);
     border-radius: 14px;
-    padding: 22px 26px;
-    margin-bottom: 16px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 20px;
@@ -743,8 +744,8 @@
 
   .overview-card:hover {
     border-color: var(--green-neon);
-    box-shadow: 0 0 20px rgba(57,255,20,0.15);
-    transform: translateX(4px);
+    box-shadow: 0 0 20px rgba(57,255,20,0.1);
+    transform: translateX(3px);
   }
 
   .ov-num {
@@ -754,23 +755,22 @@
     width: 44px;
     text-align: center;
     flex-shrink: 0;
-    text-shadow: 0 0 15px rgba(57,255,20,0.5);
   }
 
   .ov-info { flex: 1; }
 
   .ov-name {
     font-family: 'Bebas Neue', cursive;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     letter-spacing: 3px;
     color: var(--white);
-    margin-bottom: 6px;
+    margin-bottom: 7px;
   }
 
   .ov-bar-bg {
     background: rgba(0,0,0,0.5);
     border-radius: 999px;
-    height: 8px;
+    height: 7px;
     overflow: hidden;
     border: 1px solid rgba(57,255,20,0.15);
   }
@@ -779,32 +779,29 @@
     height: 100%;
     border-radius: 999px;
     background: linear-gradient(90deg, var(--green-dark), var(--green-neon));
-    box-shadow: 0 0 8px rgba(57,255,20,0.4);
     transition: width 0.6s ease;
   }
 
-  .ov-right { text-align: right; }
+  .ov-right { text-align: right; flex-shrink: 0; }
 
   .ov-pct {
     font-family: 'Bebas Neue', cursive;
-    font-size: 1.8rem;
-    color: var(--green-neon);
+    font-size: 1.9rem;
     line-height: 1;
-    text-shadow: 0 0 15px rgba(57,255,20,0.4);
   }
 
   .ov-balance {
     font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     color: var(--gold);
-    margin-top: 2px;
+    margin-top: 3px;
   }
 
   .ov-deadline {
     font-family: 'Space Mono', monospace;
-    font-size: 0.62rem;
-    color: rgba(192,192,192,0.6);
-    margin-top: 6px;
+    font-size: 0.66rem;
+    color: rgba(192,192,192,0.55);
+    margin-top: 7px;
   }
 
   /* ── DIVIDER ─────────────────────────────────── */
@@ -1337,39 +1334,39 @@
   </div>
 </nav>
 
+<!-- MOTIVATIONAL TICKER — fora do container, largura total -->
+<div class="ticker-wrap no-print">
+  <div class="ticker-track" id="tickerTrack">
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
+    <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+    <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
+  </div>
+</div>
+
 <div class="container">
 
   <!-- STATUS BAR -->
   <div class="status-bar">
     <div class="status-dot"></div>
     <span id="statusText">Set up your profile and create your first project to get started.</span>
-  </div>
-
-  <!-- MOTIVATIONAL TICKER -->
-  <div class="ticker-wrap no-print">
-    <div class="ticker-track" id="tickerTrack">
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
-      <!-- Duplicate for seamless loop -->
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
-      <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
-    </div>
   </div>
 
   <!-- USER SETUP CARD -->
