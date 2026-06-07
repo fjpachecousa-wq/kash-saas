@@ -3926,6 +3926,66 @@ function useEtfFromSearch(ticker) {
 }
 
 // ══════════════════════════════════════════════════
+// RENDER SIDEBAR
+// ══════════════════════════════════════════════════
+function renderSidebar() {
+  // Streak
+  const streak = calcStreak(state.projects);
+  const flames = streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : streak > 0 ? '🔥' : '';
+  const sideFlames = document.getElementById('sideStreakFlames');
+  const sideNum = document.getElementById('sideStreakNumber');
+  if (sideFlames) sideFlames.textContent = flames || '—';
+  if (sideNum) {
+    sideNum.textContent = streak;
+    sideNum.style.color = streak > 0 ? '#f97316' : 'rgba(192,192,192,0.3)';
+  }
+
+  // Portfolio
+  const invested = (portfolioEntries || []).reduce((s, e) =>
+    s + (e.etfs || []).reduce((es, et) => es + (et.shares || 0) * (et.buyPrice || 0), 0), 0);
+  const current = (portfolioEntries || []).reduce((s, e) =>
+    s + (e.etfs || []).reduce((es, et) => {
+      const cached = etfPriceCache && etfPriceCache[et.ticker];
+      const price = cached ? cached.price : et.buyPrice;
+      return es + (et.shares || 0) * price;
+    }, 0), 0);
+  const ret = invested > 0 ? ((current - invested) / invested * 100) : 0;
+  const retColor = ret >= 0 ? '#22c55e' : '#ef4444';
+  const retSign = ret >= 0 ? '+' : '';
+  const invEl = document.getElementById('sidePortInvested');
+  const valEl = document.getElementById('sidePortValue');
+  const retEl = document.getElementById('sidePortReturn');
+  if (invEl) invEl.textContent = fmt(invested);
+  if (valEl) valEl.textContent = fmt(current);
+  if (retEl) {
+    retEl.textContent = invested > 0 ? `${retSign}${ret.toFixed(2)}%` : '—';
+    retEl.style.color = retColor;
+  }
+
+  // ETF Suggestions
+  const activeProj = state.projects.find(p => !p.closed && !p.transferred);
+  const riskEl = document.getElementById('sideEtfRisk');
+  const etfList = document.getElementById('sideEtfList');
+  if (!etfList) return;
+  if (!activeProj) { etfList.innerHTML = ''; return; }
+  const riskLabelMap = { conservador: '🟢 Conservative', moderado: '🟡 Moderate', agressivo: '🔴 Aggressive' };
+  if (riskEl) riskEl.textContent = riskLabelMap[activeProj.risk] || '🟡 Moderate';
+  const suggested = getSuggestedEtfs(activeProj).slice(0, 3);
+  const sectorColor = { dividend: '#fbbf24', bonds: '#60a5fa', broad: 'var(--green-neon)', tech: '#a78bfa', international: '#22d3ee', smallcap: '#fb923c', real_estate: '#f472b6' };
+  const sectorLabel = { dividend: 'Dividend', bonds: 'Bonds', broad: 'Broad Market', tech: 'Technology', international: 'International', smallcap: 'Small Cap', real_estate: 'Real Estate' };
+  etfList.innerHTML = suggested.map(e => `
+    <div class="side-etf-row">
+      <div class="side-etf-ticker">${e.ticker}</div>
+      <div class="side-etf-name">${e.name}</div>
+      <div class="side-etf-badges">
+        <span style="font-family:'Space Mono',monospace;font-size:0.52rem;padding:1px 6px;border-radius:3px;background:${sectorColor[e.sector] || 'var(--silver)'}22;color:${sectorColor[e.sector] || 'var(--silver)'};border:1px solid ${sectorColor[e.sector] || 'var(--silver)'}44;">${sectorLabel[e.sector] || e.sector}</span>
+        ${e.sector === 'dividend' || e.objective.includes('income') ? '<span style="font-family:\'Space Mono\',monospace;font-size:0.52rem;padding:1px 6px;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">💰 Div</span>' : ''}
+        <span style="font-family:'Space Mono',monospace;font-size:0.5rem;color:rgba(192,192,192,0.4);">exp ${e.expense}%</span>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════════════════
 boot();
