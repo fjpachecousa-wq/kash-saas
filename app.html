@@ -3356,8 +3356,8 @@ function addCotasToEntry(id, preselectedTicker='') {
 
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,420px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 UPDATE SHARES</div>
-      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">Enter the current total shares. The app calculates the difference automatically.</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 NEW / UPDATE SHARES</div>
+      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">To add a new ETF, select "+ New ETF" and enter your total shares. To update an existing one, select it and enter the new total — the app calculates the difference automatically.</div>
 
       <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE</label>
       <input type="date" id="cotasDate" value="${todayStr()}"
