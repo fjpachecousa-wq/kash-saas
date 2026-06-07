@@ -1238,6 +1238,20 @@
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--green-neon), transparent);
   }
+
+  /* ── ETF DETAIL MODAL ────────────────────────── */
+  .etf-detail-header { display:flex; align-items:flex-start; gap:16px; margin-bottom:24px; }
+  .etf-detail-ticker { font-family:'Bebas Neue',cursive; font-size:3rem; color:var(--green-neon); line-height:1; text-shadow:0 0 16px rgba(57,255,20,0.4); }
+  .etf-detail-name { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--silver); margin-top:6px; line-height:1.5; }
+  .etf-detail-section { margin-bottom:20px; }
+  .etf-detail-section-title { font-family:'Bebas Neue',cursive; font-size:0.9rem; letter-spacing:3px; color:rgba(57,255,20,0.6); margin-bottom:10px; }
+  .etf-detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-family:'Space Mono',monospace; }
+  .etf-detail-row:last-child { border-bottom:none; }
+  .etf-detail-label { font-size:0.66rem; color:var(--silver); }
+  .etf-detail-value { font-size:0.8rem; font-weight:700; }
+  .etf-detail-disclaimer { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(192,192,192,0.35); margin-top:16px; line-height:1.6; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; }
+  .etf-detail-loading { text-align:center; padding:32px; font-family:'Space Mono',monospace; font-size:0.75rem; color:rgba(57,255,20,0.5); letter-spacing:1px; }
+  .etf-detail-error { text-align:center; padding:24px; font-family:'Space Mono',monospace; font-size:0.72rem; color:rgba(239,68,68,0.7); }
   .help-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
   .help-tab {
     font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 1px;
@@ -2618,7 +2632,7 @@ function renderOverview() {
     sideEtfList.innerHTML = suggested.map(e => {
       const isDividend = e.sector === 'dividend' || (e.objective && e.objective.includes('income'));
       const riskBadge = e.risk === 'conservative' ? `<span class="badge badge-cons">🟢 Conservative</span>` : e.risk === 'aggressive' ? `<span class="badge badge-agg">🔴 Aggressive</span>` : `<span class="badge badge-mod">🟡 Moderate</span>`;
-      return `<div class="etf-row">
+      return `<div class="etf-row" onclick="openEtfDetail('${e.ticker}')" style="cursor:pointer;" title="Click to view ${e.ticker} details">
         <div class="etf-ticker">${e.ticker}</div>
         <div class="etf-name">${e.name}</div>
         <div class="etf-badges">
@@ -3014,6 +3028,101 @@ document.addEventListener('click', () => closeProjectsDropdown());
 // ══════════════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════════════
+async function openEtfDetail(ticker) {
+  const modal = document.getElementById('etfDetailModal');
+  const content = document.getElementById('etfDetailContent');
+  const etf = ETF_DATABASE.find(e => e.ticker === ticker);
+  const riskLabel = { conservative:'🟢 Conservative', moderate:'🟡 Moderate', aggressive:'🔴 Aggressive' };
+
+  // Abrir modal com loading
+  content.innerHTML = '<div class="etf-detail-loading">⏳ LOADING ETF DATA...</div>';
+  modal.classList.add('open');
+
+  try {
+    // Yahoo Finance API via proxy CORS
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1mo&range=5y`;
+    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+    const json = await res.json();
+    const data = JSON.parse(json.contents);
+    const chart = data.chart.result[0];
+    const meta = chart.meta;
+    const quotes = chart.indicators.quote[0];
+    const timestamps = chart.timestamp;
+
+    // Calcular performance anual
+    const byYear = {};
+    timestamps.forEach((ts, i) => {
+      const year = new Date(ts * 1000).getFullYear();
+      if (!byYear[year]) byYear[year] = { first: quotes.close[i], last: quotes.close[i] };
+      else byYear[year].last = quotes.close[i];
+    });
+
+    const years = Object.keys(byYear).sort().slice(-5);
+    const perfRows = years.map(yr => {
+      const { first, last } = byYear[yr];
+      const pct = ((last - first) / first * 100).toFixed(1);
+      const color = pct >= 0 ? '#22c55e' : '#ef4444';
+      return `<div class="etf-detail-row">
+        <span class="etf-detail-label">${yr}</span>
+        <span class="etf-detail-value" style="color:${color};">${pct >= 0 ? '+' : ''}${pct}%</span>
+      </div>`;
+    }).join('');
+
+    // Dados do meta
+    const currPrice = meta.regularMarketPrice ? '$' + meta.regularMarketPrice.toFixed(2) : '—';
+    const prevClose = meta.chartPreviousClose ? '$' + meta.chartPreviousClose.toFixed(2) : '—';
+    const currency  = meta.currency || 'USD';
+    const divYield  = meta.trailingAnnualDividendYield ? (meta.trailingAnnualDividendYield * 100).toFixed(2) + '%' : '—';
+
+    content.innerHTML = `
+      <div class="etf-detail-header">
+        <div>
+          <div class="etf-detail-ticker">${ticker}</div>
+          <div class="etf-detail-name">${etf ? etf.name : ticker}</div>
+          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+            ${etf ? `<span class="badge ${etf.risk === 'conservative' ? 'badge-cons' : etf.risk === 'aggressive' ? 'badge-agg' : 'badge-mod'}">${riskLabel[etf.risk] || '🟡 Moderate'}</span>` : ''}
+            ${etf && (etf.sector === 'dividend' || (etf.objective && etf.objective.includes('income'))) ? '<span class="badge badge-div">💰 Dividend</span>' : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="etf-detail-section">
+        <div class="etf-detail-section-title">📊 Key Data</div>
+        <div class="etf-detail-row"><span class="etf-detail-label">Current Price</span><span class="etf-detail-value" style="color:var(--green-neon);">${currPrice} ${currency}</span></div>
+        <div class="etf-detail-row"><span class="etf-detail-label">Prev. Close</span><span class="etf-detail-value">${prevClose}</span></div>
+        <div class="etf-detail-row"><span class="etf-detail-label">Dividend Yield</span><span class="etf-detail-value" style="color:#fbbf24;">${divYield}</span></div>
+        <div class="etf-detail-row"><span class="etf-detail-label">Expense Ratio</span><span class="etf-detail-value">${etf ? etf.expense + '%' : '—'}</span></div>
+      </div>
+
+      <div class="etf-detail-section">
+        <div class="etf-detail-section-title">📈 Annual Performance (5Y)</div>
+        ${perfRows || '<div class="etf-detail-row"><span class="etf-detail-label">No data available</span></div>'}
+      </div>
+
+      ${etf ? `<div class="etf-detail-section">
+        <div class="etf-detail-section-title">ℹ About</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);line-height:1.7;">${etf.description}</div>
+      </div>` : ''}
+
+      <div class="etf-detail-disclaimer">
+        ⚠ Data provided by Yahoo Finance. May be delayed or temporarily unavailable. Not financial advice.
+        Past performance does not guarantee future results. See our Terms of Use and Privacy Policy.
+      </div>`;
+
+  } catch(err) {
+    content.innerHTML = `
+      <div class="etf-detail-header">
+        <div>
+          <div class="etf-detail-ticker">${ticker}</div>
+          <div class="etf-detail-name">${etf ? etf.name : ticker}</div>
+        </div>
+      </div>
+      <div class="etf-detail-error">⚠ Market data temporarily unavailable.<br>Please try again later.</div>
+      ${etf ? `<div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);line-height:1.7;margin-top:16px;">${etf.description}</div>` : ''}
+      <div class="etf-detail-disclaimer">Data provided by Yahoo Finance. May be delayed or unavailable. Not financial advice.</div>`;
+  }
+}
+
 function runCalc() {
   const daily = parseFloat(document.getElementById('calcDaily').value);
   const days  = parseInt(document.getElementById('calcDays').value);
@@ -4320,6 +4429,19 @@ boot();
 
     <!-- Results -->
     <div id="etfSearchResults"></div>
+  </div>
+</div>
+
+<!-- ══ ETF DETAIL MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="etfDetailModal">
+  <div class="modal-lg">
+    <button class="modal-close" onclick="closeModal('etfDetailModal')">✕</button>
+    <div id="etfDetailContent">
+      <div class="etf-detail-loading">⏳ LOADING ETF DATA...</div>
+    </div>
+    <div style="margin-top:20px;text-align:right;">
+      <button class="btn btn-primary" onclick="closeModal('etfDetailModal'); openEtfSearchModal();">+ Add to Portfolio →</button>
+    </div>
   </div>
 </div>
 
