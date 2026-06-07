@@ -31,12 +31,12 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  html, body { height: 100%; overflow: hidden; }
-
   body {
     background: var(--black);
     color: var(--white);
     font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
     background-image:
       radial-gradient(ellipse at 10% 20%, rgba(57,255,20,0.06) 0%, transparent 50%),
       radial-gradient(ellipse at 90% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
@@ -62,7 +62,7 @@
 
   .logo-text {
     font-family: 'Bebas Neue', cursive;
-    font-size: 3.6rem;
+    font-size: 3rem;
     letter-spacing: 4px;
     line-height: 1;
     display: flex;
@@ -107,7 +107,8 @@
   .header-user { text-align: right; font-size: 0.9rem; color: var(--silver); }
   .header-user strong { color: var(--green-neon); font-size: 1.1rem; display: block; }
 
-  /* .container replaced by .col-main in layout */
+  /* ── MAIN CONTAINER ──────────────────────────── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
 
   /* ── TABS ────────────────────────────────────── */
   .tabs-nav {
@@ -934,11 +935,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    background: var(--black);
-    background-image: radial-gradient(ellipse at 10% 20%, rgba(57,255,20,0.06) 0%, transparent 50%), radial-gradient(ellipse at 90% 80%, rgba(34,197,94,0.04) 0%, transparent 50%);
+    min-height: 80vh;
     gap: 32px;
   }
   .login-box {
@@ -1016,86 +1013,8 @@
     color: var(--red);
     background: rgba(239,68,68,0.08);
   }
-  #appContent {
-    display: none;
-    height: 100vh;
-    overflow: hidden;
-    flex-direction: column;
-  }
-  #appContent.visible {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  /* header: shrinks to content */
-  #appContent > header { flex-shrink: 0; }
-
-  /* tabs-bar */
-  .tabs-bar { flex-shrink: 0; background: rgba(8,15,8,0.98); border-bottom: 1px solid rgba(57,255,20,0.2); z-index: 90; }
-  .tabs-bar .tabs-nav { display:flex; padding:4px 32px; overflow-x:auto; margin-bottom:0; background:transparent; border:none; border-radius:0; }
-
-  /* ticker: shrinks to content */
-  #appContent > .ticker-wrap { flex-shrink: 0; }
-
-  /* content-row: fills remaining height */
-  .content-row { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 340px; overflow: hidden; }
-
-  /* col-main: left scrollable column */
-  .col-main { overflow-y: auto; height: 100%; padding: 24px 32px 60px; min-width: 0; }
-
-  /* col-side: right sidebar */
-  .col-side {
-    overflow-y: auto; height: 100%; padding: 24px 20px;
-    background: rgba(0,0,0,0.28); border-left: 1px solid rgba(57,255,20,0.08);
-    display: flex; flex-direction: column; gap: 14px; flex-shrink: 0;
-  }
-
-  /* sidebar widgets */
-  .side-widget { background: linear-gradient(135deg,rgba(0,0,0,0.5),rgba(17,24,17,0.8)); border: 1px solid rgba(57,255,20,0.15); border-radius: 14px; padding: 18px 20px; position: relative; overflow: hidden; flex-shrink: 0; }
-  .side-widget::before { content:''; position:absolute; top:0;left:0;right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(57,255,20,0.4),transparent); }
-  .side-widget-title { font-family:'Bebas Neue',cursive; font-size:0.9rem; letter-spacing:3px; color:rgba(57,255,20,0.75); margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-  .streak-widget-center { text-align:center; padding:4px 0 8px; }
-  .streak-flames { font-size:1.8rem; line-height:1; margin-bottom:2px; }
-  .streak-big { font-family:'Bebas Neue',cursive; font-size:2.8rem; color:#f97316; line-height:1; text-shadow:0 0 20px rgba(249,115,22,0.5); }
-  .streak-sub-lbl { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(249,115,22,0.6); letter-spacing:1.5px; margin-top:4px; }
-  .side-port-row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-  .side-port-row:last-of-type { border-bottom:none; }
-  .side-port-label { font-family:'Space Mono',monospace; font-size:0.63rem; color:var(--silver); }
-  .side-port-value { font-family:'Space Mono',monospace; font-size:0.82rem; font-weight:700; }
-  .side-link { font-family:'Space Mono',monospace; font-size:0.6rem; color:rgba(57,255,20,0.5); letter-spacing:1px; margin-top:10px; display:block; text-align:right; cursor:pointer; }
-  .side-link:hover { color:var(--green-neon); }
-  .side-etf-row { padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-  .side-etf-row:last-child { border-bottom:none; padding-bottom:0; }
-  .side-etf-ticker { font-family:'Bebas Neue',cursive; font-size:1rem; color:var(--green-neon); letter-spacing:2px; }
-  .side-etf-name { font-family:'Space Mono',monospace; font-size:0.58rem; color:var(--silver); margin-top:2px; }
-  .side-etf-badges { display:flex; gap:4px; margin-top:4px; flex-wrap:wrap; align-items:center; }
-
-  /* projects dropdown */
-  .tab-with-dropdown { position:relative; display:inline-block; }
-  .proj-dropdown { display:none; position:absolute; top:calc(100% + 2px); left:0; min-width:250px; background:#0a150a; border:1px solid rgba(57,255,20,0.35); border-radius:12px; box-shadow:0 16px 48px rgba(0,0,0,0.9); overflow:hidden; z-index:300; animation:dropIn 0.15s ease; }
-  @keyframes dropIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-  .tab-with-dropdown.open .proj-dropdown { display:block; }
-  .proj-dropdown-header { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(57,255,20,0.45); letter-spacing:2px; padding:10px 16px 8px; border-bottom:1px solid rgba(57,255,20,0.1); background:rgba(57,255,20,0.03); }
-  .proj-dropdown-new { display:flex; align-items:center; gap:10px; padding:12px 16px; cursor:pointer; font-family:'Bebas Neue',cursive; font-size:0.95rem; letter-spacing:2px; color:var(--green-neon); background:rgba(57,255,20,0.05); border-bottom:1px solid rgba(57,255,20,0.15); transition:all 0.15s; }
-  .proj-dropdown-new:hover { background:rgba(57,255,20,0.12); }
-  .proj-dropdown-item { display:flex; align-items:center; gap:10px; padding:11px 16px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.03); transition:all 0.15s; }
-  .proj-dropdown-item:last-child { border-bottom:none; }
-  .proj-dropdown-item:hover { background:rgba(57,255,20,0.06); }
-  .pd-num { font-family:'Bebas Neue',cursive; font-size:1.1rem; color:var(--green-neon); width:22px; text-align:center; flex-shrink:0; }
-  .pd-info { flex:1; min-width:0; }
-  .pd-name { font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .pd-meta { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(192,192,192,0.45); margin-top:2px; }
-  .pd-pct { font-family:'Bebas Neue',cursive; font-size:1.1rem; flex-shrink:0; }
-  .pd-badge { font-family:'Space Mono',monospace; font-size:0.5rem; padding:1px 6px; border-radius:3px; flex-shrink:0; background:rgba(251,191,36,0.1); color:#fbbf24; border:1px solid rgba(251,191,36,0.2); }
-
-  /* goal logo watermark */
-  .goal-logo-bg { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:0; pointer-events:none; }
-  .goal-logo-bg img { width:200px; height:200px; object-fit:contain; opacity:0.45; filter:drop-shadow(0 0 24px rgba(57,255,20,0.2)); display:block; }
-  .goal-logo-fallback { font-family:'Bebas Neue',cursive; font-size:5rem; letter-spacing:8px; color:var(--green-neon); opacity:0.25; display:none; }
-  .goal-banner-content { position:relative; z-index:1; }
-  #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; position: fixed; inset: 0; z-index: 500; background: var(--black); }
+  #appContent { display: none; }
+  #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 
   /* ── AUTH EMAIL FORM ─────────────────────────── */
   .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
@@ -1220,7 +1139,7 @@
 <body>
 
 <!-- LOADING SCREEN -->
-<div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;position:fixed;inset:0;z-index:600;background:var(--black);">
+<div id="loadingScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;">
   <div style="font-family:'Bebas Neue',cursive;font-size:3rem;letter-spacing:6px;color:var(--green-neon);text-shadow:0 0 30px #39ff14;">KA$H</div>
   <div id="loadingText" style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:3px;margin-top:8px;">Loading...</div>
 </div>
@@ -1290,6 +1209,7 @@
 
 <!-- APP CONTENT -->
 <div id="appContent">
+<div id="appShell">
 
 <!-- PRINT HEADER -->
 <div class="print-header">
@@ -1328,42 +1248,16 @@
       <button class="tab-btn" onclick="toggleProjectsDropdown(event)">🗂 Projects ▾</button>
       <div class="proj-dropdown" id="projectsDropdown">
         <div class="proj-dropdown-header">Projects</div>
-        <div class="proj-dropdown-new" onclick="openNewProjectModal();closeProjectsDropdown();">
-          <span>＋</span> New Project
-        </div>
+        <div class="proj-dropdown-new" onclick="openNewProjectModal();closeProjectsDropdown();">＋ New Project</div>
         <div id="projDropdownList"></div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="ticker-wrap no-print">
-  <div class="ticker-track" id="tickerTrack">
-    <span class="ticker-item up">📈 $1 invested today = $7.61 in 20 years at 7%</span>
-    <span class="ticker-item down">📉 Waiting is the most expensive decision you'll ever make</span>
-    <span class="ticker-item up">📈 Every contribution, no matter how small, builds your future</span>
-    <span class="ticker-item down">📉 Small and consistent beats large and occasional — every time</span>
-    <span class="ticker-item up">📈 Passive income starts with the first dollar — not the thousandth</span>
-    <span class="ticker-item down">📉 Every day you wait, inflation quietly erodes your purchasing power</span>
-    <span class="ticker-item up">📈 $1 invested today = $7.61 in 20 years at 7%</span>
-    <span class="ticker-item down">📉 Waiting is the most expensive decision you'll ever make</span>
-    <span class="ticker-item up">📈 Every contribution, no matter how small, builds your future</span>
-    <span class="ticker-item down">📉 Small and consistent beats large and occasional — every time</span>
-  </div>
-</div>
-
-<div class="content-row">
-<div class="col-main">
-
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <div class="status-dot"></div>
-    <span id="statusText">Set up your profile and create your first project to get started.</span>
-  </div>
-
-  <!-- MOTIVATIONAL TICKER (moved to fixed row above) -->
-  <div style="display:none;">
-    <div class="ticker-track" id="tickerTrackOld">
+<!-- MOTIVATIONAL TICKER -->
+  <div class="ticker-wrap no-print">
+    <div class="ticker-track" id="tickerTrack">
       <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Waiting is the most expensive decision you'll ever make</span>
       <span class="ticker-item up"><span class="ticker-icon">📈</span>Every contribution, no matter how small, builds your future</span>
@@ -1386,6 +1280,15 @@
       <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
     </div>
+  </div>
+
+<div class="content-row">
+<div class="col-main">
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <span id="statusText">Set up your profile and create your first project to get started.</span>
   </div>
 
   <!-- USER SETUP CARD -->
@@ -1421,7 +1324,7 @@
     </div>
   </div>
 
-  <!-- TABS: moved to tabs-bar above -->
+  <!-- TABS -->
 
   <!-- ══ PORTFOLIO TAB ══════════════════════════════ -->
   <div class="tab-panel" id="panel-portfolio">
@@ -1514,14 +1417,10 @@
 
       <!-- SINGLE GOAL PANEL -->
       <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.25);border-radius:14px;padding:22px 26px;margin-bottom:12px;position:relative;overflow:hidden;min-height:220px;">
-
-        <!-- Logo watermark: absolute center -->
         <div class="goal-logo-bg">
-          <img src="https://kashsolutions.us/logo-kash.png" alt="KA$H"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+          <img src="https://kashsolutions.us/logo-kash.png" alt="KA$H" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
           <div class="goal-logo-fallback">KA$H</div>
         </div>
-
         <div class="goal-banner-content">
         <!-- Goal header -->
         <div style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
@@ -1542,7 +1441,6 @@
             <div class="progress-bar-fill" id="ovProgressFill" style="width:0%;"></div>
           </div>
         </div>
-
         </div><!-- /goal-banner-content -->
       </div>
 
@@ -1591,9 +1489,7 @@
 
 </div><!-- /col-main -->
 
-<!-- RIGHT SIDEBAR -->
 <div class="col-side no-print" id="appSidebar">
-
   <div class="side-widget">
     <div class="side-widget-title">🔥 Contribution Streak</div>
     <div class="streak-widget-center">
@@ -1602,7 +1498,6 @@
       <div class="streak-sub-lbl">CONSECUTIVE BUSINESS DAYS</div>
     </div>
   </div>
-
   <div class="side-widget" style="border-color:rgba(96,165,250,0.2);cursor:pointer;" onclick="switchTab('portfolio')">
     <div class="side-widget-title" style="color:rgba(96,165,250,0.75);">📈 Asset Portfolio</div>
     <div class="side-port-row"><span class="side-port-label">Invested</span><span class="side-port-value" style="color:var(--white);" id="sidePortInvested">$0.00</span></div>
@@ -1610,15 +1505,15 @@
     <div class="side-port-row"><span class="side-port-label">Return</span><span class="side-port-value" id="sidePortReturn" style="color:#22c55e;">—</span></div>
     <span class="side-link">View full portfolio →</span>
   </div>
-
   <div class="side-widget" id="sideEtfWidget">
     <div class="side-widget-title">💡 ETFs for Your Profile <span id="sideEtfRisk" style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--silver);font-weight:400;letter-spacing:1px;"></span></div>
     <div id="sideEtfList"></div>
   </div>
-
 </div><!-- /col-side -->
 
 </div><!-- /content-row -->
+
+</div><!-- /appShell -->
 
 <!-- ══ NEW PROJECT MODAL ══════════════════════════ -->
 <div class="modal-overlay" id="newProjectModal">
@@ -1720,7 +1615,7 @@ async function checkSubscription() {
     const { data, error } = await Promise.race([query, timeout]);
     if (error && error.code !== 'PGRST116') {
       // If RLS error or network issue and app was already loaded, keep access
-      if (document.getElementById('appContent').style.display === 'flex') return true;
+      if (document.getElementById('appContent').style.display === 'block') return true;
       return false;
     }
     const isActive = data?.status === 'active' || data?.status === 'inactive';
@@ -1728,7 +1623,7 @@ async function checkSubscription() {
     return isActive;
   } catch (e) {
     console.warn('Subscription check failed:', e);
-    if (document.getElementById('appContent').style.display === 'flex') return true;
+    if (document.getElementById('appContent').style.display === 'block') return true;
     return false;
   }
 }
@@ -2025,7 +1920,6 @@ async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('paywallScreen').style.display = 'none';
   document.getElementById('appContent').style.display = 'none';
-  document.getElementById('appContent').classList.remove('visible');
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
@@ -2044,8 +1938,7 @@ async function initApp() {
     return;
   }
 
-  document.getElementById('appContent').style.display = 'flex';
-  document.getElementById('appContent').classList.add('visible');
+  document.getElementById('appContent').style.display = 'block';
   document.body.classList.add('app-visible');
   startInactivityWatcher(); // start 10-min auto-logout
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
@@ -3986,28 +3879,26 @@ function renderSidebar() {
   const sideNum = document.getElementById('sideStreakNumber');
   if (sideFlames) sideFlames.textContent = flames || '—';
   if (sideNum) { sideNum.textContent = streak; sideNum.style.color = streak > 0 ? '#f97316' : 'rgba(192,192,192,0.3)'; }
-
-  const invested = (portfolioEntries || []).reduce((s,e) => s + (e.etfs||[]).reduce((es,et) => es + (et.shares||0)*(et.buyPrice||0), 0), 0);
-  const current  = (portfolioEntries || []).reduce((s,e) => s + (e.etfs||[]).reduce((es,et) => { const c = etfPriceCache&&etfPriceCache[et.ticker]; return es + (et.shares||0)*(c?c.price:et.buyPrice); }, 0), 0);
-  const ret = invested > 0 ? ((current-invested)/invested*100) : 0;
-  const invEl = document.getElementById('sidePortInvested');
-  const valEl = document.getElementById('sidePortValue');
-  const retEl = document.getElementById('sidePortReturn');
-  if (invEl) invEl.textContent = fmt(invested);
-  if (valEl) valEl.textContent = fmt(current);
-  if (retEl) { retEl.textContent = invested > 0 ? (ret>=0?'+':'')+ret.toFixed(2)+'%' : '—'; retEl.style.color = ret>=0?'#22c55e':'#ef4444'; }
-
-  const activeProj = state.projects.find(p => !p.closed && !p.transferred);
-  const riskEl = document.getElementById('sideEtfRisk');
-  const etfList = document.getElementById('sideEtfList');
-  if (!etfList) return;
-  if (!activeProj) { etfList.innerHTML = ''; return; }
-  const riskLabelMap = { conservador:'🟢 Conservative', moderado:'🟡 Moderate', agressivo:'🔴 Aggressive' };
-  if (riskEl) riskEl.textContent = riskLabelMap[activeProj.risk] || '🟡 Moderate';
-  const suggested = getSuggestedEtfs(activeProj).slice(0, 3);
-  const sCol = { dividend:'#fbbf24', bonds:'#60a5fa', broad:'var(--green-neon)', tech:'#a78bfa', international:'#22d3ee', smallcap:'#fb923c', real_estate:'#f472b6' };
-  const sLbl = { dividend:'Dividend', bonds:'Bonds', broad:'Broad Market', tech:'Technology', international:'International', smallcap:'Small Cap', real_estate:'Real Estate' };
-  etfList.innerHTML = suggested.map(e => `<div class="side-etf-row"><div class="side-etf-ticker">${e.ticker}</div><div class="side-etf-name">${e.name}</div><div class="side-etf-badges"><span style="font-size:0.52rem;padding:1px 6px;border-radius:3px;background:${sCol[e.sector]||'var(--silver)'}22;color:${sCol[e.sector]||'var(--silver)'};border:1px solid ${sCol[e.sector]||'var(--silver)'}44;">${sLbl[e.sector]||e.sector}</span>${e.sector==='dividend'||e.objective.includes('income')?'<span style="font-size:0.52rem;padding:1px 6px;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">💰 Div</span>':''}<span style="font-size:0.5rem;color:rgba(192,192,192,0.4);">exp ${e.expense}%</span></div></div>`).join('');
+  const invested = (portfolioEntries||[]).reduce((s,e)=>s+(e.etfs||[]).reduce((es,et)=>es+(et.shares||0)*(et.buyPrice||0),0),0);
+  const current  = (portfolioEntries||[]).reduce((s,e)=>s+(e.etfs||[]).reduce((es,et)=>{const cc=etfPriceCache&&etfPriceCache[et.ticker];return es+(et.shares||0)*(cc?cc.price:et.buyPrice);},0),0);
+  const ret = invested>0?((current-invested)/invested*100):0;
+  const invEl=document.getElementById('sidePortInvested');
+  const valEl=document.getElementById('sidePortValue');
+  const retEl=document.getElementById('sidePortReturn');
+  if(invEl)invEl.textContent=fmt(invested);
+  if(valEl)valEl.textContent=fmt(current);
+  if(retEl){retEl.textContent=invested>0?(ret>=0?'+':'')+ret.toFixed(2)+'%':'—';retEl.style.color=ret>=0?'#22c55e':'#ef4444';}
+  const activeProj=state.projects.find(p=>!p.closed&&!p.transferred);
+  const riskEl=document.getElementById('sideEtfRisk');
+  const etfList=document.getElementById('sideEtfList');
+  if(!etfList)return;
+  if(!activeProj){etfList.innerHTML='';return;}
+  const riskLabelMap={conservador:'🟢 Conservative',moderado:'🟡 Moderate',agressivo:'🔴 Aggressive'};
+  if(riskEl)riskEl.textContent=riskLabelMap[activeProj.risk]||'🟡 Moderate';
+  const suggested=getSuggestedEtfs(activeProj).slice(0,3);
+  const sCol={dividend:'#fbbf24',bonds:'#60a5fa',broad:'var(--green-neon)',tech:'#a78bfa',international:'#22d3ee',smallcap:'#fb923c',real_estate:'#f472b6'};
+  const sLbl={dividend:'Dividend',bonds:'Bonds',broad:'Broad Market',tech:'Technology',international:'International',smallcap:'Small Cap',real_estate:'Real Estate'};
+  etfList.innerHTML=suggested.map(e=>`<div class="side-etf-row"><div class="side-etf-ticker">${e.ticker}</div><div class="side-etf-name">${e.name}</div><div class="side-etf-badges"><span style="font-size:0.52rem;padding:1px 6px;border-radius:3px;background:${sCol[e.sector]||'var(--silver)'}22;color:${sCol[e.sector]||'var(--silver)'};border:1px solid ${sCol[e.sector]||'var(--silver)'}44;">${sLbl[e.sector]||e.sector}</span>${e.sector==='dividend'||e.objective.includes('income')?'<span style="font-size:0.52rem;padding:1px 6px;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);">💰 Div</span>':''}<span style="font-size:0.5rem;color:rgba(192,192,192,0.4);">exp ${e.expense}%</span></div></div>`).join('');
 }
 
 // ══════════════════════════════════════════════════
