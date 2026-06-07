@@ -3128,16 +3128,12 @@ async function openEtfDetail(ticker) {
 
 function addEtfFromDetail() {
   closeModal('etfDetailModal');
-  switchTab('portfolio');
-  showAddPortfolioEntry();
-  // Aguardar o form renderizar, então preencher o ticker na primeira linha
-  setTimeout(() => {
-    const firstTickerInput = document.querySelector('#etfRows > div input[type="text"]');
-    if (firstTickerInput && currentEtfTicker) {
-      firstTickerInput.value = currentEtfTicker;
-      firstTickerInput.dispatchEvent(new Event('input'));
-    }
-  }, 100);
+  if (portfolioEntries.length === 0) {
+    switchTab('portfolio');
+    return;
+  }
+  // Usar a primeira entry existente — usuário tem um portfolio
+  addCotasToEntry(portfolioEntries[0].id, currentEtfTicker);
 }
 
 function runCalc() {
@@ -3347,7 +3343,7 @@ function deletePortfolioEntry(id) {
   renderPortfolio();
 }
 
-function addCotasToEntry(id) {
+function addCotasToEntry(id, preselectedTicker='') {
   const entry = portfolioEntries.find(e => e.id === id);
   if (!entry) return;
 
@@ -3448,6 +3444,16 @@ function addCotasToEntry(id) {
   modal.querySelector('#cotasTicker').addEventListener('change', updateTickerInfo);
   modal.querySelector('#cotasNewTicker').addEventListener('input', updateTickerInfo);
   updateTickerInfo();
+
+  // Pré-selecionar ticker se fornecido
+  if (preselectedTicker) {
+    const sel = modal.querySelector('#cotasTicker');
+    const newInput = modal.querySelector('#cotasNewTicker');
+    sel.value = '__new__';
+    newInput.style.display = 'block';
+    newInput.value = preselectedTicker.toUpperCase();
+    updateTickerInfo();
+  }
 }
 
 function saveCotasToEntry(id, modal) {
