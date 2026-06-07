@@ -3028,7 +3028,10 @@ document.addEventListener('click', () => closeProjectsDropdown());
 // ══════════════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════════════
+let currentEtfTicker = '';
+
 async function openEtfDetail(ticker) {
+  currentEtfTicker = ticker;
   const modal = document.getElementById('etfDetailModal');
   const content = document.getElementById('etfDetailContent');
   const etf = ETF_DATABASE.find(e => e.ticker === ticker);
@@ -3121,6 +3124,20 @@ async function openEtfDetail(ticker) {
       ${etf ? `<div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);line-height:1.7;margin-top:16px;">${etf.description}</div>` : ''}
       <div class="etf-detail-disclaimer">Data provided by Yahoo Finance. May be delayed or unavailable. Not financial advice.</div>`;
   }
+}
+
+function addEtfFromDetail() {
+  closeModal('etfDetailModal');
+  switchTab('portfolio');
+  showAddPortfolioEntry();
+  // Aguardar o form renderizar, então preencher o ticker na primeira linha
+  setTimeout(() => {
+    const firstTickerInput = document.querySelector('#etfRows > div input[type="text"]');
+    if (firstTickerInput && currentEtfTicker) {
+      firstTickerInput.value = currentEtfTicker;
+      firstTickerInput.dispatchEvent(new Event('input'));
+    }
+  }, 100);
 }
 
 function runCalc() {
@@ -4440,7 +4457,7 @@ boot();
       <div class="etf-detail-loading">⏳ LOADING ETF DATA...</div>
     </div>
     <div style="margin-top:20px;text-align:right;">
-      <button class="btn btn-primary" onclick="closeModal('etfDetailModal'); openEtfSearchModal();">+ Add to Portfolio →</button>
+      <button class="btn btn-primary" onclick="addEtfFromDetail()">+ Add to Portfolio →</button>
     </div>
   </div>
 </div>
