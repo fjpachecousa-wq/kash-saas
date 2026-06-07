@@ -62,31 +62,17 @@
 
   .logo-text {
     font-family: 'Bebas Neue', cursive;
-    font-size: 3rem;
+    font-size: 3.6rem;
     letter-spacing: 4px;
-    line-height: 1;
-    display: flex;
-    align-items: baseline;
-    text-shadow: 0 0 20px rgba(57,255,20,0.7), 0 0 40px rgba(57,255,20,0.3);
-  }
-
-  .logo-ka { color: var(--green-neon); }
-  .logo-dollar {
     color: var(--green-neon);
-    text-shadow: 0 0 30px #39ff14, 0 0 60px #39ff14;
-    animation: pulse-dollar 2s ease-in-out infinite;
+    text-shadow: 0 0 20px rgba(57,255,20,0.7);
+    line-height: 1;
   }
   .logo-h {
-    background: linear-gradient(180deg, var(--silver-light) 0%, var(--silver) 50%, #888 100%);
+    background: linear-gradient(180deg, #e8e8e8, #888);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
-  }
-
-  @keyframes pulse-dollar {
-    0%,100% { text-shadow: 0 0 20px #39ff14, 0 0 40px #39ff14; }
-    50% { text-shadow: 0 0 40px #39ff14, 0 0 80px #39ff14, 0 0 100px rgba(57,255,20,0.4); }
   }
 
   .logo-tagline {
@@ -1314,13 +1300,8 @@
 <!-- HEADER -->
 <header>
   <div class="logo-area">
-    <img src="https://kashsolutions.us/logo-kash.png" alt="KA$H" style="height:100px;width:auto;object-fit:contain;" onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex';">
-    <div id="logoFallback" style="display:none;">
-      <div class="logo-text">
-        <span class="logo-ka">KA</span><span class="logo-dollar">$</span><span class="logo-h">H</span>
-      </div>
-      <div class="logo-tagline">Microinvest. Macroresults.</div>
-    </div>
+    <div class="logo-text">KA<span style="text-shadow:0 0 30px #39ff14;">$</span><span class="logo-h">H</span></div>
+    <div class="logo-tagline">Microinvest. Macroresults.</div>
   </div>
   <div class="header-right">
     <div class="header-user">
