@@ -1512,28 +1512,43 @@
     <div id="totalBanner" style="display:none;">
 
       <!-- SINGLE GOAL PANEL -->
-      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.25);border-radius:14px;padding:22px 26px;margin-bottom:12px;">
+      <div style="background:linear-gradient(160deg,rgba(57,255,20,0.06) 0%,rgba(0,0,0,0.75) 70%);border:1px solid rgba(57,255,20,0.25);border-radius:14px;padding:22px 26px;margin-bottom:12px;position:relative;overflow:hidden;min-height:200px;">
 
-        <!-- Goal header -->
-        <div style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-          <span id="ovGoalHeader">GOAL</span>
-          <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.6rem;padding:3px 10px;border:1px solid rgba(57,255,20,0.25);border-radius:6px;background:transparent;color:var(--green-neon);cursor:pointer;">🔄 Refresh</button>
+        <!-- Logo watermark -->
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;">
+          <img src="https://kashsolutions.us/logo-kash.png" alt="KA$H"
+               style="width:220px;height:220px;object-fit:contain;opacity:0.45;filter:drop-shadow(0 0 28px rgba(57,255,20,0.2));display:block;"
+               onerror="this.style.display='none';document.getElementById('goalLogoFallback').style.display='block';">
+          <div id="goalLogoFallback" style="display:none;font-family:'Bebas Neue',cursive;font-size:6rem;letter-spacing:8px;color:var(--green-neon);opacity:0.3;text-shadow:0 0 40px rgba(57,255,20,0.5);">KA$H</div>
         </div>
 
-        <!-- Metrics rows -->
-        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;" id="ovMetricsRows"></div>
+        <!-- Content (z-index:1 para ficar sobre o watermark) -->
+        <div style="position:relative;z-index:1;">
 
-        <!-- Progress bar -->
-        <div class="progress-wrap" style="margin:0;">
-          <div class="progress-label">
-            <span id="ovProgressLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">$0.00 / $0.00</span>
-            <span id="ovProgressPct" style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--green-neon);">0%</span>
+          <!-- Goal header -->
+          <div style="margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div>
+              <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--green-neon);letter-spacing:4px;line-height:1;text-shadow:0 0 12px rgba(57,255,20,0.35);">KA$H</div>
+              <div id="ovGoalHeader" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);margin-top:4px;letter-spacing:1px;">GOAL</div>
+            </div>
+            <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.6rem;padding:3px 10px;border:1px solid rgba(57,255,20,0.25);border-radius:6px;background:transparent;color:var(--green-neon);cursor:pointer;">🔄 Refresh</button>
           </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="ovProgressFill" style="width:0%;"></div>
+
+          <!-- Metrics rows -->
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;" id="ovMetricsRows"></div>
+
+          <!-- Progress bar -->
+          <div class="progress-wrap" style="margin:0;">
+            <div class="progress-label">
+              <span id="ovProgressLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">$0.00 / $0.00</span>
+              <span id="ovProgressPct" style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--green-neon);">0%</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="ovProgressFill" style="width:0%;"></div>
+            </div>
           </div>
+
         </div>
-
       </div>
 
       <!-- Stats footer -->
@@ -2572,7 +2587,7 @@ function renderOverview() {
 
     // Goal header
     const deadlineFmt = new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
-    document.getElementById('ovGoalHeader').textContent = `GOAL: ${activeProj.name} · ${fmt(activeProj.target)} by ${deadlineFmt}`;
+    document.getElementById('ovGoalHeader').textContent = `${activeProj.name} · ${fmt(activeProj.target)} by ${deadlineFmt}`;
 
     // Metrics rows
     const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
