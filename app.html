@@ -1677,6 +1677,30 @@
         <span class="side-link" onclick="switchTab('portfolio')">+ Add to Portfolio →</span>
       </div>
 
+      <!-- WIDGET 4: CONTRIBUTION CALCULATOR -->
+      <div class="side-widget">
+        <div class="side-title">🧮 Contribution Calculator</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Daily contribution ($)</div>
+            <input type="number" id="calcDaily" min="0" step="0.01" placeholder="e.g. 10.00"
+              oninput="runCalc()"
+              style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Number of days</div>
+            <input type="number" id="calcDays" min="1" step="1" placeholder="e.g. 30"
+              oninput="runCalc()"
+              style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
+          </div>
+          <div id="calcResult" style="display:none;margin-top:4px;background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.2);border-radius:9px;padding:12px 14px;text-align:center;">
+            <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px;">YOU'LL HAVE</div>
+            <div id="calcTotal" style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.4);line-height:1;">$0.00</div>
+            <div id="calcSub" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);margin-top:4px;"></div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /col-side -->
 
   </div><!-- /content-row -->
@@ -2990,6 +3014,19 @@ document.addEventListener('click', () => closeProjectsDropdown());
 // ══════════════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════════════
+function runCalc() {
+  const daily = parseFloat(document.getElementById('calcDaily').value);
+  const days  = parseInt(document.getElementById('calcDays').value);
+  const result = document.getElementById('calcResult');
+  const totalEl = document.getElementById('calcTotal');
+  const subEl   = document.getElementById('calcSub');
+  if (!daily || !days || daily <= 0 || days <= 0) { result.style.display = 'none'; return; }
+  const total = daily * days;
+  result.style.display = 'block';
+  totalEl.textContent = '$' + total.toFixed(2);
+  subEl.textContent = '$' + daily.toFixed(2) + '/day × ' + days + ' day' + (days !== 1 ? 's' : '');
+}
+
 function renderAll() {
   // Keep portfolioEntries in sync with state
   portfolioEntries = state.portfolio || [];
