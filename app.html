@@ -110,23 +110,24 @@
   /* ── MAIN CONTAINER ──────────────────────────── */
   .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
 
-  /* ── TABS ────────────────────────────────────── */
-  .tabs-nav {
+  /* ── NAV BAR ─────────────────────────────────── */
+  .nav-bar {
     display: flex;
-    gap: 0;
-    margin-bottom: 24px;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(57,255,20,0.2);
-    border-radius: 12px;
-    padding: 4px;
-    overflow-x: auto;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 32px;
+    background: rgba(8,15,8,0.98);
+    border-bottom: 1px solid rgba(57,255,20,0.2);
+    position: sticky;
+    top: 136px; /* altura do header: logo 100px + padding 18px*2 = 136px */
+    z-index: 150;
   }
 
   .tab-btn {
     font-family: 'Bebas Neue', cursive;
     font-size: 1rem;
     letter-spacing: 2px;
-    padding: 10px 20px;
+    padding: 10px 22px;
     border: none;
     border-radius: 9px;
     cursor: pointer;
@@ -155,6 +156,100 @@
     border-radius: 4px;
     margin-right: 6px;
   }
+
+  /* ── NAV DROPDOWN (My Projects) ──────────────── */
+  .nav-dropdown-wrap {
+    position: relative;
+  }
+
+  .nav-dropdown-wrap .tab-btn .arrow {
+    font-size: 0.6rem;
+    margin-left: 6px;
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+
+  .nav-dropdown-wrap.open .tab-btn .arrow {
+    transform: rotate(180deg);
+  }
+
+  .nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 240px;
+    background: #0a150a;
+    border: 1px solid rgba(57,255,20,0.35);
+    border-radius: 12px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.9);
+    overflow: hidden;
+    z-index: 400;
+    animation: dropIn 0.15s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .nav-dropdown-wrap.open .nav-dropdown { display: block; }
+
+  .nav-dropdown-header {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: rgba(57,255,20,0.45);
+    letter-spacing: 2px;
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid rgba(57,255,20,0.1);
+    background: rgba(57,255,20,0.03);
+  }
+
+  .nav-dropdown-new {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: 'Bebas Neue', cursive;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    color: var(--green-neon);
+    background: rgba(57,255,20,0.05);
+    border-bottom: 1px solid rgba(57,255,20,0.15);
+    transition: all 0.15s;
+  }
+
+  .nav-dropdown-new:hover { background: rgba(57,255,20,0.12); }
+
+  .nav-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.15s;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--white);
+  }
+
+  .nav-dropdown-item:last-child { border-bottom: none; }
+  .nav-dropdown-item:hover { background: rgba(57,255,20,0.06); }
+
+  .nav-dropdown-item .d-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.1rem;
+    width: 22px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .nav-dropdown-item .d-info { flex: 1; min-width: 0; }
+  .nav-dropdown-item .d-name { font-size: 0.68rem; color: var(--white); }
+  .nav-dropdown-item .d-meta { font-size: 0.58rem; color: rgba(192,192,192,0.45); margin-top: 2px; }
+  .nav-dropdown-item .d-pct  { font-family: 'Bebas Neue', cursive; font-size: 1.1rem; flex-shrink: 0; }
 
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
@@ -844,7 +939,7 @@
     .kpi-value.gold { color: #92400e !important; }
     .print-header { display: block !important; text-align: center; padding: 20px 0; border-bottom: 2px solid #166534; margin-bottom: 20px; }
     .print-header h1 { font-family: 'Bebas Neue', cursive; font-size: 2.5rem; color: #166534; letter-spacing: 6px; }
-    .tabs-nav { display: none; }
+    .nav-bar { display: none; }
   }
 
   /* ── RESPONSIVE ──────────────────────────────── */
@@ -1239,6 +1334,26 @@
   </div>
 </header>
 
+<!-- NAV BAR FIXA -->
+<nav class="nav-bar no-print" id="tabsNav">
+  <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
+  <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
+  <div class="nav-dropdown-wrap" id="projectsDropdown">
+    <button class="tab-btn" onclick="toggleProjectsDropdown(event)">
+      🗂 MY PROJECTS <span class="arrow">▾</span>
+    </button>
+    <div class="nav-dropdown">
+      <div class="nav-dropdown-header">PROJECTS</div>
+      <div class="nav-dropdown-new" onclick="openNewProjectModal(); closeProjectsDropdown();">
+        ＋ NEW PROJECT
+      </div>
+      <div id="projectsDropdownList">
+        <!-- projetos injetados por renderTabsNav() -->
+      </div>
+    </div>
+  </div>
+</nav>
+
 <div class="container">
 
   <!-- STATUS BAR -->
@@ -1305,12 +1420,6 @@
       <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Save Profile</button>
       <button class="btn btn-sm" onclick="cancelEditProfile()">Cancel</button>
     </div>
-  </div>
-
-  <!-- TABS: Overview + one per project -->
-  <div class="tabs-nav" id="tabsNav">
-    <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 Overview</button>
-    <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 Portfolio</button>
   </div>
 
   <!-- ══ PORTFOLIO TAB ══════════════════════════════ -->
@@ -2693,20 +2802,56 @@ function renderProjectPanel(proj) {
 // RENDER TABS NAV
 // ══════════════════════════════════════════════════
 function renderTabsNav() {
-  const nav = document.getElementById('tabsNav');
-  nav.querySelectorAll('.proj-tab-btn').forEach(b => b.remove());
+  const list = document.getElementById('projectsDropdownList');
+  if (!list) return;
+
+  // Limpar itens de projeto anteriores (manter o "New Project")
+  list.innerHTML = '';
+
+  // Remover botões invisíveis antigos
+  document.querySelectorAll('.proj-tab-btn').forEach(b => b.remove());
 
   state.projects.forEach(proj => {
+    const stats = calcProject(proj);
+    const pct = stats.pct.toFixed(1);
+    const closedLabel = proj.transferred ? '🔒✅' : proj.closed ? '🔒⏳' : '';
+
+    const item = document.createElement('div');
+    item.className = 'nav-dropdown-item';
+    item.onclick = () => { switchTab('proj-' + proj.id); closeProjectsDropdown(); };
+    item.innerHTML = `
+      <span class="d-num" style="color:${proj.color};">${proj.num}</span>
+      <div class="d-info">
+        <div class="d-name">${proj.name} ${closedLabel}</div>
+        <div class="d-meta">${pct}% · ${stats.daysLeft}d left</div>
+      </div>
+      <span class="d-pct" style="color:${proj.color};">${pct}%</span>
+    `;
+
+    // Botão invisível para switchTab() encontrar por ID
     const btn = document.createElement('button');
-    btn.className = 'tab-btn proj-tab-btn';
     btn.id = 'tab-proj-' + proj.id;
-    btn.style.setProperty('--proj-color', proj.color);
-    const closedBadge = proj.transferred ? ' <span style="font-size:0.6rem;color:#22c55e;letter-spacing:1px;">🔒✅</span>' : proj.closed ? ' <span style="font-size:0.6rem;color:#f59e0b;letter-spacing:1px;">🔒⏳</span>' : '';
-    btn.innerHTML = `<span class="proj-num" style="background:${proj.color}22;color:${proj.color};">${proj.num}</span>${proj.name}${closedBadge}`;
+    btn.className = 'tab-btn proj-tab-btn';
+    btn.style.display = 'none';
     btn.onclick = () => switchTab('proj-' + proj.id);
-    nav.appendChild(btn);
+    document.getElementById('tabsNav').appendChild(btn);
+
+    list.appendChild(item);
   });
 }
+
+function toggleProjectsDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('projectsDropdown').classList.toggle('open');
+}
+
+function closeProjectsDropdown() {
+  const dd = document.getElementById('projectsDropdown');
+  if (dd) dd.classList.remove('open');
+}
+
+// Fechar dropdown ao clicar fora
+document.addEventListener('click', () => closeProjectsDropdown());
 
 // ══════════════════════════════════════════════════
 // RENDER ALL
