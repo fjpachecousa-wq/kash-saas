@@ -1684,7 +1684,10 @@
 
       <!-- WIDGET 3: ETFs FOR YOUR PROFILE -->
       <div class="side-widget">
-        <div class="side-title">💡 ETFs for Your Profile <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></div>
+        <div class="side-title" style="justify-content:space-between;">
+          <span>💡 ETFs for Your Profile <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></span>
+          <button onclick="refreshOverviewReal()" title="Refresh ETF suggestions" style="background:transparent;border:1px solid rgba(57,255,20,0.2);border-radius:6px;color:var(--green-neon);cursor:pointer;font-size:0.7rem;padding:2px 8px;">🔄</button>
+        </div>
         <div id="sideEtfList">
           <!-- injetado por renderOverview() -->
         </div>
@@ -1882,8 +1885,6 @@ function startInactivityWatcher() {
 
 async function logoutUser() {
   clearTimeout(_inactivityTimer);
-  clearInterval(_etfRefreshInterval);
-  _etfRefreshInterval = null;
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
@@ -1903,7 +1904,6 @@ let state = {
 
 let selectedColor = '#39ff14';
 let currentTab = 'overview';
-let _etfRefreshInterval = null;
 
 // ══════════════════════════════════════════════════
 // CLOUD STORAGE (Supabase)
@@ -2192,9 +2192,6 @@ async function initApp() {
   }
   etfPriceCache = {}; // clear on load — forces fresh prices on first render
   renderAll();
-  // Auto-refresh ETF prices every 5 minutes
-  clearInterval(_etfRefreshInterval);
-  _etfRefreshInterval = setInterval(() => refreshOverviewReal(), 5 * 60 * 1000);
   // Show profile card on first access if name not set
   if (!state.name) {
     document.getElementById('userSetupCard').style.display = 'block';
