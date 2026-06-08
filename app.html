@@ -3423,21 +3423,23 @@ function deletePortfolioEntry(id) {
 }
 
 function addCotasToEntry(id, preselectedTicker='') {
-  const entry = portfolioEntries.find(e => e.id === id);
-  if (!entry) return;
+  // Consolidar todas as ETFs de todos os entries
+  const allEtfs = portfolioEntries.flatMap(e => [
+    ...(e.etfs||[]).map(et => ({...et, entryId: e.id})),
+    ...(e.altEtfs||[]).map(et => ({...et, entryId: e.id}))
+  ]);
 
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
 
-  const allEtfs = [...(entry.etfs||[]), ...(entry.altEtfs||[])];
   const existingTickers = allEtfs.map(et =>
-    `<option value="${et.ticker}" data-current="${et.shares}">${et.ticker} (current: ${et.shares} shares)</option>`
+    `<option value="${et.ticker}" data-entry-id="${et.entryId}" data-current="${et.shares}">${et.ticker} (current: ${et.shares} shares)</option>`
   ).join('');
 
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,420px);">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green-neon);margin-bottom:4px;">🔄 NEW / UPDATE SHARES</div>
-      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">To add a new ETF, select "+ New ETF" and enter your total shares. To update an existing one, select it and enter the new total — the app calculates the difference automatically.</div>
+      <div style="font-size:0.75rem;color:var(--silver);margin-bottom:16px;">To update an existing ETF, select it and enter the new total shares — the app calculates the difference automatically. To add a new ETF, select "+ New ETF".</div>
 
       <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">DATE</label>
       <input type="date" id="cotasDate" value="${todayStr()}"
@@ -3469,14 +3471,13 @@ function addCotasToEntry(id, preselectedTicker='') {
         oninput="updateCotasDiff()">
 
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(${id}, this.closest('div[style*=fixed]'))">Save</button>
+        <button class="btn btn-primary btn-sm" onclick="saveCotasToEntry(null, this.closest('div[style*=fixed]'))">Save</button>
         <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
 
   document.body.appendChild(modal);
 
-  // Update current info and fetch price when ticker changes
   async function updateTickerInfo() {
     const sel = modal.querySelector('#cotasTicker');
     const newInput = modal.querySelector('#cotasNewTicker');
@@ -3487,17 +3488,17 @@ function addCotasToEntry(id, preselectedTicker='') {
     const currentShares = isNew ? 0 : parseFloat(sel.selectedOptions[0]?.dataset.current || 0);
 
     const info = modal.querySelector('#cotasCurrentInfo');
-    info.textContent = isNew ? '' : `Currently registered: ${currentShares}`;
+    info.textContent = isNew ? '' : `Currently registered: ${currentShares} shares`;
 
     if (ticker && ticker !== '__new__') {
       modal.querySelector('#cotasPriceStatus').textContent = 'fetching...';
       modal.querySelector('#cotasPrice').value = '';
       const result = await fetchEtfPrice(ticker);
-      if (result.price) {
+      if (result && result.price) {
         modal.querySelector('#cotasPrice').value = result.price.toFixed(4);
-        modal.querySelector('#cotasPriceStatus').textContent = '✅ atualizado';
+        modal.querySelector('#cotasPriceStatus').textContent = '✅ updated';
       } else {
-        modal.querySelector('#cotasPriceStatus').textContent = '⚠️ insira manualmente';
+        modal.querySelector('#cotasPriceStatus').textContent = '⚠️ enter manually';
       }
       updateCotasDiff();
     }
@@ -3513,7 +3514,7 @@ function addCotasToEntry(id, preselectedTicker='') {
     const diffInfo = modal.querySelector('#cotasDiffInfo');
     if (totalShares > 0 && diff !== 0) {
       diffInfo.style.display = 'block';
-      const color = diff > 0 ? 'var(--green-neon)' : 'var(--red)';
+      const color = diff > 0 ? 'var(--green-neon)' : '#ef4444';
       const valor = price > 0 ? ` · Amount: $${(Math.abs(diff) * price).toFixed(2)}` : '';
       diffInfo.innerHTML = `Difference: <strong style="color:${color}">${diff > 0 ? '+' : ''}${diff.toFixed(5)} shares</strong>${valor}`;
     } else {
@@ -3525,23 +3526,26 @@ function addCotasToEntry(id, preselectedTicker='') {
   modal.querySelector('#cotasNewTicker').addEventListener('input', updateTickerInfo);
   updateTickerInfo();
 
-  // Pré-selecionar ticker se fornecido
   if (preselectedTicker) {
     const sel = modal.querySelector('#cotasTicker');
-    const newInput = modal.querySelector('#cotasNewTicker');
-    sel.value = '__new__';
-    newInput.style.display = 'block';
-    newInput.value = preselectedTicker.toUpperCase();
+    const opt = [...sel.options].find(o => o.value === preselectedTicker.toUpperCase());
+    if (opt) {
+      sel.value = preselectedTicker.toUpperCase();
+    } else {
+      sel.value = '__new__';
+      const newInput = modal.querySelector('#cotasNewTicker');
+      newInput.style.display = 'block';
+      newInput.value = preselectedTicker.toUpperCase();
+    }
     updateTickerInfo();
   }
 }
 
 function saveCotasToEntry(id, modal) {
-  const entry = portfolioEntries.find(e => e.id === id);
-  if (!entry) return;
-
-  const tickerSel = document.getElementById('cotasTicker').value;
-  const ticker = tickerSel === '__new__'
+  const sel = document.getElementById('cotasTicker');
+  const tickerSel = sel.value;
+  const isNew = tickerSel === '__new__';
+  const ticker = isNew
     ? document.getElementById('cotasNewTicker').value.trim().toUpperCase()
     : tickerSel;
   const totalShares = parseFloat(document.getElementById('cotasTotalShares').value) || 0;
@@ -3553,51 +3557,69 @@ function saveCotasToEntry(id, modal) {
     return;
   }
 
-  // Find existing ETF in entry (etfs or altEtfs) or add new one
-  let existing = entry.etfs.find(et => et.ticker === ticker);
-  let inAlt = false;
-  if (!existing && entry.altEtfs) {
-    existing = entry.altEtfs.find(et => et.ticker === ticker);
-    if (existing) inAlt = true;
-  }
-  const currentShares = existing ? existing.shares : 0;
-  const shares = +(totalShares - currentShares).toFixed(8); // difference (negative = sale)
-
-  if (shares === 0 && existing) {
-    alert('No change detected — the total entered matches the current shares.');
-    return;
-  }
-  if (totalShares < 0) {
-    alert('Total shares cannot be negative.');
-    return;
-  }
-
-  if (existing) {
-    if (shares < 0) {
-      existing.shares = +totalShares.toFixed(8);
-      if (existing.shares === 0) {
-        if (inAlt) {
-          entry.altEtfs = entry.altEtfs.filter(et => et.ticker !== ticker);
-        } else {
-          entry.etfs = entry.etfs.filter(et => et.ticker !== ticker);
-        }
-      }
-    } else {
-      const oldValue = existing.shares * existing.buyPrice;
-      const newValue = shares * buyPrice;
-      existing.shares = +(existing.shares + shares).toFixed(8);
-      existing.buyPrice = +((oldValue + newValue) / existing.shares).toFixed(4);
-    }
+  // Encontrar o entry correto pelo data-entry-id do option selecionado
+  let entry;
+  if (isNew) {
+    // Nova ETF — criar novo entry
+    entry = null;
   } else {
-    entry.etfs.push({ticker, shares: totalShares, buyPrice});
+    const entryId = parseInt(sel.selectedOptions[0]?.dataset.entryId);
+    entry = portfolioEntries.find(e => e.id === entryId);
   }
 
-  // Update entry amount
-  entry.amount = entry.etfs.reduce((s, e) => s + (e.shares * e.buyPrice), 0);
+  if (!entry && !isNew) {
+    alert('Portfolio entry not found.');
+    return;
+  }
 
-  // Log the transaction
-  if (!entry.transactions) entry.transactions = [];
-  entry.transactions.push({date, ticker, shares, buyPrice});
+  if (isNew) {
+    // Adicionar novo entry com a nova ETF
+    const newEntry = {
+      id: Date.now(),
+      date,
+      amount: totalShares * buyPrice,
+      etfs: [{ticker, shares: totalShares, buyPrice}],
+      altEtfs: [],
+      createdAt: new Date().toISOString(),
+      transactions: [{date, ticker, shares: totalShares, buyPrice}]
+    };
+    portfolioEntries.push(newEntry);
+  } else {
+    // Atualizar ETF existente no entry correto
+    const existing = entry.etfs.find(et => et.ticker === ticker)
+      || (entry.altEtfs||[]).find(et => et.ticker === ticker);
+    const inAlt = !entry.etfs.find(et => et.ticker === ticker) && !!(entry.altEtfs||[]).find(et => et.ticker === ticker);
+    const currentShares = existing ? existing.shares : 0;
+    const shares = +(totalShares - currentShares).toFixed(8);
+
+    if (shares === 0) {
+      alert('No change detected — the total entered matches the current shares.');
+      return;
+    }
+    if (totalShares < 0) {
+      alert('Total shares cannot be negative.');
+      return;
+    }
+
+    if (existing) {
+      if (shares < 0) {
+        existing.shares = +totalShares.toFixed(8);
+        if (existing.shares === 0) {
+          if (inAlt) entry.altEtfs = entry.altEtfs.filter(et => et.ticker !== ticker);
+          else entry.etfs = entry.etfs.filter(et => et.ticker !== ticker);
+        }
+      } else {
+        const oldValue = existing.shares * existing.buyPrice;
+        const newValue = shares * buyPrice;
+        existing.shares = +(existing.shares + shares).toFixed(8);
+        existing.buyPrice = +((oldValue + newValue) / existing.shares).toFixed(4);
+      }
+    }
+
+    entry.amount = entry.etfs.reduce((s, e) => s + (e.shares * e.buyPrice), 0);
+    if (!entry.transactions) entry.transactions = [];
+    entry.transactions.push({date, ticker, shares, buyPrice});
+  }
 
   savePortfolioToStorage();
   modal.remove();
