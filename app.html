@@ -1686,7 +1686,7 @@
       <div class="side-widget">
         <div class="side-title" style="justify-content:space-between;">
           <span>💡 ETFs for Your Profile <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></span>
-          <button onclick="refreshOverviewReal()" title="Refresh ETF suggestions" style="background:transparent;border:1px solid rgba(57,255,20,0.2);border-radius:6px;color:var(--green-neon);cursor:pointer;font-size:0.7rem;padding:2px 8px;">🔄</button>
+          <button onclick="refreshEtfSuggestions()" title="Refresh ETF suggestions" style="background:transparent;border:1px solid rgba(57,255,20,0.2);border-radius:6px;color:var(--green-neon);cursor:pointer;font-size:0.7rem;padding:2px 8px;">🔄</button>
         </div>
         <div id="sideEtfList">
           <!-- injetado por renderOverview() -->
@@ -3137,6 +3137,74 @@ function addEtfFromDetail() {
   }
   // Usar a primeira entry existente — usuário tem um portfolio
   addCotasToEntry(portfolioEntries[0].id, currentEtfTicker);
+}
+
+async function refreshEtfSuggestions() {
+  const sideEtfList = document.getElementById('sideEtfList');
+  if (!sideEtfList) return;
+
+  const activeProj = state.projects.find(p => !p.closed && !p.transferred);
+  if (!activeProj) return;
+
+  // Mostrar loading
+  sideEtfList.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(57,255,20,0.5);padding:12px 0;text-align:center;letter-spacing:1px;">⏳ Fetching market data...</div>';
+
+  // Candidatas por risco (usando getSuggestedEtfs como base — mais ampla)
+  const riskMap = { conservador:['conservative','moderate'], moderado:['moderate','conservative'], agressivo:['aggressive','moderate'] };
+  const allowed = riskMap[activeProj.risk] || ['moderate','conservative'];
+  const owned = new Set();
+  (portfolioEntries || []).forEach(e => (e.etfs||[]).forEach(et => owned.add(et.ticker)));
+  const candidates = ETF_DATABASE.filter(e =>
+    !owned.has(e.ticker) &&
+    allowed.includes(e.risk) &&
+    (e.sector === 'dividend' || (e.objective && e.objective.includes('income')))
+  );
+
+  if (!candidates.length) {
+    sideEtfList.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:var(--silver);padding:8px 0;">No dividend ETFs available for your profile.</div>';
+    return;
+  }
+
+  // Buscar performance 5 anos para cada candidata
+  const results = [];
+  await Promise.all(candidates.map(async e => {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${e.ticker}?interval=1mo&range=5y`;
+      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+      const json = await res.json();
+      const data = JSON.parse(json.contents);
+      const chart = data.chart.result[0];
+      const closes = chart.indicators.quote[0].close.filter(v => v !== null);
+      if (closes.length < 2) return;
+      const totalReturn = ((closes[closes.length-1] - closes[0]) / closes[0]) * 100;
+      if (totalReturn > 0) results.push({ etf: e, totalReturn });
+    } catch(err) {
+      // API falhou para este ticker — ignora
+    }
+  }));
+
+  if (!results.length) {
+    sideEtfList.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(239,68,68,0.7);padding:8px 0;">⚠ Market data unavailable. Try again later.</div>';
+    return;
+  }
+
+  // Ordenar por melhor performance acumulada 5 anos
+  results.sort((a, b) => b.totalReturn - a.totalReturn);
+  const top3 = results.slice(0, 3);
+
+  // Renderizar com mesmo HTML do renderOverview
+  sideEtfList.innerHTML = top3.map(({ etf: e, totalReturn }) => {
+    const riskBadge = e.risk === 'conservative' ? `<span class="badge badge-cons">🟢 Conservative</span>` : e.risk === 'aggressive' ? `<span class="badge badge-agg">🔴 Aggressive</span>` : `<span class="badge badge-mod">🟡 Moderate</span>`;
+    return `<div class="etf-row" onclick="openEtfDetail('${e.ticker}')" style="cursor:pointer;" title="Click to view ${e.ticker} details">
+      <div class="etf-ticker">${e.ticker}</div>
+      <div class="etf-name">${e.name}</div>
+      <div class="etf-badges">
+        <span class="badge badge-div">💰 Dividend</span>
+        ${riskBadge}
+        <span class="exp">5y: +${totalReturn.toFixed(1)}%</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function runCalc() {
