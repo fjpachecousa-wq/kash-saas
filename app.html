@@ -1882,6 +1882,8 @@ function startInactivityWatcher() {
 
 async function logoutUser() {
   clearTimeout(_inactivityTimer);
+  clearInterval(_etfRefreshInterval);
+  _etfRefreshInterval = null;
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
@@ -1901,6 +1903,7 @@ let state = {
 
 let selectedColor = '#39ff14';
 let currentTab = 'overview';
+let _etfRefreshInterval = null;
 
 // ══════════════════════════════════════════════════
 // CLOUD STORAGE (Supabase)
@@ -2189,6 +2192,9 @@ async function initApp() {
   }
   etfPriceCache = {}; // clear on load — forces fresh prices on first render
   renderAll();
+  // Auto-refresh ETF prices every 5 minutes
+  clearInterval(_etfRefreshInterval);
+  _etfRefreshInterval = setInterval(() => refreshOverviewReal(), 5 * 60 * 1000);
   // Show profile card on first access if name not set
   if (!state.name) {
     document.getElementById('userSetupCard').style.display = 'block';
