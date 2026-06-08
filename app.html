@@ -1475,6 +1475,39 @@
         <input type="text" id="profileEmail" readonly style="color:rgba(192,192,192,0.6);font-size:0.8rem;">
       </div>
     </div>
+    <!-- Address & Tax -->
+    <div style="margin-top:12px;border-top:1px solid rgba(57,255,20,0.1);padding-top:14px;">
+      <div style="font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;color:rgba(57,255,20,0.6);margin-bottom:10px;">🏠 US Address</div>
+      <div class="form-row four">
+        <div class="form-group" style="grid-column:span 2;">
+          <label>Street Address</label>
+          <input type="text" id="profileStreet" placeholder="e.g. 123 Main St" readonly>
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="profileCity" placeholder="e.g. Orlando" readonly>
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="profileState" placeholder="e.g. FL" maxlength="2" readonly style="text-transform:uppercase;">
+        </div>
+      </div>
+      <div class="form-row four">
+        <div class="form-group">
+          <label>ZIP Code</label>
+          <input type="text" id="profileZip" placeholder="e.g. 34761" maxlength="10" readonly>
+        </div>
+        <div class="form-group" style="grid-column:span 3;display:flex;align-items:center;gap:14px;padding-top:20px;">
+          <label style="margin:0;white-space:nowrap;">Do you file taxes in the United States?</label>
+          <select id="profileTax" disabled style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:6px 10px;border-radius:8px;font-size:0.85rem;">
+            <option value="">— Select —</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <div class="btn-row" id="profileSaveRow" style="display:none;">
       <button class="btn btn-primary btn-sm" onclick="saveProfile()">💾 Save Profile</button>
       <button class="btn btn-sm" onclick="cancelEditProfile()">Cancel</button>
@@ -1967,7 +2000,9 @@ async function load() {
       projects: loaded.projects || [],
       portfolio: loaded.portfolio || [],
       saldoDisponivel: loaded.saldoDisponivel || 0,
-      birthdate: loaded.birthdate || ''
+      birthdate: loaded.birthdate || '',
+      address: loaded.address || {},
+      declaresUsTax: loaded.declaresUsTax || ''
     };
     return true;
   }
