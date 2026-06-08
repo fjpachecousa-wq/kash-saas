@@ -1452,7 +1452,10 @@
         <div class="card-title" style="margin-bottom:2px;">👤 Investor Profile</div>
         <div class="client-number">Client <span id="clientNumber">—</span></div>
       </div>
-      <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Edit</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Edit</button>
+        <button class="btn btn-sm" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:4px 12px;border-color:rgba(239,68,68,0.4);color:rgba(239,68,68,0.8);">✕ Close</button>
+      </div>
     </div>
     <div class="form-row four">
       <div class="form-group">
@@ -1470,39 +1473,6 @@
       <div class="form-group">
         <label>Email</label>
         <input type="text" id="profileEmail" readonly style="color:rgba(192,192,192,0.6);font-size:0.8rem;">
-      </div>
-    </div>
-
-    <!-- Address & Tax -->
-    <div style="margin-top:12px;border-top:1px solid rgba(57,255,20,0.1);padding-top:14px;">
-      <div style="font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;color:rgba(57,255,20,0.6);margin-bottom:10px;">🏠 US Address</div>
-      <div class="form-row four">
-        <div class="form-group" style="grid-column:span 2;">
-          <label>Street Address</label>
-          <input type="text" id="profileStreet" placeholder="e.g. 123 Main St" readonly>
-        </div>
-        <div class="form-group">
-          <label>City</label>
-          <input type="text" id="profileCity" placeholder="e.g. Orlando" readonly>
-        </div>
-        <div class="form-group">
-          <label>State</label>
-          <input type="text" id="profileState" placeholder="e.g. FL" maxlength="2" readonly style="text-transform:uppercase;">
-        </div>
-      </div>
-      <div class="form-row four">
-        <div class="form-group">
-          <label>ZIP Code</label>
-          <input type="text" id="profileZip" placeholder="e.g. 34761" maxlength="10" readonly>
-        </div>
-        <div class="form-group" style="grid-column:span 3;display:flex;align-items:center;gap:14px;padding-top:20px;">
-          <label style="margin:0;white-space:nowrap;">Do you file taxes in the United States?</label>
-          <select id="profileTax" disabled style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:6px 10px;border-radius:8px;font-size:0.85rem;">
-            <option value="">— Select —</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
-        </div>
       </div>
     </div>
     <div class="btn-row" id="profileSaveRow" style="display:none;">
@@ -1895,18 +1865,46 @@ async function loginGoogle() {
   });
 }
 
-// ── AUTO-LOGOUT AFTER 10 MINUTES OF INACTIVITY ─────────────────────────
+// ── AUTO-LOGOUT AFTER 5 MINUTES OF INACTIVITY ─────────────────────────
 let _inactivityTimer = null;
-const INACTIVITY_MS = 10 * 60 * 1000; // 10 minutes
+let _countdownTimer = null;
+let _countdownInterval = null;
+const INACTIVITY_MS = 5 * 60 * 1000; // 5 minutes
+const COUNTDOWN_SEC = 30;
 
 function resetInactivityTimer() {
   clearTimeout(_inactivityTimer);
-  _inactivityTimer = setTimeout(async () => {
-    if (_supabase && (await _supabase.auth.getSession()).data.session) {
-      await logoutUser();
-      alert('You have been signed out due to 10 minutes of inactivity.');
-    }
+  _inactivityTimer = setTimeout(() => {
+    showInactivityPopup();
   }, INACTIVITY_MS);
+}
+
+function showInactivityPopup() {
+  const popup = document.getElementById('inactivityPopup');
+  if (!popup) return;
+  popup.style.display = 'flex';
+  let secs = COUNTDOWN_SEC;
+  const countEl = document.getElementById('inactivityCountdown');
+  if (countEl) countEl.textContent = secs;
+  clearInterval(_countdownInterval);
+  _countdownInterval = setInterval(async () => {
+    secs--;
+    if (countEl) countEl.textContent = secs;
+    if (secs <= 0) {
+      clearInterval(_countdownInterval);
+      popup.style.display = 'none';
+      if (_supabase && (await _supabase.auth.getSession()).data.session) {
+        await logoutUser();
+      }
+    }
+  }, 1000);
+}
+
+function dismissInactivityPopup() {
+  const popup = document.getElementById('inactivityPopup');
+  if (popup) popup.style.display = 'none';
+  clearInterval(_countdownInterval);
+  resetInactivityTimer();
 }
 
 function startInactivityWatcher() {
@@ -1918,6 +1916,9 @@ function startInactivityWatcher() {
 
 async function logoutUser() {
   clearTimeout(_inactivityTimer);
+  clearInterval(_countdownInterval);
+  const popup = document.getElementById('inactivityPopup');
+  if (popup) popup.style.display = 'none';
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
@@ -1966,9 +1967,7 @@ async function load() {
       projects: loaded.projects || [],
       portfolio: loaded.portfolio || [],
       saldoDisponivel: loaded.saldoDisponivel || 0,
-      birthdate: loaded.birthdate || '',
-      address: loaded.address || {},
-      declaresUsTax: loaded.declaresUsTax || ''
+      birthdate: loaded.birthdate || ''
     };
     return true;
   }
@@ -2427,38 +2426,27 @@ function saveProfile() {
   if (!fn) return alert('Please enter your name.');
   state.name = fn + (ln ? ' ' + ln : '');
   state.birthdate = bd || '';
-  state.address = {
-    street: document.getElementById('profileStreet').value.trim(),
-    city:   document.getElementById('profileCity').value.trim(),
-    state:  document.getElementById('profileState').value.trim().toUpperCase(),
-    zip:    document.getElementById('profileZip').value.trim()
-  };
-  state.declaresUsTax = document.getElementById('profileTax').value;
   save();
   cancelEditProfile();
   renderAll();
 }
 
 function toggleEditProfile() {
-  const inputs = ['firstName','lastName','birthdate','profileStreet','profileCity','profileState','profileZip'];
+  const inputs = ['firstName','lastName','birthdate'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.removeAttribute('readonly');
   });
-  const taxSel = document.getElementById('profileTax');
-  if (taxSel) taxSel.removeAttribute('disabled');
   document.getElementById('profileSaveRow').style.display = 'flex';
   document.getElementById('editProfileBtn').style.display = 'none';
 }
 
 function cancelEditProfile() {
-  const inputs = ['firstName','lastName','birthdate','profileStreet','profileCity','profileState','profileZip'];
+  const inputs = ['firstName','lastName','birthdate'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.setAttribute('readonly', true);
   });
-  const taxSel = document.getElementById('profileTax');
-  if (taxSel) taxSel.setAttribute('disabled', true);
   document.getElementById('profileSaveRow').style.display = 'none';
   document.getElementById('editProfileBtn').style.display = '';
 }
@@ -3274,19 +3262,7 @@ function renderAll() {
     document.getElementById('headerName').textContent = state.name;
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
     document.getElementById('lastName').value = state.name.split(' ').slice(1).join(' ') || '';
-    if (state.birthdate) document.getElementById('birthdate').value = state.birthdate;
-    // Endereço
-    const addr = state.address || {};
-    const streetEl = document.getElementById('profileStreet');
-    const cityEl   = document.getElementById('profileCity');
-    const stateEl  = document.getElementById('profileState');
-    const zipEl    = document.getElementById('profileZip');
-    const taxEl    = document.getElementById('profileTax');
-    if (streetEl) streetEl.value = addr.street || '';
-    if (cityEl)   cityEl.value   = addr.city   || '';
-    if (stateEl)  stateEl.value  = addr.state  || '';
-    if (zipEl)    zipEl.value    = addr.zip    || '';
-    if (taxEl)    taxEl.value    = state.declaresUsTax || '';
+    if (document.getElementById('birthdate')) document.getElementById('birthdate').value = state.birthdate || '';
   }
 
   // Client number and email
@@ -4630,6 +4606,20 @@ boot();
     </div>
     <div style="margin-top:20px;text-align:right;">
       <button class="btn btn-primary" onclick="addEtfFromDetail()">+ Add to Portfolio →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INACTIVITY WARNING POPUP ══════════════════ -->
+<div id="inactivityPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(135deg,#0d1a0d,#111811);border:1px solid rgba(57,255,20,0.3);border-radius:20px;padding:36px;width:min(90vw,400px);text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:12px;">⏳</div>
+    <div style="font-family:'Bebas Neue',cursive;font-size:1.6rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:8px;">Are You Still There?</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);margin-bottom:8px;">You'll be signed out automatically in</div>
+    <div id="inactivityCountdown" style="font-family:'Bebas Neue',cursive;font-size:3rem;color:#f97316;line-height:1;margin-bottom:20px;">30</div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button onclick="dismissInactivityPopup()" style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:none;background:var(--green-neon);color:#000;cursor:pointer;">✅ Yes, I'm Here</button>
+      <button onclick="logoutUser()" style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:transparent;color:rgba(239,68,68,0.8);cursor:pointer;">Sign Out</button>
     </div>
   </div>
 </div>
