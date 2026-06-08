@@ -2461,27 +2461,38 @@ function saveProfile() {
   if (!fn) return alert('Please enter your name.');
   state.name = fn + (ln ? ' ' + ln : '');
   state.birthdate = bd || '';
+  state.address = {
+    street: document.getElementById('profileStreet').value.trim(),
+    city:   document.getElementById('profileCity').value.trim(),
+    state:  document.getElementById('profileState').value.trim().toUpperCase(),
+    zip:    document.getElementById('profileZip').value.trim()
+  };
+  state.declaresUsTax = document.getElementById('profileTax').value;
   save();
   cancelEditProfile();
   renderAll();
 }
 
 function toggleEditProfile() {
-  const inputs = ['firstName','lastName','birthdate'];
+  const inputs = ['firstName','lastName','birthdate','profileStreet','profileCity','profileState','profileZip'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.removeAttribute('readonly');
   });
+  const taxSel = document.getElementById('profileTax');
+  if (taxSel) taxSel.removeAttribute('disabled');
   document.getElementById('profileSaveRow').style.display = 'flex';
   document.getElementById('editProfileBtn').style.display = 'none';
 }
 
 function cancelEditProfile() {
-  const inputs = ['firstName','lastName','birthdate'];
+  const inputs = ['firstName','lastName','birthdate','profileStreet','profileCity','profileState','profileZip'];
   inputs.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.setAttribute('readonly', true);
   });
+  const taxSel = document.getElementById('profileTax');
+  if (taxSel) taxSel.setAttribute('disabled', true);
   document.getElementById('profileSaveRow').style.display = 'none';
   document.getElementById('editProfileBtn').style.display = '';
 }
@@ -3298,6 +3309,18 @@ function renderAll() {
     document.getElementById('firstName').value = state.name.split(' ')[0] || '';
     document.getElementById('lastName').value = state.name.split(' ').slice(1).join(' ') || '';
     if (document.getElementById('birthdate')) document.getElementById('birthdate').value = state.birthdate || '';
+    // Endereço e tax
+    const addr = state.address || {};
+    const streetEl = document.getElementById('profileStreet');
+    const cityEl   = document.getElementById('profileCity');
+    const stEl     = document.getElementById('profileState');
+    const zipEl    = document.getElementById('profileZip');
+    const taxEl    = document.getElementById('profileTax');
+    if (streetEl) streetEl.value = addr.street || '';
+    if (cityEl)   cityEl.value   = addr.city   || '';
+    if (stEl)     stEl.value     = addr.state  || '';
+    if (zipEl)    zipEl.value    = addr.zip    || '';
+    if (taxEl)    taxEl.value    = state.declaresUsTax || '';
   }
 
   // Client number and email
