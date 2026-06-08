@@ -3429,7 +3429,8 @@ function addCotasToEntry(id, preselectedTicker='') {
   const modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
 
-  const existingTickers = (entry.etfs||[]).map(et =>
+  const allEtfs = [...(entry.etfs||[]), ...(entry.altEtfs||[])];
+  const existingTickers = allEtfs.map(et =>
     `<option value="${et.ticker}" data-current="${et.shares}">${et.ticker} (current: ${et.shares} shares)</option>`
   ).join('');
 
@@ -3552,8 +3553,13 @@ function saveCotasToEntry(id, modal) {
     return;
   }
 
-  // Find existing ETF in entry or add new one
-  const existing = entry.etfs.find(et => et.ticker === ticker);
+  // Find existing ETF in entry (etfs or altEtfs) or add new one
+  let existing = entry.etfs.find(et => et.ticker === ticker);
+  let inAlt = false;
+  if (!existing && entry.altEtfs) {
+    existing = entry.altEtfs.find(et => et.ticker === ticker);
+    if (existing) inAlt = true;
+  }
   const currentShares = existing ? existing.shares : 0;
   const shares = +(totalShares - currentShares).toFixed(8); // difference (negative = sale)
 
@@ -3568,13 +3574,15 @@ function saveCotasToEntry(id, modal) {
 
   if (existing) {
     if (shares < 0) {
-      // Partial sale — reduce shares, keep buy price
       existing.shares = +totalShares.toFixed(8);
       if (existing.shares === 0) {
-        entry.etfs = entry.etfs.filter(et => et.ticker !== ticker);
+        if (inAlt) {
+          entry.altEtfs = entry.altEtfs.filter(et => et.ticker !== ticker);
+        } else {
+          entry.etfs = entry.etfs.filter(et => et.ticker !== ticker);
+        }
       }
     } else {
-      // Adding shares — weighted average price
       const oldValue = existing.shares * existing.buyPrice;
       const newValue = shares * buyPrice;
       existing.shares = +(existing.shares + shares).toFixed(8);
