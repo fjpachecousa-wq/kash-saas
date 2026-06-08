@@ -1966,7 +1966,9 @@ async function load() {
       projects: loaded.projects || [],
       portfolio: loaded.portfolio || [],
       saldoDisponivel: loaded.saldoDisponivel || 0,
-      birthdate: loaded.birthdate || ''
+      birthdate: loaded.birthdate || '',
+      address: loaded.address || {},
+      declaresUsTax: loaded.declaresUsTax || ''
     };
     return true;
   }
