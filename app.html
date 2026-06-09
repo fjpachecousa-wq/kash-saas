@@ -1955,7 +1955,7 @@ async function logoutUser() {
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
-  window.location.href = '/landing';
+  window.location.href = '/';
 }
 
 // ══════════════════════════════════════════════════
