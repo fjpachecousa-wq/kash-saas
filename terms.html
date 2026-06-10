@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — KA$H</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-neon: #39ff14;
+    --silver: #c0c0c0;
+    --black: #080f08;
+    --gray-dark: #111811;
+    --gray-mid: #1e2a1e;
+    --white: #f0fff0;
+    --gold: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(57,255,20,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(57,255,20,0.015) 40px, rgba(57,255,20,0.015) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(57,255,20,0.01) 60px, rgba(57,255,20,0.01) 61px);
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0a150a 0%, #111811 50%, #0d200d 100%);
+    border-bottom: 2px solid var(--green-neon);
+    box-shadow: 0 4px 40px rgba(57,255,20,0.25);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-area { display: flex; flex-direction: column; align-items: flex-start; }
+
+  .logo-text {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3.6rem;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .logo-ka {
+    color: var(--green-neon);
+    text-shadow: 0 0 20px rgba(57,255,20,0.7);
+  }
+
+  .logo-dollar {
+    color: var(--green-neon);
+    text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9);
+  }
+
+  .logo-h {
+    background: linear-gradient(180deg, #e8e8e8, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--silver);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .btn-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--green-neon);
+    border: 1px solid rgba(57,255,20,0.4);
+    background: transparent;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-back:hover { background: rgba(57,255,20,0.08); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 40px 80px;
+    width: 100%;
+  }
+
+  .doc-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.8rem;
+    color: var(--green-neon);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(57,255,20,0.4);
+    margin-bottom: 6px;
+  }
+
+  .doc-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: rgba(192,192,192,0.85);
+    letter-spacing: 1.5px;
+    margin-bottom: 64px;
+  }
+
+  .doc-section {
+    margin-bottom: 32px;
+  }
+
+  .doc-section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1rem;
+    color: var(--green-neon);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--green-neon);
+    padding-left: 12px;
+  }
+
+  .doc-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    color: var(--silver);
+    line-height: 1.85;
+  }
+
+  .doc-text + .doc-text { margin-top: 10px; }
+
+  .doc-list {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    color: var(--silver);
+    line-height: 1.85;
+    padding-left: 20px;
+  }
+
+  .doc-list li { margin-bottom: 4px; }
+  .doc-list li::marker { color: var(--green-neon); }
+
+  /* FOOTER */
+  footer {
+    background: linear-gradient(135deg, #0a150a 0%, #111811 100%);
+    border-top: 1px solid rgba(57,255,20,0.2);
+    padding: 28px 40px;
+  }
+
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.4rem;
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+
+  .footer-logo-ka {
+    color: var(--green-neon);
+    text-shadow: 0 0 20px rgba(57,255,20,0.7);
+  }
+
+  .footer-logo-dollar {
+    color: var(--green-neon);
+    text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9);
+  }
+
+  .footer-logo-h {
+    background: linear-gradient(180deg, #e8e8e8, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--green-neon); }
+
+  .footer-divider {
+    border: none;
+    border-top: 0.5px solid rgba(57,255,20,0.1);
+    margin-bottom: 14px;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+  }
+
+  .footer-contact {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(57,255,20,0.85);
+    text-decoration: none;
+  }
+
+  .footer-contact:hover { color: var(--green-neon); }
+
+  .footer-disclaimer {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-text"><span class="logo-ka">KA</span><span class="logo-dollar">$</span><span class="logo-h">H</span></div>
+    <div class="logo-tagline">Microinvest. Macroresults.</div>
+  </div>
+  <a href="/app" class="btn-back">&#8592; BACK TO KA$H</a>
+</header>
+
+<div class="content">
+
+  <div class="doc-title">Terms of Service</div>
+  <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: JUNE 1, 2026</div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">1. Acceptance of Terms</div>
+    <p class="doc-text">By accessing or using KA$H at kashsolutions.us you agree to be bound by these Terms of Service. If you do not agree, do not use the platform.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">2. Description of Service</div>
+    <p class="doc-text">KA$H is a financial projection and goal-tracking tool. The platform allows users to create savings goals, track contributions, monitor ETF portfolio positions, and view market reference data. KA$H does not manage funds, execute trades, or provide personalized financial advice.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">3. Eligibility</div>
+    <ul class="doc-list">
+      <li>You must be at least 16 years of age to use KA$H</li>
+      <li>Users aged 16–17 require a parent or legal guardian as co-signer</li>
+      <li>By creating an account you confirm you meet these requirements</li>
+      <li>International users acknowledge that Plaid integration and US brokerage sync require a valid US financial account with SSN or ITIN</li>
+    </ul>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">4. Subscription and Payment</div>
+    <ul class="doc-list">
+      <li>KA$H Pro subscription: $9.99/month</li>
+      <li>Payment is processed exclusively via Stripe</li>
+      <li>KA$H does not accept cash, checks, wire transfers, cryptocurrency, or any other form of payment</li>
+      <li>Subscription renews automatically each month unless cancelled</li>
+      <li>You may cancel at any time through your account settings</li>
+      <li>Upon cancellation, access continues until the end of the current billing cycle</li>
+      <li>No refunds are issued for partial billing periods</li>
+    </ul>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">5. Prohibited Uses</div>
+    <p class="doc-text">You agree not to:</p>
+    <ul class="doc-list">
+      <li>Use KA$H for any unlawful purpose</li>
+      <li>Misrepresent financial data within the platform</li>
+      <li>Attempt to reverse-engineer, hack, or compromise the platform</li>
+      <li>Use KA$H data to mislead, defraud, or harm third parties</li>
+      <li>Share your account credentials with unauthorized users</li>
+    </ul>
+    <p class="doc-text" style="margin-top:10px;">Violation of these terms may result in immediate account termination and legal action under applicable US law.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">6. User Responsibility</div>
+    <p class="doc-text">All financial decisions made based on KA$H projections are solely your responsibility. KA$H provides tools and reference data — not advice. The platform does not guarantee any financial outcome.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">7. Misuse and Legal Action</div>
+    <p class="doc-text">KA$H reserves the right to pursue legal action against users who misuse the platform, generate or distribute false or misleading financial information derived from platform data, or engage in any conduct that damages the platform, its users, or KASH Corporate Solutions LLC.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">8. Intellectual Property</div>
+    <p class="doc-text">All content, design, code, and branding within KA$H are the exclusive property of KASH Corporate Solutions LLC. Unauthorized reproduction or distribution is prohibited.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">9. Limitation of Liability</div>
+    <p class="doc-text">KA$H is provided "as is." KASH Corporate Solutions LLC is not liable for any financial loss, data loss, or damages arising from use of the platform. Our total liability is limited to the amount paid by the user in the 30 days preceding the claim.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">10. Governing Law</div>
+    <p class="doc-text">These Terms are governed by the laws of the State of Florida, United States. Any disputes shall be resolved in the courts of Orange County, Florida.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">11. Changes to Terms</div>
+    <p class="doc-text">We reserve the right to modify these Terms at any time. Continued use after changes constitutes acceptance. Significant changes will be communicated via email.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">12. Contact</div>
+    <p class="doc-text">Questions about these Terms: <a href="mailto:kash@kashsolutions.us" style="color:var(--green-neon);text-decoration:none;">kash@kashsolutions.us</a></p>
+    <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+  </div>
+
+</div>
+
+
+<footer>
+  <div class="footer-top">
+    <span class="footer-logo"><span class="footer-logo-ka">KA</span><span class="footer-logo-dollar">$</span><span class="footer-logo-h">H</span></span>
+    <div class="footer-links">
+      <a href="/privacy" target="_blank">Privacy Policy</a>
+      <a href="/terms" target="_blank">Terms of Service</a>
+      <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+      <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+      <a href="/cookies" target="_blank">Cookie Policy</a>
+    </div>
+  </div>
+  <hr class="footer-divider">
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+    <a href="mailto:kash@kashsolutions.us" class="footer-contact">kash@kashsolutions.us</a>
+    <span class="footer-disclaimer">Not financial advice.</span>
+  </div>
+</footer>
+
+</body>
+</html>

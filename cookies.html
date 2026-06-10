@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie Policy — KA$H</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-neon: #39ff14;
+    --silver: #c0c0c0;
+    --black: #080f08;
+    --gray-dark: #111811;
+    --gray-mid: #1e2a1e;
+    --white: #f0fff0;
+    --gold: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(57,255,20,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(57,255,20,0.015) 40px, rgba(57,255,20,0.015) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(57,255,20,0.01) 60px, rgba(57,255,20,0.01) 61px);
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0a150a 0%, #111811 50%, #0d200d 100%);
+    border-bottom: 2px solid var(--green-neon);
+    box-shadow: 0 4px 40px rgba(57,255,20,0.25);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-area { display: flex; flex-direction: column; align-items: flex-start; }
+
+  .logo-text {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 3.6rem;
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+
+  .logo-ka {
+    color: var(--green-neon);
+    text-shadow: 0 0 20px rgba(57,255,20,0.7);
+  }
+
+  .logo-dollar {
+    color: var(--green-neon);
+    text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9);
+  }
+
+  .logo-h {
+    background: linear-gradient(180deg, #e8e8e8, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .logo-tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--silver);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .btn-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--green-neon);
+    border: 1px solid rgba(57,255,20,0.4);
+    background: transparent;
+    padding: 8px 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn-back:hover { background: rgba(57,255,20,0.08); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 40px 80px;
+    width: 100%;
+  }
+
+  .doc-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.8rem;
+    color: var(--green-neon);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(57,255,20,0.4);
+    margin-bottom: 6px;
+  }
+
+  .doc-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: rgba(192,192,192,0.85);
+    letter-spacing: 1.5px;
+    margin-bottom: 64px;
+  }
+
+  .doc-section {
+    margin-bottom: 32px;
+  }
+
+  .doc-section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1rem;
+    color: var(--green-neon);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--green-neon);
+    padding-left: 12px;
+  }
+
+  .doc-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    color: var(--silver);
+    line-height: 1.85;
+  }
+
+  .doc-text + .doc-text { margin-top: 10px; }
+
+  .doc-list {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    color: var(--silver);
+    line-height: 1.85;
+    padding-left: 20px;
+  }
+
+  .doc-list li { margin-bottom: 4px; }
+  .doc-list li::marker { color: var(--green-neon); }
+
+  /* FOOTER */
+  footer {
+    background: linear-gradient(135deg, #0a150a 0%, #111811 100%);
+    border-top: 1px solid rgba(57,255,20,0.2);
+    padding: 28px 40px;
+  }
+
+  .footer-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 2.4rem;
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+
+  .footer-logo-ka {
+    color: var(--green-neon);
+    text-shadow: 0 0 20px rgba(57,255,20,0.7);
+  }
+
+  .footer-logo-dollar {
+    color: var(--green-neon);
+    text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9);
+  }
+
+  .footer-logo-h {
+    background: linear-gradient(180deg, #e8e8e8, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--green-neon); }
+
+  .footer-divider {
+    border: none;
+    border-top: 0.5px solid rgba(57,255,20,0.1);
+    margin-bottom: 14px;
+  }
+
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+  }
+
+  .footer-contact {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(57,255,20,0.85);
+    text-decoration: none;
+  }
+
+  .footer-contact:hover { color: var(--green-neon); }
+
+  .footer-disclaimer {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(192,192,192,0.85);
+  }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-text"><span class="logo-ka">KA</span><span class="logo-dollar">$</span><span class="logo-h">H</span></div>
+    <div class="logo-tagline">Microinvest. Macroresults.</div>
+  </div>
+  <a href="/app" class="btn-back">&#8592; BACK TO KA$H</a>
+</header>
+
+<div class="content">
+
+  <div class="doc-title">Cookie Policy</div>
+  <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: JUNE 1, 2026</div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">1. What Are Cookies</div>
+    <p class="doc-text">Cookies are small text files stored on your device when you visit a website. They help the platform function correctly and remember your preferences.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">2. Cookies We Use</div>
+    <p class="doc-text">KA$H uses the following types of cookies:</p>
+    <ul class="doc-list">
+      <li><strong>Essential cookies:</strong> required for login, session management, and platform security. The platform cannot function without these.</li>
+      <li><strong>Authentication cookies:</strong> set by Supabase to maintain your logged-in session across pages and devices.</li>
+      <li><strong>Payment cookies:</strong> set by Stripe during the subscription and payment process.</li>
+      <li><strong>Preference cookies:</strong> store your in-app settings and display preferences.</li>
+    </ul>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">3. What We Do Not Use</div>
+    <p class="doc-text">KA$H does not use:</p>
+    <ul class="doc-list">
+      <li>Advertising or tracking cookies</li>
+      <li>Third-party behavioral profiling cookies</li>
+      <li>Cross-site tracking cookies</li>
+    </ul>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">4. Managing Cookies</div>
+    <p class="doc-text">You may disable cookies through your browser settings. Note that disabling essential cookies will prevent you from logging into and using the KA$H platform.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">5. Third-Party Cookies</div>
+    <p class="doc-text">Supabase and Stripe may set their own cookies as part of their services. These are governed by their respective privacy policies:</p>
+    <ul class="doc-list">
+      <li>Supabase: <a href="https://supabase.com/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">supabase.com/privacy</a></li>
+      <li>Stripe: <a href="https://stripe.com/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">stripe.com/privacy</a></li>
+    </ul>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">6. Changes to This Policy</div>
+    <p class="doc-text">We may update this Cookie Policy periodically. Continued use of the platform constitutes acceptance of any changes.</p>
+  </div>
+
+  <div class="doc-section">
+    <div class="doc-section-title">7. Contact</div>
+    <p class="doc-text">Cookie questions: <a href="mailto:kash@kashsolutions.us" style="color:var(--green-neon);text-decoration:none;">kash@kashsolutions.us</a></p>
+    <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-top">
+    <span class="footer-logo"><span class="footer-logo-ka">KA</span><span class="footer-logo-dollar">$</span><span class="footer-logo-h">H</span></span>
+    <div class="footer-links">
+      <a href="/privacy" target="_blank">Privacy Policy</a>
+      <a href="/terms" target="_blank">Terms of Service</a>
+      <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+      <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+      <a href="/cookies" target="_blank">Cookie Policy</a>
+    </div>
+  </div>
+  <hr class="footer-divider">
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+    <a href="mailto:kash@kashsolutions.us" class="footer-contact">kash@kashsolutions.us</a>
+    <span class="footer-disclaimer">Not financial advice.</span>
+  </div>
+</footer>
+
+</body>
+</html>
