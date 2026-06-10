@@ -96,7 +96,59 @@
   .header-user strong { color: var(--green-neon); font-size: 1.1rem; display: block; }
 
   /* ── MAIN CONTAINER ──────────────────────────── */
-  .container { max-width: none; margin: 0; padding: 32px 32px 60px; padding-top: 168px; /* 108px header + 48px nav + 12px gap */ }
+  .container { max-width: none; margin: 0; padding: 32px 32px 100px; padding-top: 168px; /* 108px header + 48px nav + 12px gap */ }
+
+  /* ── APP FOOTER ──────────────────────────────── */
+  .app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: linear-gradient(135deg, #0a150a 0%, #111811 100%);
+    border-top: 1px solid rgba(57,255,20,0.2);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app-footer-logo {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    line-height: 1;
+  }
+
+  .app-footer-logo-ka { color: var(--green-neon); text-shadow: 0 0 20px rgba(57,255,20,0.7); }
+  .app-footer-logo-dollar { color: var(--green-neon); text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9); }
+  .app-footer-logo-h { background: linear-gradient(180deg,#e8e8e8,#888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+  .app-footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .app-footer-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(192,192,192,0.85);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+
+  .app-footer-links a:hover { color: var(--green-neon); }
+
+  .app-footer-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: rgba(192,192,192,0.55);
+  }
 
   /* ── TWO-COLUMN LAYOUT ───────────────────────── */
   .content-row {
@@ -4540,11 +4592,6 @@ boot();
         ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KA$H. Each browser stores its own session independently.
       </div>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-        <a href="/privacy" target="_blank">Privacy Policy</a>
-        <a href="/terms" target="_blank">Terms of Service</a>
-        <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
-        <a href="/acceptable-use" target="_blank">Acceptable Use</a>
-        <a href="/cookies" target="_blank">Cookie Policy</a>
         <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
         <span style="margin-left:auto;">kash@kashsolutions.us</span>
       </div>
@@ -4630,6 +4677,21 @@ boot();
     </div>
   </div>
 </div>
+
+<!-- ══ APP FOOTER ══════════════════════════════════ -->
+<footer class="app-footer">
+  <span class="app-footer-logo">
+    <span class="app-footer-logo-ka">KA</span><span class="app-footer-logo-dollar">$</span><span class="app-footer-logo-h">H</span>
+  </span>
+  <div class="app-footer-links">
+    <a href="/privacy" target="_blank">Privacy Policy</a>
+    <a href="/terms" target="_blank">Terms of Service</a>
+    <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+    <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+    <a href="/cookies" target="_blank">Cookie Policy</a>
+  </div>
+  <span class="app-footer-copy">© 2026 KASH Corporate Solutions LLC</span>
+</footer>
 
 </body>
 </html>
