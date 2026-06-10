@@ -907,35 +907,53 @@ section { padding: 100px 24px; }
 
 /* ── FOOTER ── */
 footer {
-  background: var(--black);
-  border-top: 1px solid rgba(57,255,20,0.08);
-  padding: 40px 48px;
+  background: linear-gradient(135deg, #0a150a 0%, #111811 100%);
+  border-top: 1px solid rgba(57,255,20,0.2);
+  padding: 28px 40px;
+}
+
+.footer-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+  margin-bottom: 16px;
 }
 
-.footer-note {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: rgba(192,192,192,0.85);
-  letter-spacing: 1px;
-  line-height: 1.8;
-  max-width: 560px;
+.footer-logo {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 2.4rem;
+  letter-spacing: 3px;
+  line-height: 1;
+}
+
+.footer-logo-ka {
+  color: var(--green);
+  text-shadow: 0 0 20px rgba(57,255,20,0.7);
+}
+
+.footer-logo-dollar {
+  color: var(--green);
+  text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9);
+}
+
+.footer-logo-h {
+  background: linear-gradient(180deg, #e8e8e8, #888);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .footer-links {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   flex-wrap: wrap;
-  margin-top: 12px;
 }
 
 .footer-links a {
   font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   color: rgba(192,192,192,0.85);
   text-decoration: none;
   letter-spacing: 0.5px;
@@ -943,6 +961,41 @@ footer {
 }
 
 .footer-links a:hover { color: var(--green); }
+
+.footer-divider {
+  border: none;
+  border-top: 0.5px solid rgba(57,255,20,0.1);
+  margin-bottom: 14px;
+}
+
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.footer-copy {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(192,192,192,0.85);
+}
+
+.footer-contact {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(57,255,20,0.85);
+  text-decoration: none;
+}
+
+.footer-contact:hover { color: var(--green); }
+
+.footer-disclaimer {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.72rem;
+  color: rgba(192,192,192,0.85);
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
@@ -1245,13 +1298,8 @@ footer {
 </section>
 <!-- FOOTER -->
 <footer>
-  <a class="nav-logo" href="#" style="font-size:1.5rem;">
-    <span class="ka">KA</span><span class="dollar">$</span><span class="h">H</span>
-  </a>
-  <div class="footer-note" id="footerNote">
-    KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice.<br>
-    Projections use real market indices and fees for reference only. Past performance does not guarantee future results.<br>
-    © 2026 KA$H · kashsolutions.us
+  <div class="footer-top">
+    <span class="footer-logo"><span class="footer-logo-ka">KA</span><span class="footer-logo-dollar">$</span><span class="footer-logo-h">H</span></span>
     <div class="footer-links">
       <a href="/privacy" target="_blank">Privacy Policy</a>
       <a href="/terms" target="_blank">Terms of Service</a>
@@ -1259,6 +1307,12 @@ footer {
       <a href="/acceptable-use" target="_blank">Acceptable Use</a>
       <a href="/cookies" target="_blank">Cookie Policy</a>
     </div>
+  </div>
+  <hr class="footer-divider">
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+    <a href="mailto:kash@kashsolutions.us" class="footer-contact">kash@kashsolutions.us</a>
+    <span class="footer-disclaimer">Not financial advice.</span>
   </div>
 </footer>
 
