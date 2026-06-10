@@ -98,85 +98,6 @@
   /* ── MAIN CONTAINER ──────────────────────────── */
   .container { max-width: none; margin: 0; padding: 32px 32px 60px; padding-top: 168px; /* 108px header + 48px nav + 12px gap */ }
 
-  /* ── APP FOOTER ──────────────────────────────── */
-  .app-footer {
-    background: linear-gradient(135deg, #0a150a 0%, #111811 100%);
-    border-top: 1px solid rgba(57,255,20,0.2);
-    padding: 28px 40px;
-  }
-
-  .app-footer-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 16px;
-  }
-
-  .app-footer-logo {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 2.4rem;
-    letter-spacing: 3px;
-    line-height: 1;
-  }
-
-  .app-footer-logo-ka { color: var(--green-neon); text-shadow: 0 0 20px rgba(57,255,20,0.7); }
-  .app-footer-logo-dollar { color: var(--green-neon); text-shadow: 0 0 30px rgba(57,255,20,1), 0 0 10px rgba(57,255,20,0.9); }
-  .app-footer-logo-h { background: linear-gradient(180deg,#e8e8e8,#888); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-
-  .app-footer-links {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .app-footer-links a {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: rgba(192,192,192,0.85);
-    text-decoration: none;
-    letter-spacing: 0.5px;
-    transition: color 0.2s;
-  }
-
-  .app-footer-links a:hover { color: var(--green-neon); }
-
-  .app-footer-divider {
-    border: none;
-    border-top: 0.5px solid rgba(57,255,20,0.1);
-    margin-bottom: 14px;
-  }
-
-  .app-footer-bottom {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .app-footer-copy {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: rgba(192,192,192,0.85);
-  }
-
-  .app-footer-contact {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: rgba(57,255,20,0.85);
-    text-decoration: none;
-  }
-
-  .app-footer-contact:hover { color: var(--green-neon); }
-
-  .app-footer-disclaimer {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    color: rgba(192,192,192,0.85);
-  }
-
   /* ── TWO-COLUMN LAYOUT ───────────────────────── */
   .content-row {
     display: grid;
@@ -1425,7 +1346,7 @@
     <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;" id="paywallFeatures">
       ✅ Unlimited projects<br>
       ✅ Cloud data sync<br>
-      ✅ Passive income simulator<br>
+      ✅ ETF portfolio tracker<br>
       ✅ Contribution history<br>
       ✅ Daily contribution tip
     </div>
@@ -1519,9 +1440,9 @@
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
       <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every dollar invested today works harder than one invested tomorrow</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small goals. Real results. One contribution at a time</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
       <!-- Duplicate for seamless loop -->
       <span class="ticker-item up"><span class="ticker-icon">📈</span>$1 invested today = $7.61 in 20 years at 7%</span>
@@ -1530,9 +1451,9 @@
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Missing one year costs more than missing one day</span>
       <span class="ticker-item up"><span class="ticker-icon">📈</span>Small and consistent beats large and occasional — every time</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Your future self is watching every contribution you make today</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Passive income starts with the first dollar — not the thousandth</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Every dollar invested today works harder than one invested tomorrow</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>The best time to invest was yesterday — the second best is right now</span>
-      <span class="ticker-item up"><span class="ticker-icon">📈</span>Compound interest rewards patience above all else</span>
+      <span class="ticker-item up"><span class="ticker-icon">📈</span>Small goals. Real results. One contribution at a time</span>
       <span class="ticker-item down"><span class="ticker-icon">📉</span>Every day you wait, inflation quietly erodes your purchasing power</span>
     </div>
   </div>
@@ -1689,7 +1610,7 @@
     <div class="manifesto" id="manifestoBanner" style="display:none;">
       You don't need to wait for extra money to start investing.<br>
       <strong>Every $1 you invest today works for you tomorrow.</strong><br>
-      Even if you don't reach your goal, the accumulated money generates passive income — forever.
+      Even if you don't reach your goal, every contribution brings you closer to financial clarity.
     </div>
 
     <!-- STATEMENT — ESTIMATED vs REAL -->
@@ -2118,7 +2039,7 @@ const i18n = {
     forgotPassword: 'Forgot my password',
     loginFooter:    'Your data is saved in the cloud · Secure',
     paywallTagline: 'Pro · $9.99/mo',
-    paywallFeatures:'✅ Unlimited projects<br>✅ Cloud data sync<br>✅ Passive income simulator<br>✅ Contribution history<br>✅ Daily contribution tip',
+    paywallFeatures:'✅ Unlimited projects<br>✅ Cloud data sync<br>✅ ETF portfolio tracker<br>✅ Contribution history<br>✅ Daily contribution tip',
     paywallBtn:     '💳 Subscribe KA$H Pro — $9.99/mo',
     paywallNote:    'Cancel anytime · Secure payment via Stripe',
     paywallLogout:  'Sign Out',
@@ -4454,7 +4375,7 @@ const ETF_DATABASE = [
   { ticker:'SOXX', name:'iShares Semiconductor ETF',         risk:'aggressive',  sector:'tech',          objective:['growth'],                   expense:0.35, description:'Focused on the semiconductor industry — the backbone of modern tech.' },
   { ticker:'ARKK', name:'ARK Innovation ETF',                risk:'aggressive',  sector:'tech',          objective:['growth'],                   expense:0.75, description:'Actively managed. Bets on disruptive innovation — high risk, high reward.' },
   // Dividend / Income
-  { ticker:'VYM',  name:'Vanguard High Dividend Yield ETF',  risk:'conservative',sector:'dividend',      objective:['income','stability'],        expense:0.06, description:'High-dividend US stocks. Great for passive income seekers.' },
+  { ticker:'VYM',  name:'Vanguard High Dividend Yield ETF',  risk:'conservative',sector:'dividend',      objective:['income','stability'],        expense:0.06, description:'High-dividend US stocks. Great for investors seeking regular dividend income.' },
   { ticker:'SCHD', name:'Schwab US Dividend Equity ETF',     risk:'conservative',sector:'dividend',      objective:['income','stability'],        expense:0.06, description:'Quality dividend stocks with strong fundamentals and consistent payouts.' },
   { ticker:'DVY',  name:'iShares Select Dividend ETF',       risk:'conservative',sector:'dividend',      objective:['income'],                   expense:0.38, description:'Focuses on the highest-yielding US dividend stocks.' },
   { ticker:'DGRO', name:'iShares Core Dividend Growth ETF',  risk:'moderate',    sector:'dividend',      objective:['income','growth'],           expense:0.08, description:'Companies with a history of growing their dividends year over year.' },
@@ -4473,7 +4394,7 @@ const ETF_DATABASE = [
   { ticker:'VB',   name:'Vanguard Small-Cap ETF',            risk:'aggressive',  sector:'smallcap',      objective:['growth','diversification'],  expense:0.05, description:'Broad small-cap US exposure. Good complement to S&P 500 holdings.' },
   // Real Estate
   { ticker:'VNQ',  name:'Vanguard Real Estate ETF',          risk:'moderate',    sector:'real_estate',   objective:['income','diversification'],  expense:0.12, description:'US REITs — real estate investment trusts. Generates rental income as dividends.' },
-  { ticker:'SCHH', name:'Schwab US REIT ETF',                risk:'moderate',    sector:'real_estate',   objective:['income'],                   expense:0.07, description:'Low-cost REIT exposure. Good for passive income from real estate.' },
+  { ticker:'SCHH', name:'Schwab US REIT ETF',                risk:'moderate',    sector:'real_estate',   objective:['income'],                   expense:0.07, description:'Low-cost REIT exposure. Good for dividend income from real estate.' },
 ];
 
 function openEtfSearchModal() {
@@ -4619,6 +4540,11 @@ boot();
         ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KA$H. Each browser stores its own session independently.
       </div>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <a href="/privacy" target="_blank">Privacy Policy</a>
+        <a href="/terms" target="_blank">Terms of Service</a>
+        <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+        <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+        <a href="/cookies" target="_blank">Cookie Policy</a>
         <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
         <span style="margin-left:auto;">kash@kashsolutions.us</span>
       </div>
@@ -4664,7 +4590,7 @@ boot();
         <select id="etfFilterObjective" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
           <option value="all">All</option>
           <option value="growth">Long-term Growth</option>
-          <option value="income">Passive Income</option>
+          <option value="income">Dividend Income</option>
           <option value="stability">Capital Stability</option>
           <option value="diversification">Diversification</option>
         </select>
@@ -4704,28 +4630,6 @@ boot();
     </div>
   </div>
 </div>
-
-<!-- ══ APP FOOTER ══════════════════════════════════ -->
-<footer class="app-footer">
-  <div class="app-footer-top">
-    <span class="app-footer-logo">
-      <span class="app-footer-logo-ka">KA</span><span class="app-footer-logo-dollar">$</span><span class="app-footer-logo-h">H</span>
-    </span>
-    <div class="app-footer-links">
-      <a href="/privacy" target="_blank">Privacy Policy</a>
-      <a href="/terms" target="_blank">Terms of Service</a>
-      <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
-      <a href="/acceptable-use" target="_blank">Acceptable Use</a>
-      <a href="/cookies" target="_blank">Cookie Policy</a>
-    </div>
-  </div>
-  <hr class="app-footer-divider">
-  <div class="app-footer-bottom">
-    <span class="app-footer-copy">© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
-    <a href="mailto:kash@kashsolutions.us" class="app-footer-contact">kash@kashsolutions.us</a>
-    <span class="app-footer-disclaimer">Not financial advice.</span>
-  </div>
-</footer>
 
 </body>
 </html>
