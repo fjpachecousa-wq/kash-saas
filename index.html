@@ -920,11 +920,29 @@ footer {
 .footer-note {
   font-family: 'Space Mono', monospace;
   font-size: 0.6rem;
-  color: rgba(192,192,192,0.3);
+  color: rgba(192,192,192,0.85);
   letter-spacing: 1px;
   line-height: 1.8;
-  max-width: 480px;
+  max-width: 560px;
 }
+
+.footer-links {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.footer-links a {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(192,192,192,0.85);
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--green); }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
@@ -1234,6 +1252,13 @@ footer {
     KA$H is not a registered investment advisor. We do not manage funds or provide personalized financial advice.<br>
     Projections use real market indices and fees for reference only. Past performance does not guarantee future results.<br>
     © 2026 KA$H · kashsolutions.us
+    <div class="footer-links">
+      <a href="/privacy" target="_blank">Privacy Policy</a>
+      <a href="/terms" target="_blank">Terms of Service</a>
+      <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+      <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+      <a href="/cookies" target="_blank">Cookie Policy</a>
+    </div>
   </div>
 </footer>
 
