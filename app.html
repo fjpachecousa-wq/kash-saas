@@ -4303,14 +4303,6 @@ function openHelpModal() {
   document.getElementById('helpModal').classList.add('open');
   showHelpTab(0, document.querySelector('.help-tab'));
 }
-function openTermsModal() {
-  closeModal('helpModal');
-  document.getElementById('termsModal').classList.add('open');
-}
-function openPrivacyModal() {
-  closeModal('helpModal');
-  document.getElementById('privacyModal').classList.add('open');
-}
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
 }
@@ -4547,72 +4539,15 @@ boot();
       <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.5);line-height:1.7;border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 14px;background:rgba(251,191,36,0.03);">
         ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KA$H. Each browser stores its own session independently.
       </div>
-      <div style="display:flex;gap:16px;align-items:center;">
-        <a onclick="openTermsModal()">Terms of Use</a>
-        <a onclick="openPrivacyModal()">Privacy Policy</a>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+        <a href="/privacy" target="_blank">Privacy Policy</a>
+        <a href="/terms" target="_blank">Terms of Service</a>
+        <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+        <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+        <a href="/cookies" target="_blank">Cookie Policy</a>
         <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
         <span style="margin-left:auto;">kash@kashsolutions.us</span>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ TERMS OF USE MODAL ══════════════════════════ -->
-<div class="modal-overlay" id="termsModal">
-  <div class="modal-lg">
-    <button class="modal-close" onclick="closeModal('termsModal')">✕</button>
-    <div class="modal-title">📋 TERMS OF USE</div>
-    <div class="legal-content">
-      <p style="color:rgba(192,192,192,0.5);font-size:0.65rem;">Last updated: May 2026 · KASH Corporate Solutions LLC</p>
-      <h3>1. Acceptance of Terms</h3>
-      <p>By accessing or using KA$H ("the Service") at kashsolutions.us, you agree to be bound by these Terms of Use. If you do not agree, please do not use the Service.</p>
-      <h3>2. Description of Service</h3>
-      <p>KA$H is a financial projection and goal-tracking tool. It provides estimated calculations based on user-defined parameters. KA$H is not a licensed financial advisor and does not provide investment advice. All projections are estimates only.</p>
-      <h3>3. Subscription and Billing</h3>
-      <p>Access to KA$H Pro requires a subscription of $9.99/month, billed via Stripe. You may cancel at any time. Cancellation takes effect at the end of the current billing cycle. No refunds are issued for partial periods.</p>
-      <h3>4. User Responsibilities</h3>
-      <p>You are responsible for maintaining the confidentiality of your account credentials. You agree not to use the Service for unlawful purposes or in ways that could damage, disable or impair the Service.</p>
-      <h3>5. Date and Privacy</h3>
-      <p>Your data is stored securely via Supabase. KA$H does not sell your personal data to third parties. See our Privacy Policy for full details.</p>
-      <h3>6. Disclaimers</h3>
-      <p>The Service is provided "as is" without warranties of any kind. KA$H does not guarantee accuracy of financial projections. Past performance does not guarantee future results. Use at your own risk.</p>
-      <h3>7. Limitation of Liability</h3>
-      <p>KASH Corporate Solutions LLC shall not be liable for any indirect, incidental or consequential damages arising from your use of the Service.</p>
-      <h3>8. Changes to Terms</h3>
-      <p>We reserve the right to modify these Terms at any time. Continued use of the Service after changes constitutes acceptance of the new Terms.</p>
-      <h3>9. Contact</h3>
-      <p>Questions about these Terms? Contact us at <em>kash@kashsolutions.us</em>.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PRIVACY POLICY MODAL ════════════════════════ -->
-<div class="modal-overlay" id="privacyModal">
-  <div class="modal-lg">
-    <button class="modal-close" onclick="closeModal('privacyModal')">✕</button>
-    <div class="modal-title">🔒 PRIVACY POLICY</div>
-    <div class="legal-content">
-      <p style="color:rgba(192,192,192,0.5);font-size:0.65rem;">Last updated: May 2026 · KASH Corporate Solutions LLC</p>
-      <h3>1. Information We Collect</h3>
-      <p>We collect information you provide directly: name, email address, date of birth, and financial projection data (project goals, contributions, portfolio entries). We also collect authentication data via Google OAuth or email/password through Supabase.</p>
-      <h3>2. How We Use Your Information</h3>
-      <p>Your data is used solely to provide and improve the KA$H Service: to display your financial projections, calculate estimates, and maintain your account. We do not use your data for advertising or sell it to third parties.</p>
-      <h3>3. Date Storage</h3>
-      <p>Your data is stored securely in Supabase (AWS us-east-1). All connections are encrypted via HTTPS/TLS. Row-Level Security (RLS) ensures only you can access your own data.</p>
-      <h3>4. Payment Date</h3>
-      <p>Payment processing is handled by Stripe. KA$H does not store credit card numbers or sensitive payment information. Stripe's privacy policy applies to payment data.</p>
-      <h3>5. Date Sharing</h3>
-      <p>We do not sell, trade or share your personal data with third parties except as required by law or as necessary to provide the Service (e.g. Supabase for storage, Stripe for payments).</p>
-      <h3>6. Your Rights</h3>
-      <p>You may request deletion of your account and all associated data at any time by contacting <em>kash@kashsolutions.us</em>. Date deletion is processed within 30 days.</p>
-      <h3>7. Cookies</h3>
-      <p>KA$H uses minimal session cookies required for authentication. No tracking or advertising cookies are used.</p>
-      <h3>8. Children's Privacy</h3>
-      <p>KA$H is not directed at children under 13. We do not knowingly collect personal information from children under 13.</p>
-      <h3>9. Changes to This Policy</h3>
-      <p>We may update this Privacy Policy periodically. We will notify users of significant changes via email or in-app notice.</p>
-      <h3>10. Contact</h3>
-      <p>Privacy questions? Contact us at <em>kash@kashsolutions.us</em>.</p>
     </div>
   </div>
 </div>
