@@ -1350,7 +1350,20 @@
       ✅ Contribution history<br>
       ✅ Daily contribution tip
     </div>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;font-size:1.2rem;" onclick="window.location.href='https://buy.stripe.com/eVq14n9Z22yAb4M0wkbsc01?prefilled_email=' + encodeURIComponent(currentUser?.email || '')">
+    <div style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+      <input type="checkbox" id="termsCheckbox"
+        style="margin-top:3px;accent-color:var(--green-neon);width:16px;height:16px;cursor:pointer;flex-shrink:0;"
+        onchange="const b=document.getElementById('paywallBtn');b.disabled=!this.checked;b.style.opacity=this.checked?'1':'0.5';">
+      <label for="termsCheckbox"
+        style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:0.5px;line-height:1.7;cursor:pointer;">
+        I have read and agree to the
+        <a href="/terms" target="_blank" style="color:var(--green-neon);text-decoration:none;">Terms of Service</a>
+        and
+        <a href="/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">Privacy Policy</a>
+      </label>
+    </div>
+    <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;transition:opacity 0.2s;" onclick="window.location.href='https://buy.stripe.com/eVq14n9Z22yAb4M0wkbsc01?prefilled_email=' + encodeURIComponent(currentUser?.email || '')"
+      onchange="this.style.opacity=this.disabled?'0.5':'1'">
       <span id="paywallBtnText">💳 Subscribe KA$H Pro — $9.99/mo</span>
     </button>
     <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;" id="paywallNote">
@@ -1498,12 +1511,9 @@
           <input type="text" id="profileZip" placeholder="e.g. 34761" maxlength="10" readonly>
         </div>
         <div class="form-group" style="grid-column:span 3;display:flex;align-items:center;gap:14px;padding-top:20px;">
-          <label style="margin:0;white-space:nowrap;">Do you file taxes in the United States?</label>
-          <select id="profileTax" disabled style="background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:6px 10px;border-radius:8px;font-size:0.85rem;">
-            <option value="">— Select —</option>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-          </select>
+          <input type="checkbox" id="profileTax" disabled
+            style="accent-color:var(--green-neon);width:16px;height:16px;cursor:pointer;">
+          <label for="profileTax" style="margin:0;white-space:nowrap;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:0.5px;cursor:pointer;">Do you file taxes in the United States?</label>
         </div>
       </div>
     </div>
@@ -2214,6 +2224,10 @@ async function initApp() {
 
   if (!hasSub) {
     document.getElementById('paywallScreen').style.display = 'flex';
+    const cb = document.getElementById('termsCheckbox');
+    const btn = document.getElementById('paywallBtn');
+    if (cb) cb.checked = false;
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; }
     return;
   }
 
@@ -2467,7 +2481,7 @@ function saveProfile() {
     state:  document.getElementById('profileState').value.trim().toUpperCase(),
     zip:    document.getElementById('profileZip').value.trim()
   };
-  state.declaresUsTax = document.getElementById('profileTax').value;
+  state.declaresUsTax = document.getElementById('profileTax').checked ? 'yes' : 'no';
   save();
   cancelEditProfile();
   renderAll();
@@ -3320,7 +3334,7 @@ function renderAll() {
     if (cityEl)   cityEl.value   = addr.city   || '';
     if (stEl)     stEl.value     = addr.state  || '';
     if (zipEl)    zipEl.value    = addr.zip    || '';
-    if (taxEl)    taxEl.value    = state.declaresUsTax || '';
+    if (taxEl)    taxEl.checked  = state.declaresUsTax === 'yes';
   }
 
   // Client number and email
