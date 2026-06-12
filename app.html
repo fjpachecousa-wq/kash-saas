@@ -4506,11 +4506,29 @@ const PLAID_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v
 const PLAID_MAX_SYNCS = 2;
 const PLAID_MIN_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
-function initPlaid() {
+async function initPlaid() {
   if (!currentUser || currentUser.id !== PLAID_OWNER_ID) return;
   const section = document.getElementById('plaidSection');
   if (section) section.style.display = 'block';
-  const saved = localStorage.getItem('plaid_access_token');
+  let saved = localStorage.getItem('plaid_access_token');
+  if (!saved) {
+    // Busca do Supabase se localStorage estiver vazio
+    const { data } = await _supabase
+      .from('plaid_connections')
+      .select('access_token, item_id, holdings, securities, account_balance, last_sync')
+      .eq('user_id', currentUser.id)
+      .single();
+    if (data && data.access_token) {
+      localStorage.setItem('plaid_access_token', data.access_token);
+      if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
+      if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
+      saved = data.access_token;
+      // Exibe os últimos holdings salvos
+      if (data.holdings && data.securities) {
+        renderPlaidHoldings({ holdings: data.holdings, securities: data.securities });
+      }
+    }
+  }
   if (saved) {
     document.getElementById('plaidConnectBtn').style.display = 'none';
     document.getElementById('plaidSyncBtn').style.display = 'inline-flex';
@@ -4561,6 +4579,14 @@ async function connectPlaid() {
         if (!exchData.access_token) throw new Error('Failed to exchange token');
         localStorage.setItem('plaid_access_token', exchData.access_token);
         localStorage.setItem('plaid_item_id', exchData.item_id || '');
+        // Salva no Supabase
+        await _supabase.from('plaid_connections').upsert({
+          user_id: currentUser.id,
+          access_token: exchData.access_token,
+          item_id: exchData.item_id || '',
+          institution_name: 'Acorns',
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' });
         document.getElementById('plaidConnectBtn').style.display = 'none';
         document.getElementById('plaidSyncBtn').style.display = 'inline-flex';
         updatePlaidStatus();
@@ -4614,6 +4640,15 @@ async function syncPlaid() {
     if (data.error_code) throw new Error(data.error_message || 'Sync failed');
     localStorage.setItem('plaid_sync_count_today', String(syncCount + 1));
     localStorage.setItem('plaid_last_sync', String(Date.now()));
+    // Salva holdings no Supabase
+    await _supabase.from('plaid_connections').upsert({
+      user_id: currentUser.id,
+      holdings: data.holdings,
+      securities: data.securities,
+      account_balance: data.accounts?.[0]?.balances?.current || null,
+      last_sync: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
     renderPlaidHoldings(data);
     updatePlaidStatus();
     btn.textContent = '🔄 Sync Now';
