@@ -4638,7 +4638,7 @@ function renderPlaidHoldings(data) {
     const ticker = sec?.ticker_symbol || '—';
     const name = sec?.name || 'Unknown';
     const qty = parseFloat(h.quantity || 0).toFixed(4);
-    const value = (parseFloat(h.quantity || 0) * parseFloat(h.institution_price || 0)).toFixed(2);
+    const value = parseFloat(h.institution_value || 0).toFixed(2);
     return '<div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(57,255,20,0.06);">'
       + '<span style="font-family:\'Bebas Neue\',cursive;color:var(--green-neon);letter-spacing:1px;">' + ticker + '</span>'
       + '<span style="font-size:0.72rem;color:var(--silver);">' + name + '</span>'
