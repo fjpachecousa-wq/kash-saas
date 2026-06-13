@@ -1332,7 +1332,17 @@
       <div class="auth-toggle" id="authForgotText" style="margin-top:8px;"></div>
     </div>
 
-    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:20px;" id="loginFooterText">
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+      <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" style="accent-color:var(--green-neon);flex-shrink:0;width:14px;height:14px;">
+        <span>I accept the <a href="/cookies" target="_blank" style="color:var(--green-neon);text-decoration:none;">Cookie Policy</a></span>
+      </label>
+      <label style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:0.5px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" style="accent-color:var(--green-neon);flex-shrink:0;width:14px;height:14px;">
+        <span>I have read the <a href="/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">Privacy Policy</a></span>
+      </label>
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:12px;" id="loginFooterText">
       Your data is saved in the cloud · Secure
     </div>
   </div>
