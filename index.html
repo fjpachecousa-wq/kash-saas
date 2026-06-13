@@ -697,17 +697,34 @@ section { padding: 100px 24px; }
   background: linear-gradient(180deg, var(--black) 0%, var(--gray-dark) 100%);
 }
 
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 60px;
+  align-items: stretch;
+}
+
 .pricing-card {
-  max-width: 480px;
-  margin: 60px auto 0;
   background: linear-gradient(135deg, rgba(57,255,20,0.06), rgba(0,0,0,0.5));
   border: 1px solid rgba(57,255,20,0.3);
   border-radius: 24px;
-  padding: 52px 48px;
+  padding: 40px 32px;
   text-align: center;
   position: relative;
   overflow: hidden;
   box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 60px rgba(57,255,20,0.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card .pricing-features {
+  flex: 1;
+}
+
+.pricing-card.featured {
+  border-color: rgba(57,255,20,0.7);
+  box-shadow: 0 20px 80px rgba(0,0,0,0.6), 0 0 80px rgba(57,255,20,0.15);
 }
 .pricing-card::before {
   content: '';
@@ -719,13 +736,13 @@ section { padding: 100px 24px; }
 
 .pricing-badge {
   display: inline-block;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 3px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.4rem;
+  letter-spacing: 4px;
   text-transform: uppercase;
   color: #000;
   background: var(--green);
-  padding: 4px 14px;
+  padding: 6px 20px;
   border-radius: 999px;
   margin-bottom: 24px;
 }
@@ -1007,7 +1024,8 @@ footer {
   .numbers-grid { grid-template-columns: 1fr 1fr; }
   .number-item { border-right: none; border-bottom: 1px solid rgba(57,255,20,0.1); }
   .sim-grid { grid-template-columns: 1fr; }
-  .pricing-card { margin: 40px 16px 0; padding: 36px 28px; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-card { margin: 0; }
   footer { flex-direction: column; text-align: center; }
 }
 
@@ -1037,7 +1055,7 @@ footer {
   </div>
   <div class="nav-right">
     <a class="btn-nav-login" id="navLoginBtn" href="/app">Login</a>
-    <a class="btn-nav" id="navStartBtn" href="/app">Start Now — $9.99</a>
+    <a class="btn-nav" id="navStartBtn" href="#pricing">Plans — from $9.99</a>
   </div>
 </nav>
 
@@ -1053,11 +1071,27 @@ footer {
     KA$H is a financial projection platform based on real goals, actual contributions, and plausible scenarios. We don't manage your money — we help you see the impact of each financial decision before it happens.
   </p>
   <div class="hero-cta-group">
-    <a class="btn-primary-lg" href="/app" id="heroCta1">💳 Start for $9.99/mo</a>
-    <a class="btn-ghost-lg" href="/app" id="heroCta2">🔑 Login</a>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:860px;margin:0 auto 16px;">
+      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.06),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.3);border-radius:16px;padding:24px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:2.8rem;line-height:1;color:#fff;">$9<span style="font-size:1.4rem;color:rgba(192,192,192,0.7);">.99</span></div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(192,192,192,0.4);letter-spacing:2px;margin-bottom:16px;">PER MONTH</div>
+        <a class="btn-cta-full" href="#pricing" style="font-size:1rem;padding:12px 16px;">Learn about SEED</a>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.1),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.7);border-radius:16px;padding:24px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:2.8rem;line-height:1;color:#fff;">$19<span style="font-size:1.4rem;color:rgba(192,192,192,0.7);">.90</span></div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(192,192,192,0.4);letter-spacing:2px;margin-bottom:16px;">PER MONTH</div>
+        <a class="btn-cta-full" href="#pricing" style="font-size:1rem;padding:12px 16px;">Learn about GROW</a>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.06),rgba(0,0,0,0.5));border:1px solid rgba(57,255,20,0.3);border-radius:16px;padding:24px 20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:2.8rem;line-height:1;color:#fff;">$25<span style="font-size:1.4rem;color:rgba(192,192,192,0.7);">.00</span></div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(192,192,192,0.4);letter-spacing:2px;margin-bottom:16px;">PER MONTH</div>
+        <a class="btn-cta-full" href="#pricing" style="font-size:1rem;padding:12px 16px;">Learn about HARVEST</a>
+      </div>
+    </div>
+    <a class="btn-ghost-lg" href="/app" id="heroCta2" style="width:100%;max-width:860px;">🔑 Login</a>
   </div>
   <div class="hero-price-note" id="heroNote">Cancel anytime · No contracts · Secure payment via Stripe</div>
-  <div class="scroll-indicator">
+  <div class="scroll-indicator" style="position:relative;bottom:auto;left:auto;transform:none;margin-top:32px;">
     <div class="scroll-line"></div>
     <div class="scroll-label" id="heroScroll">Scroll</div>
   </div>
@@ -1258,34 +1292,82 @@ footer {
   <div class="section-inner" style="text-align:center;">
     <div class="section-label" id="pricingLabel">Pricing</div>
     <h2 class="section-title" id="pricingTitle">Simple. <em>Honest.</em> Affordable.</h2>
-    <div class="pricing-card">
-      <div class="pricing-badge">KA$H Pro</div>
-      <div class="pricing-price">
-        <span class="currency">$</span>9<span class="cents">.99</span>
+    <div class="pricing-grid">
+
+      <!-- SEED -->
+      <div class="pricing-card">
+        <div class="pricing-badge">🌱 SEED</div>
+        <div class="pricing-price">
+          <span class="currency">$</span>9<span class="cents">.99</span>
+        </div>
+        <div class="pricing-period">per month · cancel anytime</div>
+        <ul class="pricing-features">
+          <li>Personal investment simulator</li>
+          <li>Unlimited financial goals</li>
+          <li>Daily contribution recommendation</li>
+          <li>ETF portfolio tracker</li>
+          <li>Smart ETF suggestions by risk profile</li>
+          <li>Cloud sync across all devices</li>
+          <li>Google &amp; email login</li>
+        </ul>
+        <a class="btn-cta-full" href="/app" id="pricingBtn">💳 Start with SEED</a>
+        <div class="pricing-note" id="pricingNote">No contracts · No setup fees · Cancel anytime</div>
       </div>
-      <div class="pricing-period" id="pricingPeriod">per month · cancel anytime</div>
-      <ul class="pricing-features">
-        <li id="pricingF1">Unlimited investment projects</li>
-        <li id="pricingF2">Cloud sync across all devices</li>
-        <li id="pricingF3">ETF portfolio tracker with real-time prices</li>
-        <li id="pricingF4">Daily contribution recommendation</li>
-        <li id="pricingF5">Full contribution history & CSV export</li>
-        <li id="pricingF6">Smart ETF suggestions based on your risk profile</li>
-        <li id="pricingF7">Google & email/password login</li>
-        <li id="pricingF8">Print-ready statements</li>
-      </ul>
-      <a class="btn-cta-full" href="/app" id="pricingBtn">💳 Start Building Wealth Now</a>
-      <div class="pricing-note" id="pricingNote">No contracts · No setup fees · Cancel anytime · Powered by Stripe</div>
+
+      <!-- GROW -->
+      <div class="pricing-card featured">
+        <div class="pricing-badge">🌿 GROW</div>
+        <div class="pricing-price">
+          <span class="currency">$</span>19<span class="cents">.90</span>
+        </div>
+        <div class="pricing-period">per month · cancel anytime</div>
+        <ul class="pricing-features">
+          <li>Everything in SEED</li>
+          <li>Acorns account sync via Plaid</li>
+          <li>2x sync per day</li>
+          <li>Auto-import holdings from Acorns</li>
+          <li>Real balance tracking from your broker</li>
+          <li>Full contribution history &amp; CSV export</li>
+          <li>Print-ready statements</li>
+        </ul>
+        <a class="btn-cta-full" href="/app" id="pricingBtnGrow">💳 Start with GROW</a>
+        <div class="pricing-note">No contracts · No setup fees · Cancel anytime</div>
+      </div>
+
+      <!-- HARVEST -->
+      <div class="pricing-card">
+        <div class="pricing-badge">🌾 HARVEST</div>
+        <div class="pricing-price">
+          <span class="currency">$</span>25<span class="cents">.00</span>
+        </div>
+        <div class="pricing-period">per month · cancel anytime</div>
+        <ul class="pricing-features">
+          <li>Everything in GROW</li>
+          <li>ETF research &amp; comparison tools</li>
+          <li>Advanced portfolio analytics</li>
+          <li>Multi-broker support</li>
+          <li>Priority support</li>
+          <li>Early access to new features</li>
+          <li>Exclusive investment insights</li>
+        </ul>
+        <a class="btn-cta-full" href="/app" id="pricingBtnHarvest">💳 Start with HARVEST</a>
+        <div class="pricing-note">No contracts · No setup fees · Cancel anytime</div>
+      </div>
+
     </div>
   </div>
 </section>
 
 <!-- FINAL CTA -->
 <section class="final-cta">
-  <div class="section-inner">
+  <div class="section-inner" style="text-align:center;">
     <h2 id="finalTitle">Start today.<br><span>Not someday.</span></h2>
     <p id="finalSub">Your financial clarity starts with the next contribution.</p>
-    <a class="btn-primary-lg" href="/app" id="finalBtn">Open KA$H — $9.99/mo</a>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:32px;">
+      <a class="btn-primary-lg" href="/app" id="finalBtn">🌱 SEED — $9.99/mo</a>
+      <a class="btn-primary-lg" href="/app" id="finalBtnGrow" style="background:linear-gradient(135deg,#1a7a0a,#39ff14);">🌿 GROW — $19.90/mo</a>
+      <a class="btn-primary-lg" href="/app" id="finalBtnHarvest" style="background:linear-gradient(135deg,#0a4a1a,#1a7a0a);">🌾 HARVEST — $25.00/mo</a>
+    </div>
   </div>
 </section>
 <!-- FOOTER -->
