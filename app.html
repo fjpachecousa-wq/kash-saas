@@ -4511,22 +4511,20 @@ async function initPlaid() {
   const section = document.getElementById('plaidSection');
   if (section) section.style.display = 'block';
   let saved = localStorage.getItem('plaid_access_token');
-  if (!saved) {
-    // Busca do Supabase se localStorage estiver vazio
-    const { data } = await _supabase
-      .from('plaid_connections')
-      .select('access_token, item_id, holdings, securities, account_balance, last_sync')
-      .eq('user_id', currentUser.id)
-      .single();
-    if (data && data.access_token) {
-      localStorage.setItem('plaid_access_token', data.access_token);
-      if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
-      if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
-      saved = data.access_token;
-      // Exibe os últimos holdings salvos
-      if (data.holdings && data.securities) {
-        renderPlaidHoldings({ holdings: data.holdings, securities: data.securities });
-      }
+  // Sempre busca do Supabase para garantir dados mais recentes
+  const { data } = await _supabase
+    .from('plaid_connections')
+    .select('access_token, item_id, holdings, securities, account_balance, last_sync')
+    .eq('user_id', currentUser.id)
+    .single();
+  if (data && data.access_token) {
+    localStorage.setItem('plaid_access_token', data.access_token);
+    if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
+    if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
+    saved = data.access_token;
+    // Sempre exibe os últimos holdings salvos
+    if (data.holdings && data.securities) {
+      renderPlaidHoldings({ holdings: data.holdings, securities: data.securities });
     }
   }
   if (saved) {
