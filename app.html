@@ -2692,7 +2692,12 @@ function switchTab(tabId) {
   const dashBtn = document.getElementById('dashboardBtn');
   if (dashBtn) dashBtn.style.display = tabId === 'overview' ? 'none' : 'inline-flex';
 
-  if (tabId === 'portfolio') renderPortfolio();
+  if (tabId === 'portfolio') {
+    renderPortfolio();
+    // Rerender Plaid holdings após renderPortfolio recriar o DOM
+    const plaidData = window._lastPlaidData;
+    if (plaidData) renderPlaidHoldings(plaidData);
+  }
 }
 
 // ══════════════════════════════════════════════════
@@ -4536,6 +4541,7 @@ async function initPlaid() {
     if (data.holdings && data.securities) {
       const holdings = typeof data.holdings === 'string' ? JSON.parse(data.holdings) : data.holdings;
       const securities = typeof data.securities === 'string' ? JSON.parse(data.securities) : data.securities;
+      window._lastPlaidData = { holdings, securities };
       renderPlaidHoldings({ holdings, securities });
     }
   }
@@ -4659,6 +4665,7 @@ async function syncPlaid() {
       last_sync: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }, { onConflict: 'user_id' });
+    window._lastPlaidData = { holdings: data.holdings, securities: data.securities };
     renderPlaidHoldings(data);
     updatePlaidStatus();
     btn.textContent = '🔄 Sync Now';
