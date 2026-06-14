@@ -2264,7 +2264,7 @@ async function initApp() {
   startInactivityWatcher(); // start 10-min auto-logout
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
-  initPlaid();
+  await initPlaid();
   // Migrate portfolio from localStorage to Supabase (one-time migration)
   // Only runs if portfolio is empty AND localStorage has data
   const localDate = localStorage.getItem('kash_portfolio');
