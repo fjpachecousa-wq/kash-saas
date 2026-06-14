@@ -3760,7 +3760,27 @@ async function renderPlaidHoldings(data) {
     </div>`;
   }).join('');
 
-  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">ACORNS HOLDINGS — LIVE</div>' + cards;
+  // Lista compacta original — fontes maiores
+  const listRows = data.holdings.map(h => {
+    const sec    = (data.securities || []).find(s => s.security_id === h.security_id);
+    const ticker = sec?.ticker_symbol || '—';
+    const name   = sec?.name || 'Unknown';
+    const qty    = parseFloat(h.quantity || 0).toFixed(4);
+    const value  = parseFloat(h.institution_value || 0).toFixed(2);
+    return `<div style="display:grid;grid-template-columns:80px 1fr 100px 100px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(57,255,20,0.06);">
+      <span style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;">${ticker}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--silver);">${name}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--silver);text-align:right;">${qty} sh</span>
+      <span style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--green-neon);text-align:right;">$${value}</span>
+    </div>`;
+  }).join('');
+
+  const listBlock = `<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">ACORNS HOLDINGS — LIVE</div>${listRows}`;
+
+  // Cards de desempenho — 2 por linha
+  const cardsHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">${cards}</div>`;
+
+  container.innerHTML = listBlock + cardsHtml;
 
   // Atualizar overview com dados Plaid frescos
   renderOverview();
