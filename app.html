@@ -3680,27 +3680,90 @@ async function syncPlaid() {
   }
 }
 
-function renderPlaidHoldings(data) {
+async function renderPlaidHoldings(data) {
   const container = document.getElementById('plaidHoldings');
   if (!container) return;
   if (!data.holdings || data.holdings.length === 0) {
     container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:12px;">No holdings found in Acorns.</div>';
     return;
   }
-  const rows = data.holdings.map(h => {
+
+  // Label header
+  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">ACORNS HOLDINGS — LIVE</div>'
+    + '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Fetching quotes...</div>';
+
+  // Buscar cotações em paralelo via Edge Function
+  const tickers = data.holdings.map(h => {
     const sec = (data.securities || []).find(s => s.security_id === h.security_id);
+    return sec?.ticker_symbol || null;
+  }).filter(Boolean);
+
+  const quoteMap = {};
+  await Promise.all(tickers.map(async ticker => {
+    try {
+      const res = await fetch(PLAID_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_quote', ticker })
+      });
+      quoteMap[ticker] = await res.json();
+    } catch(e) {
+      quoteMap[ticker] = null;
+    }
+  }));
+
+  // Renderizar cards
+  const cards = data.holdings.map(h => {
+    const sec    = (data.securities || []).find(s => s.security_id === h.security_id);
     const ticker = sec?.ticker_symbol || '—';
-    const name = sec?.name || 'Unknown';
-    const qty = parseFloat(h.quantity || 0).toFixed(4);
-    const value = parseFloat(h.institution_value || 0).toFixed(2);
-    return '<div style="display:grid;grid-template-columns:70px 1fr 80px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(57,255,20,0.06);">'
-      + '<span style="font-family:\'Bebas Neue\',cursive;color:var(--green-neon);letter-spacing:1px;">' + ticker + '</span>'
-      + '<span style="font-size:0.72rem;color:var(--silver);">' + name + '</span>'
-      + '<span style="font-size:0.72rem;color:var(--silver);text-align:right;">' + qty + ' sh</span>'
-      + '<span style="font-size:0.72rem;color:var(--green-neon);text-align:right;">$' + value + '</span>'
-      + '</div>';
+    const name   = sec?.name || 'Unknown';
+    const qty    = parseFloat(h.quantity || 0);
+    const value  = parseFloat(h.institution_value || 0);
+    const q      = quoteMap[ticker];
+
+    const price         = q?.price ?? null;
+    const change        = q?.change ?? null;
+    const changePct     = q?.changePercent ?? null;
+    const changeColor   = change === null ? 'var(--silver)' : change >= 0 ? 'var(--green-neon)' : '#ef4444';
+    const changeSign    = change !== null && change >= 0 ? '+' : '';
+
+    const priceRow = price !== null
+      ? `<span style="font-family:'Space Mono',monospace;font-size:0.9rem;font-weight:700;color:var(--white);">$${price.toFixed(2)}</span>`
+      : `<span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.4);">—</span>`;
+
+    const changeRow = change !== null
+      ? `<span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:${changeColor};">${changeSign}$${change.toFixed(2)} (${changeSign}${changePct.toFixed(2)}%) today</span>`
+      : `<span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.4);">— today</span>`;
+
+    return `
+    <div style="background:linear-gradient(135deg,rgba(0,0,0,0.5),rgba(17,24,17,0.8));border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:16px 20px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <div style="font-family:'Bebas Neue',cursive;font-size:1.4rem;color:var(--green-neon);letter-spacing:2px;line-height:1;">${ticker}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-top:3px;line-height:1.4;">${name}</div>
+        </div>
+        <div style="text-align:right;">
+          ${priceRow}
+          <div style="margin-top:3px;">${changeRow}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:20px;border-top:1px solid rgba(255,255,255,0.05);padding-top:10px;">
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:2px;">SHARES</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--white);">${qty.toFixed(4)}</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:2px;">CURRENT VALUE</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--green-neon);">$${value.toFixed(2)}</div>
+        </div>
+      </div>
+    </div>`;
   }).join('');
-  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">ACORNS HOLDINGS — LIVE</div>' + rows;
+
+  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">ACORNS HOLDINGS — LIVE</div>' + cards;
+
+  // Atualizar overview com dados Plaid frescos
+  renderOverview();
 }
 </script>
 <!-- ══ HELP MODAL ══════════════════════════════════ -->
