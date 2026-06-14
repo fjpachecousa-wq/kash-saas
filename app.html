@@ -1713,13 +1713,11 @@
       <!-- WIDGET 3: ETFs FOR YOUR PROFILE -->
       <div class="side-widget">
         <div class="side-title" style="justify-content:space-between;">
-          <span>💡 ETFs for Your Profile <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></span>
-
+          <span>📊 SUGGESTED ETFs <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></span>
         </div>
         <div id="sideEtfList">
           <!-- injetado por renderOverview() -->
         </div>
-        <span class="side-link" onclick="switchTab('portfolio')">+ Add to Portfolio →</span>
       </div>
 
       <!-- WIDGET 4: CONTRIBUTION CALCULATOR -->
@@ -2747,6 +2745,10 @@ function renderOverview() {
     if (sideReturn)   sideReturn.textContent = '—';
   }
 
+  // ── SUGGESTED ETFs widget ─────────────────────────
+  const activeProj2 = state.projects.find(p => !p.closed && !p.transferred);
+  if (activeProj2) loadSuggestedEtfs(activeProj2);
+
   // Show saldo disponivel banner
   const saldoBanner = document.getElementById('saldoDisponivelBanner');
   if (state.saldoDisponivel && state.saldoDisponivel > 0) {
@@ -3038,6 +3040,78 @@ document.addEventListener('click', () => closeProjectsDropdown());
 // ══════════════════════════════════════════════════
 // RENDER ALL
 // ══════════════════════════════════════════════════
+// ══════════════════════════════════════════════════
+// SUGGESTED ETFs WIDGET
+// ══════════════════════════════════════════════════
+const SUGGESTED_ETFS = {
+  conservador:  ['BND', 'AGG', 'ISTB', 'VYM', 'SCHD', 'DVY', 'USMV'],
+  moderado:     ['VOO', 'VTI', 'IJH', 'IXUS', 'DGRO', 'IVV', 'VEU'],
+  agressivo:    ['QQQ', 'VGT', 'IJR', 'VWO', 'SOXX', 'ARKK', 'IWF'],
+};
+
+async function loadSuggestedEtfs(proj) {
+  const sideEtfList    = document.getElementById('sideEtfList');
+  const sideEtfProfile = document.getElementById('sideEtfProfile');
+  if (!sideEtfList || !proj) return;
+
+  const projRiskLabel = { conservador:'🟢 Conservative', moderado:'🟡 Moderate', agressivo:'🔴 Aggressive' };
+  if (sideEtfProfile) sideEtfProfile.textContent = projRiskLabel[proj.risk] || '';
+
+  // Cache diário — chave inclui perfil e data
+  const cacheKey  = `kash_etf_suggestions_${proj.risk}_${new Date().toISOString().slice(0,10)}`;
+  const cached    = localStorage.getItem(cacheKey);
+
+  let results = [];
+
+  if (cached) {
+    try { results = JSON.parse(cached); } catch(e) { results = []; }
+  }
+
+  if (!results.length) {
+    sideEtfList.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.62rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Loading...</div>';
+
+    const candidates = SUGGESTED_ETFS[proj.risk] || SUGGESTED_ETFS['moderado'];
+
+    const fetched = await Promise.all(candidates.map(async ticker => {
+      try {
+        const res = await fetch(PLAID_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_performance', ticker })
+        });
+        const data = await res.json();
+        if (data.perf3mo !== null && data.perf3mo > 0) {
+          return { ticker, price: data.price, perf3mo: data.perf3mo };
+        }
+        return null;
+      } catch(e) { return null; }
+    }));
+
+    results = fetched
+      .filter(r => r !== null)
+      .sort((a, b) => b.perf3mo - a.perf3mo)
+      .slice(0, 5);
+
+    if (results.length) {
+      localStorage.setItem(cacheKey, JSON.stringify(results));
+    }
+  }
+
+  if (!results.length) {
+    sideEtfList.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.62rem;color:rgba(192,192,192,0.4);padding:8px 0;">No ETFs with positive 3-month performance for your profile.</div>';
+    return;
+  }
+
+  sideEtfList.innerHTML = results.map(r => `
+    <div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:'Bebas Neue',cursive;font-size:1.05rem;color:var(--green-neon);letter-spacing:2px;">${r.ticker}</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--green-neon);">+${r.perf3mo.toFixed(2)}% <span style="color:rgba(192,192,192,0.4);font-size:0.6rem;">3mo</span></span>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);margin-top:2px;">$${r.price !== null ? r.price.toFixed(2) : '—'} / share</div>
+    </div>`).join('');
+}
+
 function runCalc() {
   const daily = parseFloat(document.getElementById('calcDaily').value);
   const days  = parseInt(document.getElementById('calcDays').value);
