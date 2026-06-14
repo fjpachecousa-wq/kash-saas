@@ -3047,6 +3047,49 @@ document.addEventListener('click', () => closeProjectsDropdown());
 
 // ══════════════════════════════════════════════════
 // RENDER ALL
+// ══════════════════════════════════════════════════
+function renderAll() {
+  if (state.name) {
+    document.getElementById('headerName').textContent = state.name;
+    document.getElementById('firstName').value = state.name.split(' ')[0] || '';
+    document.getElementById('lastName').value = state.name.split(' ').slice(1).join(' ') || '';
+    if (document.getElementById('birthdate')) document.getElementById('birthdate').value = state.birthdate || '';
+    const addr = state.address || {};
+    const streetEl = document.getElementById('profileStreet');
+    const cityEl   = document.getElementById('profileCity');
+    const stEl     = document.getElementById('profileState');
+    const zipEl    = document.getElementById('profileZip');
+    const taxEl    = document.getElementById('profileTax');
+    if (streetEl) streetEl.value = addr.street || '';
+    if (cityEl)   cityEl.value   = addr.city   || '';
+    if (stEl)     stEl.value     = addr.state  || '';
+    if (zipEl)    zipEl.value    = addr.zip    || '';
+    if (taxEl)    taxEl.checked  = state.declaresUsTax === 'yes';
+  }
+
+  if (currentUser) {
+    const clientNum = generateClientNumber(currentUser);
+    const cnEl = document.getElementById('clientNumber');
+    if (cnEl) cnEl.textContent = clientNum;
+    const emailEl = document.getElementById('profileEmail');
+    if (emailEl) emailEl.value = currentUser.email || '';
+  }
+
+  const now = new Date();
+  document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
+  document.getElementById('printDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
+
+  if (state.name && state.projects.length > 0) {
+    const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
+    const totalPct = activeProjs.length > 0 ? activeProjs.reduce((acc, p) => acc + calcProject(p).pct, 0) / activeProjs.length : 0;
+    document.getElementById('statusText').textContent =
+      `${state.name} · ${activeProjs.length} active project(s) · Average progress: ${totalPct.toFixed(1)}%`;
+  }
+
+  renderTabsNav();
+  state.projects.forEach(proj => renderProjectPanel(proj));
+  renderOverview();
+}
 
 // Transfer project balance to another project
 async function encerrarProjeto(id) {
