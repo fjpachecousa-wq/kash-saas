@@ -4522,27 +4522,29 @@ const PLAID_MAX_SYNCS = 2;
 const PLAID_MIN_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 async function initPlaid() {
-  if (!currentUser || currentUser.id !== PLAID_OWNER_ID) return;
+  if (!currentUser || currentUser.id !== PLAID_OWNER_ID) { console.log('PLAID: user check failed'); return; }
   const section = document.getElementById('plaidSection');
   if (section) section.style.display = 'block';
   let saved = localStorage.getItem('plaid_access_token');
-  // Sempre busca do Supabase para garantir dados mais recentes
+  console.log('PLAID: fetching from Supabase...');
   const { data, error } = await _supabase
     .from('plaid_connections')
     .select('access_token, item_id, holdings, securities, account_balance, last_sync')
     .eq('user_id', currentUser.id)
     .maybeSingle();
+  console.log('PLAID: data=', data, 'error=', error);
   if (error) console.error('Plaid load error:', error);
   if (data && data.access_token) {
     localStorage.setItem('plaid_access_token', data.access_token);
     if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
     if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
     saved = data.access_token;
-    // Sempre exibe os últimos holdings salvos
+    console.log('PLAID: holdings=', data.holdings, 'securities=', data.securities);
     if (data.holdings && data.securities) {
       const holdings = typeof data.holdings === 'string' ? JSON.parse(data.holdings) : data.holdings;
       const securities = typeof data.securities === 'string' ? JSON.parse(data.securities) : data.securities;
       window._lastPlaidData = { holdings, securities };
+      console.log('PLAID: rendering holdings', holdings.length);
       renderPlaidHoldings({ holdings, securities });
     }
   }
