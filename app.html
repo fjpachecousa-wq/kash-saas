@@ -143,17 +143,6 @@
   .port-label { font-family: 'Space Mono', monospace; font-size: 0.66rem; color: var(--silver); }
   .port-value { font-family: 'Space Mono', monospace; font-size: 0.86rem; font-weight: 700; }
   .side-link { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(57,255,20,0.5); letter-spacing: 1px; margin-top: 12px; display: block; text-align: right; cursor: pointer; }
-  .etf-row { padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  .etf-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .etf-ticker { font-family: 'Bebas Neue', cursive; font-size: 1.05rem; color: var(--green-neon); letter-spacing: 2px; }
-  .etf-name { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: var(--silver); margin-top: 2px; }
-  .etf-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; align-items: center; }
-  .badge { font-family: 'Space Mono', monospace; font-size: 0.55rem; padding: 2px 7px; border-radius: 4px; }
-  .badge-div { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.25); }
-  .badge-cons { background: rgba(34,197,94,0.08); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
-  .badge-mod { background: rgba(251,191,36,0.06); color: #d4a017; border: 1px solid rgba(251,191,36,0.15); }
-  .badge-agg { background: rgba(239,68,68,0.08); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
-  .exp { font-family: 'Space Mono', monospace; font-size: 0.52rem; color: rgba(192,192,192,0.4); }
 
   /* ── NAV BAR ─────────────────────────────────── */
   .nav-bar {
@@ -191,17 +180,6 @@
     background: linear-gradient(135deg, var(--green-dark), #1a3a1a);
     color: var(--green-neon);
     box-shadow: 0 0 16px rgba(57,255,20,0.2);
-  }
-
-  .tab-btn .proj-num {
-    display: inline-block;
-    background: rgba(57,255,20,0.2);
-    color: var(--green-neon);
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    padding: 1px 6px;
-    border-radius: 4px;
-    margin-right: 6px;
   }
 
   /* ── NAV DROPDOWN (My Projects) ──────────────── */
@@ -332,119 +310,6 @@
   }
 
   /* ── PROJECTS LIST ───────────────────────────── */
-  .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .project-card {
-    background: linear-gradient(135deg, rgba(0,0,0,0.6), var(--gray-mid));
-    border: 1px solid rgba(57,255,20,0.2);
-    border-radius: 14px;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .project-card:hover {
-    border-color: var(--green-neon);
-    box-shadow: 0 0 24px rgba(57,255,20,0.15);
-    transform: translateY(-2px);
-  }
-
-  .project-card.active-project {
-    border-color: var(--green-neon);
-    box-shadow: 0 0 30px rgba(57,255,20,0.25);
-    background: linear-gradient(135deg, rgba(57,255,20,0.06), var(--gray-mid));
-  }
-
-  .project-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--project-color, var(--green-neon)), transparent);
-  }
-
-  .proj-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-  }
-
-  .proj-badge {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.4rem;
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    background: rgba(57,255,20,0.12);
-    color: var(--green-neon);
-    border: 1px solid rgba(57,255,20,0.3);
-  }
-
-  .proj-name {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
-    color: var(--white);
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .proj-delete {
-    background: transparent;
-    border: none;
-    color: rgba(239,68,68,0.5);
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: all 0.2s;
-  }
-  .proj-delete:hover { color: var(--red); background: rgba(239,68,68,0.1); }
-
-  .proj-mini-bar-bg {
-    background: rgba(0,0,0,0.5);
-    border-radius: 999px;
-    height: 6px;
-    margin: 10px 0 8px;
-    overflow: hidden;
-    border: 1px solid rgba(57,255,20,0.1);
-  }
-
-  .proj-mini-bar-fill {
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--green-dark), var(--green-neon));
-    box-shadow: 0 0 8px rgba(57,255,20,0.5);
-    transition: width 0.6s ease;
-  }
-
-  .proj-stats {
-    display: flex;
-    justify-content: space-between;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--silver);
-    letter-spacing: 1px;
-  }
-
-  .proj-pct {
-    font-family: 'Bebas Neue', cursive;
-    font-size: 1.1rem;
-    color: var(--green-neon);
-  }
 
   /* ── FORM ELEMENTS ───────────────────────────── */
   .form-row {
@@ -694,11 +559,6 @@
   tr:hover td { background: rgba(57,255,20,0.04); }
   .amount-cell { color: var(--green-neon); font-weight: 700; }
   .running-cell { color: var(--gold); }
-
-  .td-actions {
-    display: flex;
-    gap: 6px;
-  }
 
   .icon-btn {
     background: transparent;
@@ -976,7 +836,6 @@
   @media print {
     body { background: #fff !important; color: #000 !important; background-image: none !important; }
     header { position: static; box-shadow: none; background: #fff !important; border-bottom: 2px solid #166534; }
-    .logo-ka, .logo-dollar { color: #166534 !important; -webkit-text-fill-color: #166534 !important; }
     .card { background: #f9fafb !important; border: 1px solid #166534 !important; box-shadow: none !important; break-inside: avoid; }
     .card::before { display: none; }
     .card-title { color: #166534 !important; text-shadow: none !important; }
@@ -998,20 +857,10 @@
     .form-row { grid-template-columns: 1fr; }
     .form-row.three, .form-row.four { grid-template-columns: 1fr 1fr; }
     .card { padding: 20px 16px; }
-    .projects-grid { grid-template-columns: 1fr; }
     .modal { margin: 16px; padding: 24px; }
   }
 
   /* ── TOTAL OVERVIEW BANNER ───────────────────── */
-  .total-banner {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .total-banner .kpi::after { background: var(--gold); }
-  .total-banner .kpi { border-color: rgba(251,191,36,0.2); }
 
   /* ── PASSIVE PILL ────────────────────────────── */
   .passive-pill {
@@ -1048,28 +897,6 @@
   .manifesto strong { color: var(--green-neon); }
 
   /* ── ACORNS BOX ──────────────────────────────── */
-  .acorns-box {
-    background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(0,0,0,0.5));
-    border: 1px solid rgba(251,191,36,0.25);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin: 16px 0 0;
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .acorns-icon { font-size: 1.8rem; flex-shrink: 0; margin-top: 2px; }
-
-  .acorns-text {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.68rem;
-    color: rgba(192,192,192,0.7);
-    line-height: 1.7;
-    letter-spacing: 0.5px;
-  }
-
-  .acorns-text strong { color: var(--gold); }
 
   /* ── LOGIN SCREEN ────────────────────────────── */
   #loginScreen {
@@ -1239,18 +1066,6 @@
   }
 
   /* ── ETF DETAIL MODAL ────────────────────────── */
-  .etf-detail-header { display:flex; align-items:flex-start; gap:16px; margin-bottom:24px; }
-  .etf-detail-ticker { font-family:'Bebas Neue',cursive; font-size:3rem; color:var(--green-neon); line-height:1; text-shadow:0 0 16px rgba(57,255,20,0.4); }
-  .etf-detail-name { font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--silver); margin-top:6px; line-height:1.5; }
-  .etf-detail-section { margin-bottom:20px; }
-  .etf-detail-section-title { font-family:'Bebas Neue',cursive; font-size:0.9rem; letter-spacing:3px; color:rgba(57,255,20,0.6); margin-bottom:10px; }
-  .etf-detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-family:'Space Mono',monospace; }
-  .etf-detail-row:last-child { border-bottom:none; }
-  .etf-detail-label { font-size:0.66rem; color:var(--silver); }
-  .etf-detail-value { font-size:0.8rem; font-weight:700; }
-  .etf-detail-disclaimer { font-family:'Space Mono',monospace; font-size:0.58rem; color:rgba(192,192,192,0.35); margin-top:16px; line-height:1.6; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; }
-  .etf-detail-loading { text-align:center; padding:32px; font-family:'Space Mono',monospace; font-size:0.75rem; color:rgba(57,255,20,0.5); letter-spacing:1px; }
-  .etf-detail-error { text-align:center; padding:24px; font-family:'Space Mono',monospace; font-size:0.72rem; color:rgba(239,68,68,0.7); }
   .help-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
   .help-tab {
     font-family: 'Space Mono', monospace; font-size: 0.65rem; letter-spacing: 1px;
@@ -1280,9 +1095,6 @@
     border-radius: 10px; padding: 14px 16px; margin-top: 16px;
     font-family: 'Space Mono', monospace; font-size: 0.68rem; color: #fbbf24; line-height: 1.7;
   }
-  .legal-content { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--silver); line-height: 1.9; }
-  .legal-content h3 { font-family: 'Bebas Neue', cursive; font-size: 1rem; color: var(--green-neon); letter-spacing: 2px; margin: 20px 0 8px; }
-  .legal-content p { margin-bottom: 12px; }
   .legal-footer {
     display: flex; gap: 16px; margin-top: 8px;
     font-family: 'Space Mono', monospace; font-size: 0.6rem; color: rgba(192,192,192,0.4);
