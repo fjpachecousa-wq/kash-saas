@@ -4534,7 +4534,9 @@ async function initPlaid() {
     saved = data.access_token;
     // Sempre exibe os últimos holdings salvos
     if (data.holdings && data.securities) {
-      renderPlaidHoldings({ holdings: data.holdings, securities: data.securities });
+      const holdings = typeof data.holdings === 'string' ? JSON.parse(data.holdings) : data.holdings;
+      const securities = typeof data.securities === 'string' ? JSON.parse(data.securities) : data.securities;
+      renderPlaidHoldings({ holdings, securities });
     }
   }
   if (saved) {
