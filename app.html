@@ -1544,12 +1544,7 @@
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
           <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MY ASSET PORTFOLIO</div>
-          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Register your investments and track performance in real time</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-sm" onclick="openEtfSearchModal()" style="border-color:rgba(96,165,250,0.5);color:#60a5fa;" title="Discover ETFs">🔍 Find ETFs</button>
-          <button class="btn btn-sm" id="refreshBtn" onclick="refreshPortfolio()" style="border-color:var(--green-dark);color:#000;background:#fff;" title="Update quotes">🔄 Refresh</button>
-          <button class="btn btn-primary btn-sm" id="newEntryBtn" onclick="addEtfToPortfolio()">+ Add ETF / Shares</button>
+          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Live portfolio synced from your brokerage via Plaid</div>
         </div>
       </div>
 
@@ -1569,47 +1564,7 @@
         <div id="plaidHoldings" style="margin-top:16px;"></div>
       </div>
 
-      <!-- NEW ENTRY FORM (hidden by default) -->
-      <div id="portfolioForm" style="display:none;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">NEW PORTFOLIO ENTRY</div>
-        <div style="margin-bottom:12px;">
-          <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:4px;">ENTRY DATE</label>
-          <input type="date" id="pfDate" style="width:200px;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-        </div>
-
-        <!-- ETFs with shares -->
-        <div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <label style="font-size:0.75rem;color:var(--silver);">ASSETS PURCHASED</label>
-            <button class="btn btn-sm" style="padding:4px 10px;font-size:0.72rem;" onclick="addEtfRow()">+ Add ETF</button>
-          </div>
-          <div style="display:grid;grid-template-columns:100px 110px 120px 30px;gap:8px;margin-bottom:4px;">
-            <span style="font-size:0.7rem;color:var(--silver);">TICKER</span>
-            <span style="font-size:0.7rem;color:var(--silver);">SHARES</span>
-            <span style="font-size:0.7rem;color:var(--silver);">PRICE/SHARE ($)</span>
-            <span></span>
-          </div>
-          <div id="etfRows"></div>
-        </div>
-
-        <div style="display:flex;gap:10px;">
-          <button class="btn btn-primary btn-sm" onclick="savePortfolioEntry()">💾 Save Entry</button>
-          <button class="btn btn-secondary btn-sm" onclick="cancelPortfolioEntry()">Cancel</button>
-        </div>
-      </div>
-
-      <!-- CONTRIBUTIONS LIST -->
-      <div id="portfolioList">
-        <div style="text-align:center;color:var(--silver);padding:40px 0;font-size:0.9rem;">
-          No entries registered yet.<br>Click <strong style="color:var(--green-neon);">+ New Entry</strong> to get started.
-        </div>
-      </div>
-
-      <!-- RESUMO TOTAL -->
-      <div id="portfolioSummary" style="display:none;margin-top:24px;background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:12px;padding:20px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--green-neon);letter-spacing:1px;margin-bottom:16px;">PORTFOLIO SUMMARY</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;" id="portfolioSummaryGrid"></div>
-      </div>
+      <!-- PORTFOLIO SUMMARY (Plaid) — injetado na Fase 3 -->
 
     </div>
   </div>
@@ -4779,71 +4734,6 @@ function renderPlaidHoldings(data) {
         <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
         <span style="margin-left:auto;">kash@kashsolutions.us</span>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ ETF SEARCH MODAL ════════════════════════════ -->
-<div class="modal-overlay" id="etfSearchModal">
-  <div class="modal-lg">
-    <button class="modal-close" onclick="closeModal('etfSearchModal')">✕</button>
-    <div class="modal-title">🔍 FIND ETFs</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:0.5px;line-height:1.7;">
-      Filter by your preferences and discover ETFs that match your goals.
-    </div>
-
-    <!-- Filters -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
-      <div>
-        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">RISK PROFILE</label>
-        <select id="etfFilterRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
-          <option value="all">All</option>
-          <option value="conservative">🟢 Conservative</option>
-          <option value="moderate">🟡 Moderate</option>
-          <option value="aggressive">🔴 Aggressive</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">SECTOR / FOCUS</label>
-        <select id="etfFilterSector" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
-          <option value="all">All Sectors</option>
-          <option value="broad">Broad Market</option>
-          <option value="tech">Technology</option>
-          <option value="dividend">Dividend / Income</option>
-          <option value="bonds">Bonds / Fixed Income</option>
-          <option value="international">International</option>
-          <option value="smallcap">Small Cap</option>
-          <option value="real_estate">Real Estate (REIT)</option>
-        </select>
-      </div>
-      <div>
-        <label style="font-size:0.7rem;color:var(--silver);display:block;margin-bottom:6px;letter-spacing:1px;">OBJECTIVE</label>
-        <select id="etfFilterObjective" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.85rem;">
-          <option value="all">All</option>
-          <option value="growth">Long-term Growth</option>
-          <option value="income">Dividend Income</option>
-          <option value="stability">Capital Stability</option>
-          <option value="diversification">Diversification</option>
-        </select>
-      </div>
-    </div>
-
-    <button class="btn btn-primary btn-sm" onclick="searchEtfs()" style="margin-bottom:24px;width:100%;">🔍 Search ETFs</button>
-
-    <!-- Results -->
-    <div id="etfSearchResults"></div>
-  </div>
-</div>
-
-<!-- ══ ETF DETAIL MODAL ══════════════════════════ -->
-<div class="modal-overlay" id="etfDetailModal">
-  <div class="modal-lg">
-    <button class="modal-close" onclick="closeModal('etfDetailModal')">✕</button>
-    <div id="etfDetailContent">
-      <div class="etf-detail-loading">⏳ LOADING ETF DATA...</div>
-    </div>
-    <div style="margin-top:20px;text-align:right;">
-      <button class="btn btn-primary" onclick="addEtfFromDetail()">+ Add to Portfolio →</button>
     </div>
   </div>
 </div>
