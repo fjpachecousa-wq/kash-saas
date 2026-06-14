@@ -4527,11 +4527,12 @@ async function initPlaid() {
   if (section) section.style.display = 'block';
   let saved = localStorage.getItem('plaid_access_token');
   // Sempre busca do Supabase para garantir dados mais recentes
-  const { data } = await _supabase
+  const { data, error } = await _supabase
     .from('plaid_connections')
     .select('access_token, item_id, holdings, securities, account_balance, last_sync')
     .eq('user_id', currentUser.id)
-    .single();
+    .maybeSingle();
+  if (error) console.error('Plaid load error:', error);
   if (data && data.access_token) {
     localStorage.setItem('plaid_access_token', data.access_token);
     if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
