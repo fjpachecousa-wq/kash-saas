@@ -2700,8 +2700,48 @@ function renderOverview() {
   const totalBanner = document.getElementById('totalBanner');
   const manifesto = document.getElementById('manifestoBanner');
 
-  // updateOverviewPortfolio() — migrado para Plaid na Fase 3
-  // sideEtfList — nova lógica Yahoo Finance via Edge Function na Fase 3
+  // ── ASSET PORTFOLIO — dados Plaid ─────────────────
+  const plaidData = window._lastPlaidData;
+  const ovPortfolioCard = document.getElementById('ovPortfolioCard');
+  const ovPortfolioGrid = document.getElementById('ovPortfolioGrid');
+  const sideInvested    = document.getElementById('sideInvested');
+  const sideCurrVal     = document.getElementById('sideCurrVal');
+  const sideReturn      = document.getElementById('sideReturn');
+
+  if (plaidData && plaidData.holdings && plaidData.holdings.length > 0) {
+    const holdings   = plaidData.holdings;
+    const securities = plaidData.securities || [];
+
+    const totalCurrent  = holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
+    const totalInvested = holdings.reduce((sum, h) => {
+      const sec = securities.find(s => s.security_id === h.security_id);
+      const price = parseFloat(h.institution_price || (sec && sec.close_price) || 0);
+      return sum + (parseFloat(h.quantity || 0) * price);
+    }, 0);
+    const gain    = totalCurrent - totalInvested;
+    const gainPct = totalInvested > 0 ? (gain / totalInvested) * 100 : 0;
+
+    // Side widget
+    if (sideInvested) sideInvested.textContent = '$' + totalInvested.toFixed(2);
+    if (sideCurrVal)  { sideCurrVal.textContent = '$' + totalCurrent.toFixed(2); sideCurrVal.style.color = gain >= 0 ? 'var(--green-neon)' : '#ef4444'; }
+    if (sideReturn)   { sideReturn.textContent = (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%'; sideReturn.style.color = gain >= 0 ? '#22c55e' : '#ef4444'; }
+
+    // Overview card
+    if (ovPortfolioCard) ovPortfolioCard.style.display = 'block';
+    if (ovPortfolioGrid) ovPortfolioGrid.innerHTML = [
+      { label: 'Invested',      value: '$' + totalInvested.toFixed(2), color: 'var(--white)' },
+      { label: 'Current Value', value: '$' + totalCurrent.toFixed(2),  color: gain >= 0 ? 'var(--green-neon)' : '#ef4444' },
+      { label: 'Return',        value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444' },
+    ].map(c => `<div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
+      <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">${c.label}</div>
+      <div style="font-size:1rem;font-weight:700;color:${c.color};">${c.value}</div>
+    </div>`).join('');
+  } else {
+    if (ovPortfolioCard) ovPortfolioCard.style.display = 'none';
+    if (sideInvested) sideInvested.textContent = '—';
+    if (sideCurrVal)  sideCurrVal.textContent = '—';
+    if (sideReturn)   sideReturn.textContent = '—';
+  }
 
   // Show saldo disponivel banner
   const saldoBanner = document.getElementById('saldoDisponivelBanner');
