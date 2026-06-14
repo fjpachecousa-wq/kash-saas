@@ -1618,7 +1618,7 @@
               <div id="ovGoalHeader" style="font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
               <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);"></div>
             </div>
-            <button id="overviewRefreshBtn" onclick="refreshOverviewReal()" style="font-family:'Space Mono',monospace;font-size:0.62rem;padding:4px 12px;border:1px solid rgba(57,255,20,0.25);border-radius:6px;background:transparent;color:var(--green-neon);cursor:pointer;">🔄 Refresh</button>
+          
           </div>
 
           <!-- Metrics rows -->
@@ -3519,13 +3519,6 @@ function closeModal(id) {
 function showHelpTab(idx, btn) {
   document.querySelectorAll('.help-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
   document.querySelectorAll('.help-tab').forEach((b,i) => b.classList.toggle('active', i === idx));
-}
-
-async function refreshOverviewReal() {
-  const btn = document.getElementById('overviewRefreshBtn');
-  if (btn) { btn.textContent = '⏳ Updating...'; btn.disabled = true; }
-  renderOverview();
-  if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
 }
 
 
