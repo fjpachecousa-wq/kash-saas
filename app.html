@@ -3488,7 +3488,7 @@ async function syncPlaid() {
     localStorage.setItem('plaid_last_sync', String(Date.now()));
     // Salva holdings no Supabase incluindo access_token
     const accessToken = localStorage.getItem('plaid_access_token');
-    await _supabase.from('plaid_connections').upsert({
+    const { error: upsertError } = await _supabase.from('plaid_connections').upsert({
       user_id: currentUser.id,
       access_token: accessToken,
       holdings: data.holdings,
@@ -3497,6 +3497,14 @@ async function syncPlaid() {
       last_sync: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }, { onConflict: 'user_id' });
+    if (upsertError) {
+      console.error('PLAID: Supabase upsert error:', upsertError);
+      alert('Sync completed but failed to save data: ' + upsertError.message);
+      btn.textContent = '🔄 Sync Now';
+      btn.disabled = false;
+      return;
+    }
+    console.log('PLAID: holdings saved to Supabase successfully');
     window._lastPlaidData = { holdings: data.holdings, securities: data.securities };
     renderPlaidHoldings(data);
     updatePlaidStatus();
