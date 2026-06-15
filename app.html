@@ -1165,7 +1165,7 @@
     <div class="login-logo">
       <span style="color:var(--green-neon);">KA</span><span style="color:var(--green-neon);text-shadow:0 0 30px #39ff14,0 0 60px #39ff14;">$</span><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
     </div>
-    <div class="login-tagline" style="margin-bottom:24px;" id="paywallTagline">Pro · $9.99/mo</div>
+    <div class="login-tagline" style="margin-bottom:24px;" id="paywallTagline">Pro · $15.00/mo</div>
     <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;" id="paywallFeatures">
       ✅ Unlimited projects<br>
       ✅ Cloud data sync<br>
@@ -1187,7 +1187,7 @@
     </div>
     <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;transition:opacity 0.2s;" onclick="window.location.href='https://buy.stripe.com/eVq14n9Z22yAb4M0wkbsc01?prefilled_email=' + encodeURIComponent(currentUser?.email || '')"
       onchange="this.style.opacity=this.disabled?'0.5':'1'">
-      <span id="paywallBtnText">💳 Subscribe KA$H Pro — $9.99/mo</span>
+      <span id="paywallBtnText">💳 Subscribe KA$H Pro — $15.00/mo</span>
     </button>
     <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;" id="paywallNote">
       Cancel anytime · Secure payment via Stripe
@@ -1633,7 +1633,7 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // STRIPE
 // ══════════════════════════════════════════════════
 const STRIPE_KEY = 'pk_live_51Tb1GvF6E4H8VLU8f6FIeWQxV30aK0GwWrTcoXyUmlwi78C1Ka50zvuuUn06C67DjtP0h16NfxBlfYa5KNntGg9C00IUe9i0yd';
-const STRIPE_PRICE_ID = 'price_1Tb1acFLs5AxCVp7FWdnqdro';
+const STRIPE_PRICE_ID = 'price_1TiMqYF6E4H8VLU8j1cQ7LSS';
 let _stripe = null;
 
 async function loadStripe() {
@@ -1830,9 +1830,9 @@ const i18n = {
     signInLink:     'Sign In',
     forgotPassword: 'Forgot my password',
     loginFooter:    'Your data is saved in the cloud · Secure',
-    paywallTagline: 'Pro · $9.99/mo',
+    paywallTagline: 'Pro · $15.00/mo',
     paywallFeatures:'✅ Unlimited projects<br>✅ Cloud data sync<br>✅ ETF portfolio tracker<br>✅ Contribution history<br>✅ Daily contribution tip',
-    paywallBtn:     '💳 Subscribe KA$H Pro — $9.99/mo',
+    paywallBtn:     '💳 Subscribe KA$H Pro — $15.00/mo',
     paywallNote:    'Cancel anytime · Secure payment via Stripe',
     paywallLogout:  'Sign Out',
     logoutBtn:      'Sign Out',
@@ -3642,7 +3642,7 @@ async function renderPlaidHoldings(data) {
     <div class="help-panel active" id="helpPanel0">
       <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access KA$H</strong><br>Open your browser and go to <em>kashsolutions.us</em> — no installation needed. Works on desktop, tablet and mobile.</div></div>
       <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Sign In</strong><br>Option A: Click <em>"Sign in with Google"</em>.<br>Option B: Enter email and password — click <em>"Create free account"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KA$H Pro</strong><br>Click <em>"Subscribe KA$H Pro"</em> — $9.99/month. Secure payment via Stripe. Cancel anytime.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KA$H Pro</strong><br>Click <em>"Subscribe KA$H Pro"</em> — $15.00/month. Secure payment via Stripe. Cancel anytime.</div></div>
       <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Set Up Your Profile</strong><br>Click the <em>👤 Profile</em> button in the top right. Fill in: First Name, Last Name and Date of Birth. Email and client number are generated automatically. Click <em>"Save Profile"</em>.</div></div>
       <div class="help-note">📌 <strong>Your Client Number</strong> is unique and permanent. Format: MMYYXXXXX (e.g. 0526 00247 = May/2026). Use it when contacting support.</div>
     </div>
