@@ -3511,6 +3511,7 @@ async function syncPlaid() {
 }
 
 async function renderPlaidHoldings(data) {
+  if (data && data.holdings) window._lastPlaidData = data;
   const container = document.getElementById('plaidHoldings');
   if (!container) return;
   if (!data.holdings || data.holdings.length === 0) {
