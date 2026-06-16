@@ -2153,54 +2153,30 @@ function prevBusinessDay(dateStr) {
 }
 
 // Returns current contribution streak (consecutive business days with at least 1 confirmed contribution)
-function calcStreak(projects) {
-  // Collect all confirmed, non-transfer, positive contribution dates across all active projects
+function calcStreak(proj) {
+  if (!proj) return { days: 0, pct: 0 };
+  function isoToUTC(ds) {
+    const [y, m, d] = ds.split('-').map(Number);
+    return new Date(Date.UTC(y, m - 1, d));
+  }
+  const firstContrib = (proj.contributions || []).filter(c => !c.isTransfer).map(c => c.date).sort()[0];
+  const start = isoToUTC(proj.startDate || firstContrib || proj.date);
+  const end   = isoToUTC(proj.date);
+  const totalDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
   const dateset = new Set();
-  (projects || []).forEach(proj => {
-    (proj.contributions || []).forEach(c => {
-      if (!c.pending && !c.isTransfer && c.amount > 0) dateset.add(c.date);
-    });
+  (proj.contributions || []).forEach(c => {
+    if (!c.pending && !c.isTransfer && c.amount > 0) dateset.add(c.date);
   });
-  if (dateset.size === 0) return 0;
-
-  // Find the most recent business day (today or last business day if weekend/holiday)
-  function isBusinessDay(dateStr) {
-    function usHolidays(y) {
-      function nthDay(y,m,n,weekday){const d=new Date(y,m-1,1);let count=0;while(true){if(d.getDay()===weekday){count++;if(count===n)break;}d.setDate(d.getDate()+1);}return d.toISOString().slice(0,10);}
-      function lastDay(y,m,weekday){const d=new Date(y,m,0);while(d.getDay()!==weekday)d.setDate(d.getDate()-1);return d.toISOString().slice(0,10);}
-      function observed(ds){const d=new Date(ds+'T12:00:00');const dow=d.getDay();if(dow===6)d.setDate(d.getDate()-1);if(dow===0)d.setDate(d.getDate()+1);return d.toISOString().slice(0,10);}
-      return new Set([observed(y+'-01-01'),nthDay(y,1,3,1),nthDay(y,2,3,1),lastDay(y,5,1),observed(y+'-06-19'),observed(y+'-07-04'),nthDay(y,9,1,1),nthDay(y,10,2,1),observed(y+'-11-11'),nthDay(y,11,4,4),observed(y+'-12-25')]);
-    }
-    const d = new Date(dateStr + 'T12:00:00');
-    const dow = d.getDay();
-    return dow !== 0 && dow !== 6 && !usHolidays(d.getFullYear()).has(dateStr);
-  }
-
-  // Start from today; if today is not a business day, step back to last business day
-  let cursor = todayStr();
-  if (!isBusinessDay(cursor)) cursor = prevBusinessDay(cursor);
-
-  // If the most recent business day has no contribution yet, check the one before
-  // (grace: user may not have contributed today yet — don't break streak prematurely)
-  // But only one grace step — if that day also has no contribution, streak is 0
-  if (!dateset.has(cursor)) cursor = prevBusinessDay(cursor);
-
-  // Count consecutive business days with contributions
-  let streak = 0;
-  while (dateset.has(cursor)) {
-    streak++;
-    cursor = prevBusinessDay(cursor);
-    if (streak > 365) break;
-  }
-  return streak;
+  const days = dateset.size;
+  const pct  = days / totalDays * 100;
+  return { days, pct };
 }
 
-// Returns streak display string
-function streakDisplay(streak) {
-  if (streak === 0) return '';
-  const flames = streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : '🔥';
-  const suffix = streak >= 7 ? ' — keep going!' : '';
-  return `${flames} ${streak}-day streak${suffix}`;
+function streakFlames(pct) {
+  if (pct <= 0)     return '—';
+  if (pct <= 33.33) return '🔥';
+  if (pct <= 66.66) return '🔥🔥';
+  return '🔥🔥🔥';
 }
 
 
@@ -2596,16 +2572,17 @@ function renderOverview() {
   document.getElementById('ovTotalProjects').textContent = activeProjects;
   document.getElementById('ovTotalContribs').textContent = sumContribs;
 
-  // Streak
-  const streak = calcStreak(state.projects);
+  // Streak — restrito ao projeto ativo
+  const activeStreakProj = state.projects.find(p => !p.closed && !p.transferred);
+  const streakData = calcStreak(activeStreakProj);
   const streakEl = document.getElementById('ovStreak');
-  if (streakEl) streakEl.textContent = streakDisplay(streak);
+  if (streakEl) streakEl.textContent = streakData.days > 0 ? streakFlames(streakData.pct) + ' ' + streakData.days + '-day streak' : '';
 
   // Side streak widget
   const sideStreakNum = document.getElementById('sideStreakNum');
   const sideStreakFlames = document.getElementById('sideStreakFlames');
-  if (sideStreakNum) sideStreakNum.textContent = streak;
-  if (sideStreakFlames) sideStreakFlames.textContent = streak >= 7 ? '🔥🔥🔥' : streak >= 3 ? '🔥🔥' : streak >= 1 ? '🔥' : '—';
+  if (sideStreakNum) sideStreakNum.textContent = streakData.days;
+  if (sideStreakFlames) sideStreakFlames.textContent = streakFlames(streakData.pct);
 
   // ── NEW SINGLE PANEL — portfolioReal-based ─────────────────────────────
   const activeProj = state.projects.find(p => !p.closed && !p.transferred);
@@ -2670,7 +2647,7 @@ function renderProjectPanel(proj) {
   const html = `
   <div style="--project-color: ${proj.color}">
 
-    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Total Invested</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${streakDisplay(calcStreak(state.projects)) ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakDisplay(calcStreak(state.projects))}</div>` : ''}\n        </div>\n      </div>\n\n    </div>
+    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Total Invested</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${(() => { const sd = calcStreak(proj); return sd.days > 0 ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakFlames(sd.pct)} ${sd.days}-day streak</div>` : ''; })()} \n        </div>\n      </div>\n\n    </div>
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
