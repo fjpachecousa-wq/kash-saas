@@ -1185,7 +1185,7 @@
         <a href="/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">Privacy Policy</a>
       </label>
     </div>
-    <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;transition:opacity 0.2s;" onclick="window.location.href='https://buy.stripe.com/eVq14n9Z22yAb4M0wkbsc01?prefilled_email=' + encodeURIComponent(currentUser?.email || '')"
+    <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;transition:opacity 0.2s;" onclick="window.location.href='https://buy.stripe.com/7sYbJ18UYehia0Ienabsc02?prefilled_email=' + encodeURIComponent(currentUser?.email || '')"
       onchange="this.style.opacity=this.disabled?'0.5':'1'">
       <span id="paywallBtnText">💳 Subscribe KA$H Pro — $15.00/mo</span>
     </button>
@@ -1632,22 +1632,6 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ══════════════════════════════════════════════════
 // STRIPE
 // ══════════════════════════════════════════════════
-const STRIPE_KEY = 'pk_live_51Tb1GvF6E4H8VLU8f6FIeWQxV30aK0GwWrTcoXyUmlwi78C1Ka50zvuuUn06C67DjtP0h16NfxBlfYa5KNntGg9C00IUe9i0yd';
-const STRIPE_PRICE_ID = 'price_1TiMqYF6E4H8VLU8j1cQ7LSS';
-let _stripe = null;
-
-async function loadStripe() {
-  if (_stripe) return _stripe;
-  await new Promise((resolve) => {
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/';
-    script.onload = resolve;
-    document.head.appendChild(script);
-  });
-  _stripe = Stripe(STRIPE_KEY);
-  return _stripe;
-}
-
 async function checkSubscription() {
   if (!currentUser) return false;
   // Cache to avoid paywall flash on tab switch
@@ -1674,18 +1658,6 @@ async function checkSubscription() {
     if (document.getElementById('appContent').style.display === 'block') return true;
     return false;
   }
-}
-
-async function goToCheckout() {
-  const stripe = await loadStripe();
-  const { error } = await stripe.redirectToCheckout({
-    lineItems: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-    mode: 'subscription',
-    successUrl: 'https://kashsolutions.us/app?subscribed=true',
-    cancelUrl: 'https://kashsolutions.us/app?canceled=true',
-    customerEmail: currentUser?.email,
-  });
-  if (error) alert('Checkout error: ' + error.message);
 }
 
 let currentUser = null;
