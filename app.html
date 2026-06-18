@@ -1354,7 +1354,7 @@
       <div id="plaidSection" style="display:none;background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <div>
-            <div style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
+            <div id="plaidInstitutionLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
             <div id="plaidStatus" style="font-size:0.72rem;color:var(--silver);margin-top:2px;">Not connected</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -3295,7 +3295,7 @@ async function initPlaid() {
   console.log('PLAID: fetching from Supabase...');
   const { data, error } = await _supabase
     .from('plaid_connections')
-    .select('access_token, item_id, holdings, securities, account_balance, last_sync')
+    .select('access_token, item_id, holdings, securities, account_balance, last_sync, institution_name')
     .eq('user_id', currentUser.id)
     .maybeSingle();
   console.log('PLAID: data=', data, 'error=', error);
@@ -3307,6 +3307,9 @@ async function initPlaid() {
       localStorage.setItem('plaid_access_token', token);
       if (data.item_id) localStorage.setItem('plaid_item_id', data.item_id);
       if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
+      if (data.institution_name) localStorage.setItem('plaid_institution_name', data.institution_name);
+      const instEl = document.getElementById('plaidInstitutionLabel');
+      if (instEl) { const n = data.institution_name || 'Acorns'; instEl.textContent = '🔗 ' + n.toUpperCase() + ' SYNC'; }
       saved = token;
       console.log('PLAID: holdings=', data.holdings, 'securities=', data.securities);
       if (data.holdings && data.securities) {
@@ -3471,7 +3474,8 @@ async function renderPlaidHoldings(data) {
   }
 
   // Label header
-  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">ACORNS HOLDINGS — LIVE</div>'
+  const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
+  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">' + instName + ' HOLDINGS — LIVE</div>'
     + '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Fetching quotes...</div>';
 
   // Buscar cotações em paralelo via Edge Function
@@ -3557,7 +3561,7 @@ async function renderPlaidHoldings(data) {
     </div>`;
   }).join('');
 
-  const listBlock = `<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">ACORNS HOLDINGS — LIVE</div>${listRows}`;
+  const listBlock = `<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${instName} HOLDINGS — LIVE</div>${listRows}`;
 
   // Cards de desempenho — 2 por linha
   const cardsHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">${cards}</div>`;
