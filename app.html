@@ -1420,6 +1420,7 @@
             <div>
               <div id="ovGoalHeader" style="font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
               <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);"></div>
+              <div id="ovLastSync" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);margin-top:2px;"></div>
             </div>
           
           </div>
@@ -2598,6 +2599,8 @@ function renderOverview() {
     document.getElementById('ovGoalHeader').textContent = `${activeProj.name} — GOAL ${fmt(activeProj.target)}`;
     const subEl = document.getElementById('ovGoalSub');
     if (subEl) subEl.textContent = `📅 Deadline: ${new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`;
+    const lsEl = document.getElementById('ovLastSync');
+    if (lsEl) { const ls = parseInt(localStorage.getItem('plaid_last_sync')||'0'); lsEl.textContent = ls ? '🕐 Last sync: ' + new Date(ls).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; }
 
     // Metrics rows
     const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
@@ -2606,7 +2609,6 @@ function renderOverview() {
 
     const metrics = [
       { label: 'Current balance (portfolio)',  value: fmt(portfolioReal),          color: 'var(--green-neon)' },
-      { label: 'Last sync',                    value: (() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Never'; })(),  color: 'rgba(192,192,192,0.5)' },
       { label: 'Still needed',                 value: fmt(falta),                  color: '#fbbf24' },
       { label: 'Days remaining',               value: diasRestantes + ' days',     color: 'var(--silver-light)' },
       { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: portfolioReal >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
