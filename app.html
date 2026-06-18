@@ -2606,6 +2606,7 @@ function renderOverview() {
 
     const metrics = [
       { label: 'Current balance (portfolio)',  value: fmt(portfolioReal),          color: 'var(--green-neon)' },
+      { label: 'Last sync',                    value: (() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : 'Never'; })(),  color: 'rgba(192,192,192,0.5)' },
       { label: 'Still needed',                 value: fmt(falta),                  color: '#fbbf24' },
       { label: 'Days remaining',               value: diasRestantes + ' days',     color: 'var(--silver-light)' },
       { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: portfolioReal >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
