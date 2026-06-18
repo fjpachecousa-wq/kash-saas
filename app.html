@@ -3562,20 +3562,29 @@ async function renderPlaidHoldings(data) {
   // Cards de desempenho — 2 por linha
   const cardsHtml = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px;">${cards}</div>`;
 
+  const _totalCurrent  = data.holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
+  const _totalInvested = data.holdings.reduce((sum, h) => {
+    const sec = (data.securities || []).find(s => s.security_id === h.security_id);
+    const price = parseFloat(h.institution_price || (sec && sec.close_price) || 0);
+    return sum + (parseFloat(h.quantity || 0) * price);
+  }, 0);
+  const _gain    = _totalCurrent - _totalInvested;
+  const _gainPct = _totalInvested > 0 ? (_gain / _totalInvested) * 100 : 0;
+
   const assetCard = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.2);border-radius:10px;padding:16px;margin:20px 0;">
     <div style="font-family:'Bebas Neue',cursive;font-size:1rem;letter-spacing:2px;color:var(--green-neon);margin-bottom:12px;">📊 Asset Portfolio</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Invested</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--white);">$${totalInvested.toFixed(2)}</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--white);">$${_totalInvested.toFixed(2)}</div>
       </div>
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Current Value</div>
-        <div style="font-size:1rem;font-weight:700;color:${gain >= 0 ? 'var(--green-neon)' : '#ef4444'};">$${totalCurrent.toFixed(2)}</div>
+        <div style="font-size:1rem;font-weight:700;color:${_gain >= 0 ? 'var(--green-neon)' : '#ef4444'};">$${_totalCurrent.toFixed(2)}</div>
       </div>
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Return</div>
-        <div style="font-size:1rem;font-weight:700;color:${gain >= 0 ? 'var(--green-neon)' : '#ef4444'};">${(gainPct >= 0 ? '+' : '') + gainPct.toFixed(2)}%</div>
+        <div style="font-size:1rem;font-weight:700;color:${_gain >= 0 ? 'var(--green-neon)' : '#ef4444'};">${(_gainPct >= 0 ? '+' : '') + _gainPct.toFixed(2)}%</div>
       </div>
     </div>
   </div>`;
