@@ -2525,7 +2525,7 @@ function renderOverview() {
 
   let sumContribs = 0;
 
-  const cards = state.projects.map(proj => {
+  const cards = state.projects.filter(p => !p.closed && !p.transferred).map(proj => {
     const st = calcProject(proj);
     if (!proj.closed && !proj.transferred) {
       sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
