@@ -1221,6 +1221,7 @@
 <nav class="nav-bar no-print" id="tabsNav">
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
+  <button class="tab-btn" onclick="switchTab('statement')" id="tab-statement">🧾 STATEMENT</button>
   <div class="nav-dropdown-wrap" id="projectsDropdown">
     <button class="tab-btn" onclick="toggleProjectsDropdown(event)">
       🗂 MY PROJECTS <span class="arrow">▾</span>
@@ -1367,6 +1368,26 @@
       </div>
 
       <!-- PORTFOLIO SUMMARY (Plaid) — injetado na Fase 3 -->
+
+    </div>
+  </div>
+
+  <!-- ══ STATEMENT TAB (isolado — não compartilha estado com PORTFOLIO) ══ -->
+  <div class="tab-panel" id="panel-statement">
+    <div style="padding:24px 0;">
+
+      <div style="margin-bottom:20px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">🧾 STATEMENT</div>
+        <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Cash activity reported by Plaid — last 90 days</div>
+      </div>
+
+      <div style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
+        ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
+      </div>
+
+      <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
+        <div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Loading statement...</div>
+      </div>
 
     </div>
   </div>
@@ -2398,6 +2419,10 @@ function switchTab(tabId) {
   if (tabId === 'portfolio') {
     const plaidData = window._lastPlaidData;
     if (plaidData) renderPlaidHoldings(plaidData);
+  }
+
+  if (tabId === 'statement') {
+    fetchStatement();
   }
 }
 
@@ -3596,6 +3621,66 @@ async function renderPlaidHoldings(data) {
 
   // Atualizar overview com dados Plaid frescos
   renderOverview();
+}
+
+// ══════════════════════════════════════════════════
+// STATEMENT (isolado — não compartilha estado com PORTFOLIO)
+// ══════════════════════════════════════════════════
+async function fetchStatement() {
+  const container = document.getElementById('statementContent');
+  if (!container) return;
+
+  const access_token = localStorage.getItem('plaid_access_token');
+  if (!access_token) {
+    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your Acorns account in the Portfolio tab first.</div>';
+    return;
+  }
+
+  container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">⏳ Loading statement...</div>';
+
+  try {
+    const res = await fetch(PLAID_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'get_investment_transactions', access_token })
+    });
+    const data = await res.json();
+
+    if (data.error_code || data.error) {
+      container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error loading statement: ' + (data.error_message || data.error) + '</div>';
+      return;
+    }
+
+    const txns = data.investment_transactions || [];
+    if (txns.length === 0) {
+      container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">No transactions found in the last 90 days.</div>';
+      return;
+    }
+
+    const sorted = [...txns].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    const rows = sorted.map(t => {
+      const amount = parseFloat(t.amount || 0);
+      const isOutflow = amount < 0;
+      const displayAmount = Math.abs(amount).toFixed(2);
+      const color = isOutflow ? 'var(--green-neon)' : '#ef4444';
+      const sign = isOutflow ? '+' : '-';
+      const label = (t.subtype || t.type || '—').replace(/_/g, ' ');
+
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(192,192,192,0.08);">
+        <div>
+          <div style="font-size:0.82rem;color:var(--white);">${t.name || 'Transaction'}</div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);margin-top:2px;text-transform:uppercase;">${t.date} · ${label}</div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;color:${color};">${sign}$${displayAmount}</div>
+      </div>`;
+    }).join('');
+
+    container.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>` + rows;
+
+  } catch (e) {
+    container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error: ' + e.message + '</div>';
+  }
 }
 </script>
 <!-- ══ HELP MODAL ══════════════════════════════════ -->
