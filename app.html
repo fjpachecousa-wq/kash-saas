@@ -1383,10 +1383,14 @@
 
       <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
         ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
-        <label style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:0.7rem;color:rgba(255,193,7,0.8);cursor:pointer;">
-          <input type="checkbox" id="hideStatementDisclaimer" onchange="toggleStatementDisclaimer()" style="cursor:pointer;">
-          Don't show this again
-        </label>
+        <div style="margin-top:10px;display:flex;align-items:flex-start;gap:8px;">
+          <input type="checkbox" id="hideStatementDisclaimer" onchange="toggleStatementDisclaimer()"
+            style="margin-top:2px;accent-color:#ffc107;width:14px;height:14px;cursor:pointer;flex-shrink:0;">
+          <label for="hideStatementDisclaimer"
+            style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(255,193,7,0.75);letter-spacing:0.5px;cursor:pointer;">
+            Don't show this again
+          </label>
+        </div>
       </div>
 
       <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
