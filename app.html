@@ -1381,8 +1381,12 @@
         <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Cash activity reported by Plaid — last 90 days</div>
       </div>
 
-      <div style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
+      <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
         ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
+        <label style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:0.7rem;color:rgba(255,193,7,0.8);cursor:pointer;">
+          <input type="checkbox" id="hideStatementDisclaimer" onchange="toggleStatementDisclaimer()" style="cursor:pointer;">
+          Don't show this again
+        </label>
       </div>
 
       <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
@@ -2423,6 +2427,12 @@ function switchTab(tabId) {
 
   if (tabId === 'statement') {
     fetchStatement();
+    const disclaimer = document.getElementById('statementDisclaimer');
+    const checkbox = document.getElementById('hideStatementDisclaimer');
+    if (disclaimer && localStorage.getItem('kash_hide_statement_disclaimer') === 'true') {
+      disclaimer.style.display = 'none';
+      if (checkbox) checkbox.checked = true;
+    }
   }
 }
 
@@ -3626,6 +3636,19 @@ async function renderPlaidHoldings(data) {
 // ══════════════════════════════════════════════════
 // STATEMENT (isolado — não compartilha estado com PORTFOLIO)
 // ══════════════════════════════════════════════════
+function toggleStatementDisclaimer() {
+  const checkbox = document.getElementById('hideStatementDisclaimer');
+  const disclaimer = document.getElementById('statementDisclaimer');
+  if (!checkbox || !disclaimer) return;
+  if (checkbox.checked) {
+    localStorage.setItem('kash_hide_statement_disclaimer', 'true');
+    disclaimer.style.display = 'none';
+  } else {
+    localStorage.removeItem('kash_hide_statement_disclaimer');
+    disclaimer.style.display = 'block';
+  }
+}
+
 async function fetchStatement() {
   const container = document.getElementById('statementContent');
   if (!container) return;
