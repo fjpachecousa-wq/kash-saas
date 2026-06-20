@@ -2376,7 +2376,9 @@ function addContribution(projId) {
   const amt = parseFloat(document.getElementById('amt-' + projId).value);
   const dtRaw = document.getElementById('dt-' + projId).value || todayMMDDYYYY();
   const dt = parseDateInput(dtRaw);
-  const note = document.getElementById('note-' + projId).value.trim();
+  const noteSelect = document.getElementById('note-' + projId).value;
+  const noteOtherEl = document.getElementById('noteOther-' + projId);
+  const note = noteSelect === 'Other' ? (noteOtherEl ? noteOtherEl.value.trim() : '') : noteSelect;
   if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
 
   const net = amt;
@@ -2390,7 +2392,8 @@ function addContribution(projId) {
   proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   document.getElementById('amt-' + projId).value = '';
-  document.getElementById('note-' + projId).value = '';
+  document.getElementById('note-' + projId).value = 'Recurring';
+  if (noteOtherEl) { noteOtherEl.value = ''; noteOtherEl.style.display = 'none'; }
   save();
   renderProjectPanel(proj);
   renderOverview();
@@ -2667,7 +2670,7 @@ function renderProjectPanel(proj) {
   const html = `
   <div style="--project-color: ${proj.color}">
 
-    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Total Invested</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${(() => { const sd = calcStreak(proj); return sd.days > 0 ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakFlames(sd.pct)} ${sd.days}-day streak</div>` : ''; })()} \n        </div>\n      </div>\n\n    </div>
+    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Project Balance</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${(() => { const sd = calcStreak(proj); return sd.days > 0 ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakFlames(sd.pct)} ${sd.days}-day streak</div>` : ''; })()} \n        </div>\n      </div>\n\n    </div>
 
     <!-- ADD CONTRIBUTION -->
     <div class="card no-print">
@@ -2696,7 +2699,13 @@ function renderProjectPanel(proj) {
         </div>
         <div class="form-group">
           <label>Note (optional)</label>
-          <input type="text" id="note-${proj.id}" placeholder="e.g. Paycheck, savings">
+          <select id="note-${proj.id}" onchange="const o=document.getElementById('noteOther-${proj.id}'); o.style.display = this.value==='Other' ? 'block' : 'none';"
+            style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+            <option value="Recurring">Recurring</option>
+            <option value="Extra Contribution">Extra Contribution</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="noteOther-${proj.id}" placeholder="Specify..." style="display:none;margin-top:6px;width:100%;box-sizing:border-box;">
         </div>
       </div>
       <div class="btn-row">
@@ -2723,7 +2732,7 @@ function renderProjectPanel(proj) {
           <tbody>
             ${st.rows.length === 0
               ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
-              : st.rows.map(r => `
+              : [...st.rows].reverse().map(r => `
                 <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
                   <td>${r.idx}</td>
                   <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('en-US')}</td>
