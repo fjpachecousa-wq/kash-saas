@@ -1495,15 +1495,6 @@
 
     </div>
 
-    <!-- PORTFOLIO SUMMARY CARD -->
-    <div class="card" id="ovPortfolioCard" style="display:none;cursor:pointer;" onclick="switchTab('portfolio')" title="View full portfolio">
-      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>📈 Asset Portfolio</span>
-        <span style="font-size:0.75rem;color:var(--green-neon);">View details →</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;" id="ovPortfolioGrid"></div>
-    </div>
-
     <!-- PROJECTS LIST -->
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
@@ -2505,8 +2496,6 @@ function renderOverview() {
 
   // ── ASSET PORTFOLIO — dados Plaid ─────────────────
   const plaidData = window._lastPlaidData;
-  const ovPortfolioCard = document.getElementById('ovPortfolioCard');
-  const ovPortfolioGrid = document.getElementById('ovPortfolioGrid');
   const sideInvested    = document.getElementById('sideInvested');
   const sideCurrVal     = document.getElementById('sideCurrVal');
   const sideReturn      = document.getElementById('sideReturn');
@@ -2528,19 +2517,7 @@ function renderOverview() {
     if (sideInvested) sideInvested.textContent = '$' + totalInvested.toFixed(2);
     if (sideCurrVal)  { sideCurrVal.textContent = '$' + totalCurrent.toFixed(2); sideCurrVal.style.color = gain >= 0 ? 'var(--green-neon)' : '#ef4444'; }
     if (sideReturn)   { sideReturn.textContent = (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%'; sideReturn.style.color = gain >= 0 ? '#22c55e' : '#ef4444'; }
-
-    // Overview card
-    if (ovPortfolioCard) ovPortfolioCard.style.display = 'block';
-    if (ovPortfolioGrid) ovPortfolioGrid.innerHTML = [
-      { label: 'Invested',      value: '$' + totalInvested.toFixed(2), color: 'var(--white)' },
-      { label: 'Current Value', value: '$' + totalCurrent.toFixed(2),  color: gain >= 0 ? 'var(--green-neon)' : '#ef4444' },
-      { label: 'Return',        value: (gainPct >= 0 ? '+' : '') + gainPct.toFixed(2) + '%', color: gain >= 0 ? 'var(--green-neon)' : '#ef4444' },
-    ].map(c => `<div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
-      <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">${c.label}</div>
-      <div style="font-size:1rem;font-weight:700;color:${c.color};">${c.value}</div>
-    </div>`).join('');
   } else {
-    if (ovPortfolioCard) ovPortfolioCard.style.display = 'none';
     if (sideInvested) sideInvested.textContent = '—';
     if (sideCurrVal)  sideCurrVal.textContent = '—';
     if (sideReturn)   sideReturn.textContent = '—';
