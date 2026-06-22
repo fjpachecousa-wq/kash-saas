@@ -140,8 +140,8 @@
   .streak-sub { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(249,115,22,0.6); letter-spacing: 1.5px; margin-top: 5px; }
   .port-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .port-row:last-of-type { border-bottom: none; }
-  .port-label { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: var(--silver); }
-  .port-value { font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700; }
+  .port-label { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: var(--silver); }
+  .port-value { font-family: 'Space Mono', monospace; font-size: 0.85rem; font-weight: 700; }
   .side-link { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(57,255,20,0.5); letter-spacing: 1px; margin-top: 12px; display: block; text-align: right; cursor: pointer; }
 
   /* ── NAV BAR ─────────────────────────────────── */
@@ -302,7 +302,7 @@
 
   .card-title {
     font-family: 'Bebas Neue', cursive;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: var(--green-neon);
     letter-spacing: 3px;
     margin-bottom: 20px;
@@ -1457,7 +1457,7 @@
           <!-- Goal header -->
           <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
             <div>
-              <div id="ovGoalHeader" style="font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
+              <div id="ovGoalHeader" style="font-family:'Bebas Neue',cursive;font-size:1.4rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
               <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);"></div>
             </div>
           
@@ -2638,8 +2638,8 @@ function renderOverview() {
 
     // Metrics rows
     const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
-    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.82rem;color:var(--silver);letter-spacing:0.5px;';
-    const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.82rem;font-weight:700;';
+    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.85rem;color:var(--silver);letter-spacing:0.5px;';
+    const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.85rem;font-weight:700;';
 
     const metrics = [
       { label: 'Current balance',              value: fmt(estimatedBalance),       color: 'var(--green-neon)' },
