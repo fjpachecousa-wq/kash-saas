@@ -140,8 +140,8 @@
   .streak-sub { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(249,115,22,0.6); letter-spacing: 1.5px; margin-top: 5px; }
   .port-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .port-row:last-of-type { border-bottom: none; }
-  .port-label { font-family: 'Space Mono', monospace; font-size: 0.66rem; color: var(--silver); }
-  .port-value { font-family: 'Space Mono', monospace; font-size: 0.86rem; font-weight: 700; }
+  .port-label { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--silver); }
+  .port-value { font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700; }
   .side-link { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(57,255,20,0.5); letter-spacing: 1px; margin-top: 12px; display: block; text-align: right; cursor: pointer; }
 
   /* ── NAV BAR ─────────────────────────────────── */
@@ -1459,7 +1459,6 @@
             <div>
               <div id="ovGoalHeader" style="font-family:'Bebas Neue',cursive;font-size:1.5rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
               <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);"></div>
-              <div id="ovLastSync" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);margin-top:2px;"></div>
             </div>
           
           </div>
@@ -1540,6 +1539,10 @@
         <div class="port-row">
           <span class="port-label">Return</span>
           <span class="port-value" id="sideReturn">—</span>
+        </div>
+        <div class="port-row" style="border-bottom:none;">
+          <span class="port-label">Last sync</span>
+          <span class="port-value" id="sideLastSync" style="color:var(--silver);font-size:0.78rem;">—</span>
         </div>
         <span class="side-link" onclick="switchTab('portfolio')">View full portfolio →</span>
       </div>
@@ -2502,6 +2505,12 @@ function renderOverview() {
   const sideInvested    = document.getElementById('sideInvested');
   const sideCurrVal     = document.getElementById('sideCurrVal');
   const sideReturn      = document.getElementById('sideReturn');
+  const sideLastSync    = document.getElementById('sideLastSync');
+
+  if (sideLastSync) {
+    const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
+    sideLastSync.textContent = ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
+  }
 
   if (plaidData && plaidData.holdings && plaidData.holdings.length > 0) {
     const holdings   = plaidData.holdings;
@@ -2605,20 +2614,21 @@ function renderOverview() {
   if (sideStreakNum) sideStreakNum.textContent = streakData.days;
   if (sideStreakFlames) sideStreakFlames.textContent = streakFlames(streakData.pct);
 
-  // ── NEW SINGLE PANEL — portfolioReal-based ─────────────────────────────
+  // ── NEW SINGLE PANEL — estimatedBalance-based (Project progress) ───────
   const activeProj = state.projects.find(p => !p.closed && !p.transferred);
   if (activeProj) {
     const st = calcProject(activeProj);
+    const estimatedBalance = st.estimatedBalance;
 
-    // portfolioReal = valor atual via Plaid (institution_value)
+    // portfolioReal = valor atual via Plaid (institution_value) — usado só no widget lateral
     const portfolioReal = (window._lastPlaidData && window._lastPlaidData.holdings)
       ? window._lastPlaidData.holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0)
       : 0;
 
-    const falta         = Math.max(0, activeProj.target - portfolioReal);
+    const falta         = Math.max(0, activeProj.target - estimatedBalance);
     const diasRestantes = Math.max(1, st.daysLeft);
     const aporteNec     = (falta > 0 && diasRestantes > 0) ? falta / diasRestantes : 0;
-    const progresso     = Math.min(100, activeProj.target > 0 ? (portfolioReal / activeProj.target) * 100 : 0);
+    const progresso     = Math.min(100, activeProj.target > 0 ? (estimatedBalance / activeProj.target) * 100 : 0);
 
     const pendingCount  = (activeProj.contributions || []).filter(c => c.pending).length;
     document.getElementById('ovTotalPending').textContent = pendingCount;
@@ -2628,8 +2638,6 @@ function renderOverview() {
     document.getElementById('ovGoalHeader').textContent = `${activeProj.name} — GOAL ${fmt(activeProj.target)}`;
     const subEl = document.getElementById('ovGoalSub');
     if (subEl) subEl.textContent = `📅 Deadline: ${new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`;
-    const lsEl = document.getElementById('ovLastSync');
-    if (lsEl) { const ls = parseInt(localStorage.getItem('plaid_last_sync')||'0'); lsEl.textContent = ls ? '🕐 Last sync: ' + new Date(ls).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; }
 
     // Metrics rows
     const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
@@ -2637,23 +2645,23 @@ function renderOverview() {
     const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.82rem;font-weight:700;';
 
     const metrics = [
-      { label: 'Current balance (portfolio)',  value: fmt(portfolioReal),          color: 'var(--green-neon)' },
+      { label: 'Current balance',              value: fmt(estimatedBalance),       color: 'var(--green-neon)' },
       { label: 'Still needed',                 value: fmt(falta),                  color: '#fbbf24' },
       { label: 'Days remaining',               value: diasRestantes + ' days',     color: 'var(--silver-light)' },
-      { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: portfolioReal >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
+      { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: estimatedBalance >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
     ];
 
     document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => `
       <div style="${rowStyle}">
         <span style="${labelStyle}">${m.label}</span>
         <strong style="${valStyle}color:${m.color};">${m.value}</strong>
-      </div>`).join('') + (portfolioReal === 0 ? `
+      </div>`).join('') + (estimatedBalance === 0 ? `
       <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(251,191,36,0.7);padding:8px 0;letter-spacing:0.5px;">
-        ⚠ No Plaid data available. Go to <strong style="color:#fbbf24;">Portfolio → Sync Now</strong> to sync your brokerage account.
+        ⚠ No contributions recorded yet for this project.
       </div>` : '');
 
-    // Progress bar
-    document.getElementById('ovProgressLabel').textContent = fmt(portfolioReal) + ' / ' + fmt(activeProj.target);
+    // Progress bar — reflects Project deposits, not market value
+    document.getElementById('ovProgressLabel').textContent = fmt(estimatedBalance) + ' / ' + fmt(activeProj.target);
     document.getElementById('ovProgressPct').textContent   = progresso.toFixed(1) + '%';
     document.getElementById('ovProgressFill').style.width  = progresso.toFixed(1) + '%';
   }
