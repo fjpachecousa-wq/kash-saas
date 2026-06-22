@@ -140,7 +140,7 @@
   .streak-sub { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(249,115,22,0.6); letter-spacing: 1.5px; margin-top: 5px; }
   .port-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
   .port-row:last-of-type { border-bottom: none; }
-  .port-label { font-family: 'Space Mono', monospace; font-size: 0.72rem; color: var(--silver); }
+  .port-label { font-family: 'Space Mono', monospace; font-size: 0.95rem; color: var(--silver); }
   .port-value { font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: 700; }
   .side-link { font-family: 'Space Mono', monospace; font-size: 0.62rem; color: rgba(57,255,20,0.5); letter-spacing: 1px; margin-top: 12px; display: block; text-align: right; cursor: pointer; }
 
@@ -1528,6 +1528,7 @@
       <!-- WIDGET 2: ASSET PORTFOLIO -->
       <div class="side-widget" style="border-color:rgba(96,165,250,0.2);">
         <div class="side-title" style="color:rgba(96,165,250,0.75);">📈 Asset Portfolio</div>
+        <div id="sideLastSync" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);margin-bottom:10px;">—</div>
         <div class="port-row">
           <span class="port-label">Invested</span>
           <span class="port-value" id="sideInvested" style="color:var(--white);">—</span>
@@ -1539,10 +1540,6 @@
         <div class="port-row">
           <span class="port-label">Return</span>
           <span class="port-value" id="sideReturn">—</span>
-        </div>
-        <div class="port-row" style="border-bottom:none;">
-          <span class="port-label">Last sync</span>
-          <span class="port-value" id="sideLastSync" style="color:var(--silver);font-size:0.78rem;">—</span>
         </div>
         <span class="side-link" onclick="switchTab('portfolio')">View full portfolio →</span>
       </div>
@@ -2509,7 +2506,7 @@ function renderOverview() {
 
   if (sideLastSync) {
     const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-    sideLastSync.textContent = ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
+    sideLastSync.textContent = ls ? '🕐 Last sync: ' + new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : '';
   }
 
   if (plaidData && plaidData.holdings && plaidData.holdings.length > 0) {
@@ -2641,7 +2638,7 @@ function renderOverview() {
 
     // Metrics rows
     const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
-    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.68rem;color:var(--silver);letter-spacing:0.5px;';
+    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.82rem;color:var(--silver);letter-spacing:0.5px;';
     const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.82rem;font-weight:700;';
 
     const metrics = [
