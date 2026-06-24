@@ -1124,14 +1124,14 @@
     <!-- Google -->
     <button class="btn-google" onclick="loginGoogle()">
       <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      <span id="googleBtnText">Sign in with Google</span>
+      <span id="googleBtnText">🔒 Restricted Access</span>
     </button>
 
     <!-- Divider -->
-    <div class="auth-divider"><span id="orText">or</span></div>
+    <div class="auth-divider" style="display:none;"><span id="orText">or</span></div>
 
     <!-- Email/Password -->
-    <div id="authEmailForm">
+    <div id="authEmailForm" style="display:none;">
       <input class="auth-input" type="email" id="authEmail" autocomplete="email">
       <input class="auth-input" type="password" id="authPassword" autocomplete="current-password">
       <div id="authNameField" style="display:none;">
@@ -1176,9 +1176,8 @@
         <a href="/privacy" target="_blank" style="color:var(--green-neon);text-decoration:none;">Privacy Policy</a>
       </label>
     </div>
-    <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;transition:opacity 0.2s;" onclick="window.location.href='https://buy.stripe.com/7sYbJ18UYehia0Ienabsc02?prefilled_email=' + encodeURIComponent(currentUser?.email || '')"
-      onchange="this.style.opacity=this.disabled?'0.5':'1'">
-      <span id="paywallBtnText">💳 Subscribe KA$H Pro — $15.00/mo</span>
+    <button id="paywallBtn" class="btn btn-primary" disabled style="width:100%;justify-content:center;font-size:1.2rem;opacity:0.5;cursor:not-allowed;">
+      <span id="paywallBtnText">Subscriptions Unavailable</span>
     </button>
     <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-top:16px;" id="paywallNote">
       Cancel anytime · Secure payment via Stripe
@@ -1980,6 +1979,17 @@ async function boot() {
     if (session) {
       currentUser = session.user;
       window.history.replaceState({}, document.title, window.location.pathname);
+
+      const ALLOWED_EMAIL = 'fj.pacheco.usa@gmail.com';
+      if (currentUser.email !== ALLOWED_EMAIL) {
+        await _supabase.auth.signOut();
+        currentUser = null;
+        document.getElementById('loginScreen').style.display = 'flex';
+        const msgEl = document.getElementById('authMsg');
+        if (msgEl) { msgEl.textContent = '🔒 Access Denied'; msgEl.style.color = '#ef4444'; msgEl.style.display = 'block'; }
+        return;
+      }
+
       await initApp();
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
