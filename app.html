@@ -1359,7 +1359,7 @@
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
             <button id="plaidConnectBtn" class="btn btn-sm" onclick="connectPlaid()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔌 Connect Acorns</button>
-            <button id="plaidSyncBtn" class="btn btn-sm" onclick="syncPlaid()" style="display:none;border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔄 Sync Now</button>
+            <span id="plaidSyncBtn" style="display:none;"></span>
           </div>
         </div>
         <div id="plaidSyncInfo" style="display:none;margin-top:12px;font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:0.5px;"></div>
@@ -1384,7 +1384,7 @@
         <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <div id="statementPeriodLabel" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);">Loading period...</div>
-          <button id="statementSyncBtn" class="btn btn-sm" onclick="syncStatement()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔄 Sync Now</button>
+          <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">Auto-synced daily at 6:10 PM</span>
         </div>
       </div>
 
@@ -2033,6 +2033,7 @@ async function initApp() {
   await new Promise(r => setTimeout(r, 300)); // ensure JWT propagated
   await load();
   await initPlaid();
+  await runAutoSyncIfDue();
   // Migrate portfolio from localStorage to Supabase (one-time migration)
   // Only runs if portfolio is empty AND localStorage has data
   const localDate = localStorage.getItem('kash_portfolio');
@@ -2444,7 +2445,7 @@ function switchTab(tabId) {
   }
 
   if (tabId === 'statement') {
-    fetchStatement();
+    renderStatementFromCache();
     const disclaimer = document.getElementById('statementDisclaimer');
     const checkbox = document.getElementById('hideStatementDisclaimer');
     if (disclaimer && localStorage.getItem('kash_hide_statement_disclaimer') === 'true') {
@@ -3334,8 +3335,71 @@ boot();
 // ══════════════════════════════════════════════════
 const PLAID_OWNER_ID = '9d772432-7f2a-4c31-b940-928dc7c07ed7';
 const PLAID_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/plaid-link';
-const PLAID_MAX_SYNCS = 2;
-const PLAID_MIN_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const AUTO_SYNC_HOUR   = 18; // 6:10 PM, browser local time (same reference as the rest of the app)
+const AUTO_SYNC_MINUTE = 10;
+
+// US federal holidays for a given year — isolated copy for auto-sync scheduling only.
+// (Does not modify nextBusinessDay()/prevBusinessDay(), which keep their own internal copy.)
+function autoSyncUsHolidays(y) {
+  function nthDay(y, m, n, weekday) {
+    const d = new Date(y, m - 1, 1);
+    let count = 0;
+    while (true) {
+      if (d.getDay() === weekday) { count++; if (count === n) break; }
+      d.setDate(d.getDate() + 1);
+    }
+    return d.toISOString().slice(0, 10);
+  }
+  function lastDay(y, m, weekday) {
+    const d = new Date(y, m, 0);
+    while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
+    return d.toISOString().slice(0, 10);
+  }
+  function observed(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    const dow = d.getDay();
+    if (dow === 6) d.setDate(d.getDate() - 1);
+    if (dow === 0) d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+  return new Set([
+    observed(`${y}-01-01`), nthDay(y, 1, 3, 1), nthDay(y, 2, 3, 1), lastDay(y, 5, 1),
+    observed(`${y}-06-19`), observed(`${y}-07-04`), nthDay(y, 9, 1, 1), nthDay(y, 10, 2, 1),
+    observed(`${y}-11-11`), nthDay(y, 11, 4, 4), observed(`${y}-12-25`),
+  ]);
+}
+
+function isBusinessDayToday() {
+  const now = new Date();
+  const dow = now.getDay();
+  if (dow === 0 || dow === 6) return false; // Sun/Sat
+  const iso = now.toISOString().slice(0, 10);
+  return !autoSyncUsHolidays(now.getFullYear()).has(iso);
+}
+
+// Decides if today's auto-sync should run: once per business day, only after 6:10 PM has passed.
+function shouldAutoSync() {
+  if (!isBusinessDayToday()) return false;
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const lastAutoSyncDate = localStorage.getItem('plaid_auto_sync_date') || '';
+  if (lastAutoSyncDate === todayStr) return false; // already synced today
+  const pastSyncTime = (now.getHours() > AUTO_SYNC_HOUR) || (now.getHours() === AUTO_SYNC_HOUR && now.getMinutes() >= AUTO_SYNC_MINUTE);
+  return pastSyncTime;
+}
+
+async function runAutoSyncIfDue() {
+  if (!shouldAutoSync()) return;
+  const todayStr = new Date().toDateString();
+  try {
+    await syncPlaid();
+    await fetchStatement();
+  } catch (e) {
+    console.error('Auto-sync error:', e);
+  } finally {
+    localStorage.setItem('plaid_auto_sync_date', todayStr);
+  }
+}
 
 async function initPlaid() {
   if (!currentUser || currentUser.id !== PLAID_OWNER_ID) { console.log('PLAID: user check failed'); return; }
@@ -3373,27 +3437,19 @@ async function initPlaid() {
   }
   if (saved) {
     document.getElementById('plaidConnectBtn').style.display = 'none';
-    document.getElementById('plaidSyncBtn').style.display = 'inline-flex';
     updatePlaidStatus();
   }
 }
 
 function updatePlaidStatus() {
-  const today = new Date().toDateString();
-  const lastDate = localStorage.getItem('plaid_sync_date') || '';
-  if (lastDate !== today) {
-    localStorage.setItem('plaid_sync_count_today', '0');
-    localStorage.setItem('plaid_sync_date', today);
-  }
-  const syncCount = parseInt(localStorage.getItem('plaid_sync_count_today') || '0');
   const lastSync = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-  const lastSyncStr = lastSync ? new Date(lastSync).toLocaleTimeString() : 'Never';
+  const lastSyncStr = lastSync ? new Date(lastSync).toLocaleString() : 'Never';
   const statusEl = document.getElementById('plaidStatus');
   const infoEl = document.getElementById('plaidSyncInfo');
   if (statusEl) statusEl.textContent = 'Connected · Last sync: ' + lastSyncStr;
   if (infoEl) {
     infoEl.style.display = 'block';
-    infoEl.textContent = 'Syncs today: ' + syncCount + '/' + PLAID_MAX_SYNCS + ' · Resets at midnight';
+    infoEl.textContent = 'Auto-synced daily at 6:10 PM';
   }
 }
 
@@ -3430,7 +3486,6 @@ async function connectPlaid() {
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
         document.getElementById('plaidConnectBtn').style.display = 'none';
-        document.getElementById('plaidSyncBtn').style.display = 'inline-flex';
         updatePlaidStatus();
         await syncPlaid();
       },
@@ -3450,29 +3505,9 @@ async function connectPlaid() {
 }
 
 async function syncPlaid() {
-  const today = new Date().toDateString();
-  const lastDate = localStorage.getItem('plaid_sync_date') || '';
-  if (lastDate !== today) {
-    localStorage.setItem('plaid_sync_count_today', '0');
-    localStorage.setItem('plaid_sync_date', today);
-  }
-  const syncCount = parseInt(localStorage.getItem('plaid_sync_count_today') || '0');
-  const lastSync = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-  if (syncCount >= PLAID_MAX_SYNCS) {
-    alert('Daily sync limit reached (2/2). Resets at midnight.');
-    return;
-  }
-  if (lastSync && (Date.now() - lastSync) < PLAID_MIN_INTERVAL_MS) {
-    const remaining = Math.ceil((PLAID_MIN_INTERVAL_MS - (Date.now() - lastSync)) / 60000);
-    alert('Please wait ' + remaining + ' more minutes before syncing again.');
-    return;
-  }
   const access_token = localStorage.getItem('plaid_access_token');
-  if (!access_token) { alert('Please connect your Acorns account first.'); return; }
+  if (!access_token) { console.warn('Plaid not connected — skipping auto-sync.'); return; }
   try {
-    const btn = document.getElementById('plaidSyncBtn');
-    btn.textContent = '⏳ Syncing...';
-    btn.disabled = true;
     const res = await fetch(PLAID_FUNCTION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3480,7 +3515,6 @@ async function syncPlaid() {
     });
     const data = await res.json();
     if (data.error_code) throw new Error(data.error_message || 'Sync failed');
-    localStorage.setItem('plaid_sync_count_today', String(syncCount + 1));
     localStorage.setItem('plaid_last_sync', String(Date.now()));
     // Salva holdings no Supabase incluindo access_token
     const accessToken = localStorage.getItem('plaid_access_token');
@@ -3495,22 +3529,14 @@ async function syncPlaid() {
     }, { onConflict: 'user_id' });
     if (upsertError) {
       console.error('PLAID: Supabase upsert error:', upsertError);
-      alert('Sync completed but failed to save data: ' + upsertError.message);
-      btn.textContent = '🔄 Sync Now';
-      btn.disabled = false;
       return;
     }
     console.log('PLAID: holdings saved to Supabase successfully');
     window._lastPlaidData = { holdings: data.holdings, securities: data.securities };
     renderPlaidHoldings(data);
     updatePlaidStatus();
-    btn.textContent = '🔄 Sync Now';
-    btn.disabled = false;
   } catch (e) {
-    const btn = document.getElementById('plaidSyncBtn');
-    btn.textContent = '🔄 Sync Now';
-    btn.disabled = false;
-    alert('Sync error: ' + e.message);
+    console.error('Auto-sync (Plaid holdings) error:', e.message);
   }
 }
 
@@ -3652,35 +3678,12 @@ async function renderPlaidHoldings(data) {
 // STATEMENT (isolado — não compartilha estado com PORTFOLIO)
 // ══════════════════════════════════════════════════
 async function syncStatement() {
-  const today = new Date().toDateString();
-  const lastDate = localStorage.getItem('plaid_sync_date') || '';
-  if (lastDate !== today) {
-    localStorage.setItem('plaid_sync_count_today', '0');
-    localStorage.setItem('plaid_sync_date', today);
-  }
-  const syncCount = parseInt(localStorage.getItem('plaid_sync_count_today') || '0');
-  const lastSync = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-  const btn = document.getElementById('statementSyncBtn');
-
-  if (syncCount >= PLAID_MAX_SYNCS) {
-    alert('Daily sync limit reached (2/2). Resets at midnight.');
-    return;
-  }
-  if (lastSync && (Date.now() - lastSync) < PLAID_MIN_INTERVAL_MS) {
-    const remaining = Math.ceil((PLAID_MIN_INTERVAL_MS - (Date.now() - lastSync)) / 60000);
-    alert('Please wait ' + remaining + ' more minutes before syncing again.');
-    return;
-  }
   const access_token = localStorage.getItem('plaid_access_token');
-  if (!access_token) { alert('Please connect your Acorns account first.'); return; }
-
+  if (!access_token) { console.warn('Plaid not connected — skipping statement auto-sync.'); return; }
   try {
-    if (btn) { btn.textContent = '⏳ Syncing...'; btn.disabled = true; }
-    localStorage.setItem('plaid_sync_count_today', String(syncCount + 1));
-    localStorage.setItem('plaid_last_sync', String(Date.now()));
     await fetchStatement();
-  } finally {
-    if (btn) { btn.textContent = '🔄 Sync Now'; btn.disabled = false; }
+  } catch (e) {
+    console.error('Auto-sync (Statement) error:', e.message);
   }
 }
 
@@ -3697,7 +3700,20 @@ function toggleStatementDisclaimer() {
   }
 }
 
-async function fetchStatement() {
+// Re-displays the last fetched Statement data (if any) without calling Plaid again.
+// Used when the user simply navigates to the Statement tab — actual data refresh
+// only happens via the once-daily auto-sync (runAutoSyncIfDue).
+function renderStatementFromCache() {
+  const container = document.getElementById('statementContent');
+  if (!container) return;
+  if (window._lastStatementData) {
+    fetchStatement(true); // re-render using cached data, no network call
+  } else {
+    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">No statement data yet. It will load automatically at the next daily sync (6:10 PM).</div>';
+  }
+}
+
+async function fetchStatement(useCacheOnly) {
   const container = document.getElementById('statementContent');
   if (!container) return;
 
@@ -3723,12 +3739,17 @@ async function fetchStatement() {
   container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">⏳ Loading statement...</div>';
 
   try {
-    const res = await fetch(PLAID_FUNCTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'get_investment_transactions', access_token })
-    });
-    const data = await res.json();
+    let data;
+    if (useCacheOnly && window._lastStatementData) {
+      data = window._lastStatementData;
+    } else {
+      const res = await fetch(PLAID_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'get_investment_transactions', access_token })
+      });
+      data = await res.json();
+    }
 
     if (data.error_code || data.error) {
       container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error loading statement: ' + (data.error_message || data.error) + '</div>';
@@ -3798,6 +3819,8 @@ async function fetchStatement() {
     }).join('');
 
     container.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>` + rows;
+
+    window._lastStatementData = data; // cache for re-display without a new Plaid call
 
   } catch (e) {
     container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error: ' + e.message + '</div>';
