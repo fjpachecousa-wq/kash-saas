@@ -3719,10 +3719,16 @@ function updateStatementLabels() {
     originLabel.textContent = '🔗 ' + instName + ' SYNC';
   }
   if (periodLabel) {
-    const endD = new Date();
     const startD = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     const fmt = (d) => d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
-    periodLabel.textContent = fmt(startD) + ' – ' + fmt(endD);
+    const txns = window._lastStatementData?.investment_transactions;
+    if (txns && txns.length > 0) {
+      const mostRecentDate = txns.reduce((latest, t) => t.date > latest ? t.date : latest, txns[0].date);
+      const endD = new Date(mostRecentDate + 'T12:00:00');
+      periodLabel.textContent = fmt(startD) + ' – ' + fmt(endD) + ' (most recent activity)';
+    } else {
+      periodLabel.textContent = fmt(startD) + ' – ' + fmt(new Date());
+    }
   }
   if (syncLabel) {
     const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
@@ -3845,6 +3851,7 @@ async function fetchStatement(useCacheOnly) {
     container.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>` + rows;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
+    updateStatementLabels(); // refresh period label with the real most-recent transaction date
 
     if (!useCacheOnly) {
       const { error: stmtUpsertError } = await _supabase.from('plaid_connections').upsert({
