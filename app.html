@@ -1380,10 +1380,13 @@
         <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Cash activity reported by Plaid — last 90 days</div>
       </div>
 
-      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
+          <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
           <div id="statementPeriodLabel" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);">Loading period...</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div id="statementSyncLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.75);">🕐 Last sync: —</div>
           <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">Auto-synced daily at 6:10 PM</span>
         </div>
       </div>
@@ -3409,7 +3412,7 @@ async function initPlaid() {
   console.log('PLAID: fetching from Supabase...');
   const { data, error } = await _supabase
     .from('plaid_connections')
-    .select('access_token, item_id, holdings, securities, account_balance, last_sync, institution_name')
+    .select('access_token, item_id, holdings, securities, account_balance, last_sync, institution_name, statement_data')
     .eq('user_id', currentUser.id)
     .maybeSingle();
   console.log('PLAID: data=', data, 'error=', error);
@@ -3432,6 +3435,10 @@ async function initPlaid() {
         window._lastPlaidData = { holdings, securities };
         console.log('PLAID: rendering holdings', holdings.length);
         renderPlaidHoldings({ holdings, securities });
+      }
+      if (data.statement_data) {
+        window._lastStatementData = typeof data.statement_data === 'string' ? JSON.parse(data.statement_data) : data.statement_data;
+        console.log('PLAID: statement data restored from Supabase');
       }
     }
   }
@@ -3700,12 +3707,40 @@ function toggleStatementDisclaimer() {
   }
 }
 
+// Updates the origin/period/last-sync labels shown in the Statement tab header.
+// Shared by both renderStatementFromCache() (tab navigation) and fetchStatement()
+// (auto-sync), so the UI stays correct regardless of which path triggered it.
+function updateStatementLabels() {
+  const originLabel = document.getElementById('statementOriginLabel');
+  const periodLabel = document.getElementById('statementPeriodLabel');
+  const syncLabel = document.getElementById('statementSyncLabel');
+  if (originLabel) {
+    const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
+    originLabel.textContent = '🔗 ' + instName + ' SYNC';
+  }
+  if (periodLabel) {
+    const endD = new Date();
+    const startD = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const fmt = (d) => d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    periodLabel.textContent = fmt(startD) + ' – ' + fmt(endD);
+  }
+  if (syncLabel) {
+    const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
+    syncLabel.textContent = ls
+      ? '🕐 Last sync: ' + new Date(ls).toLocaleString()
+      : '🕐 Last sync: —';
+  }
+}
+
 // Re-displays the last fetched Statement data (if any) without calling Plaid again.
 // Used when the user simply navigates to the Statement tab — actual data refresh
 // only happens via the once-daily auto-sync (runAutoSyncIfDue).
 function renderStatementFromCache() {
   const container = document.getElementById('statementContent');
   if (!container) return;
+
+  updateStatementLabels();
+
   if (window._lastStatementData) {
     fetchStatement(true); // re-render using cached data, no network call
   } else {
@@ -3717,18 +3752,7 @@ async function fetchStatement(useCacheOnly) {
   const container = document.getElementById('statementContent');
   if (!container) return;
 
-  const originLabel = document.getElementById('statementOriginLabel');
-  const periodLabel = document.getElementById('statementPeriodLabel');
-  if (originLabel) {
-    const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
-    originLabel.textContent = '🔗 ' + instName + ' SYNC';
-  }
-  if (periodLabel) {
-    const endD = new Date();
-    const startD = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-    const fmt = (d) => d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
-    periodLabel.textContent = fmt(startD) + ' – ' + fmt(endD);
-  }
+  updateStatementLabels();
 
   const access_token = localStorage.getItem('plaid_access_token');
   if (!access_token) {
@@ -3821,6 +3845,15 @@ async function fetchStatement(useCacheOnly) {
     container.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>` + rows;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
+
+    if (!useCacheOnly) {
+      const { error: stmtUpsertError } = await _supabase.from('plaid_connections').upsert({
+        user_id: currentUser.id,
+        statement_data: data,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      if (stmtUpsertError) console.error('Statement: Supabase upsert error:', stmtUpsertError);
+    }
 
   } catch (e) {
     container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error: ' + e.message + '</div>';
