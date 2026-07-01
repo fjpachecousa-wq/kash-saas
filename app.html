@@ -3155,6 +3155,7 @@ function openTransferModal(fromId) {
 
   const options = others.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   const modal = document.createElement('div');
+  modal.id = 'transferBalanceModal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,400px);">
@@ -3169,8 +3170,8 @@ function openTransferModal(fromId) {
       </select>
       <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ The balance will be added as a contribution to the destination project. The source project will be marked as closed.</div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirm Transfer</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, document.getElementById('transferBalanceModal'))">Confirm Transfer</button>
+        <button class="btn btn-sm" onclick="document.getElementById('transferBalanceModal').remove()">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
