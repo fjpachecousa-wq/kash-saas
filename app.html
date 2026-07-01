@@ -3177,7 +3177,7 @@ function openTransferModal(fromId) {
 }
 
 function executeTransfer(fromId, balance, modal) {
-  const targetId = parseInt(document.getElementById('transferTarget').value);
+  const targetId = document.getElementById('transferTarget').value;
   const targetProj = state.projects.find(p => p.id === targetId);
   if (!targetProj) return;
 
