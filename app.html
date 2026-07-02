@@ -3147,7 +3147,7 @@ function openTransferModal(fromId) {
   const st = calcProject(fromProj);
   const balance = st.estimatedBalance;
 
-  const others = state.projects.filter(p => p.id !== fromId);
+  const others = state.projects.filter(p => p.id !== fromId && !p.closed && !p.transferred);
   if (others.length === 0) {
     alert('Create another project first to transfer the balance.');
     return;
@@ -3177,13 +3177,13 @@ function openTransferModal(fromId) {
 }
 
 function executeTransfer(fromId, balance, modal) {
-  const targetId = parseInt(document.getElementById('transferTarget').value);
+  const targetId = document.getElementById('transferTarget').value;
   const targetProj = state.projects.find(p => p.id === targetId);
   if (!targetProj) return;
 
   // Add balance as contribution to target project
   const contrib = {
-    id: Date.now(),
+    id: Date.now().toString(),
     date: new Date().toISOString().split('T')[0],
     gross: balance,
     fee: 0,
