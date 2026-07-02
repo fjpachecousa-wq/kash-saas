@@ -1221,20 +1221,7 @@
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
   <button class="tab-btn" onclick="switchTab('statement')" id="tab-statement">🧾 STATEMENT</button>
-  <div class="nav-dropdown-wrap" id="projectsDropdown">
-    <button class="tab-btn" onclick="toggleProjectsDropdown(event)">
-      🗂 MY PROJECTS <span class="arrow">▾</span>
-    </button>
-    <div class="nav-dropdown">
-      <div class="nav-dropdown-header">PROJECTS</div>
-      <div class="nav-dropdown-new" onclick="openNewProjectModal(); closeProjectsDropdown();">
-        ＋ NEW PROJECT
-      </div>
-      <div id="projectsDropdownList">
-        <!-- projetos injetados por renderTabsNav() -->
-      </div>
-    </div>
-  </div>
+  <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">🎯 MY GOAL</button>
 </nav>
 
 <div class="container">
@@ -1419,20 +1406,6 @@
     <div class="col-main">
 
     <!-- MANIFESTO -->
-    <!-- SALDO DISPONÍVEL -->
-    <div id="saldoDisponivelBanner" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(0,0,0,0.5));border:1px solid rgba(251,191,36,0.4);border-radius:14px;padding:20px 24px;margin-bottom:20px;align-items:center;gap:20px;">
-      <div style="font-size:2rem;flex-shrink:0;">💰</div>
-      <div style="flex:1;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#fbbf24;letter-spacing:2px;margin-bottom:4px;">AVAILABLE BALANCE FOR ALLOCATION</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;">Remaining balance from a closed project awaiting allocation.</div>
-      </div>
-      <div style="text-align:right;flex-shrink:0;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:#fbbf24;text-shadow:0 0 20px rgba(251,191,36,0.5);" id="saldoDisponivelValue">$0.00</div>
-        <button class="btn btn-gold btn-sm" style="margin-top:8px;" onclick="alocarSaldoDisponivel()">➡️ Allocate to Project</button>
-      </div>
-    </div>
-
-    <!-- MANIFESTO -->
     <div class="manifesto" id="manifestoBanner" style="display:none;">
       You don't need to wait for extra money to start investing.<br>
       <strong>Every $1 you invest today works for you tomorrow.</strong><br>
@@ -1500,7 +1473,7 @@
     <div class="card">
       <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
         <span>📌 Current Project</span>
-        <button class="btn btn-primary btn-sm no-print" onclick="openNewProjectModal()">+ New Project</button>
+        <button class="btn btn-primary btn-sm no-print" onclick="openEditGoalModal()">✏️ Edit Goal</button>
       </div>
 
       <div id="projectsContainer">
@@ -1585,61 +1558,29 @@
   </div><!-- /content-row -->
 </div><!-- /panel-overview -->
 
+<!-- PANEL: MY GOAL -->
+<div class="tab-panel" id="panel-goal">
+  <div id="goalPanelContent"><!-- injetado por renderGoalPanel() --></div>
+</div>
+
 </div><!-- /container -->
 
-<!-- ══ NEW PROJECT MODAL ══════════════════════════ -->
-<div class="modal-overlay" id="newProjectModal">
+<!-- ══ EDIT GOAL MODAL ══════════════════════════ -->
+<div class="modal-overlay" id="editGoalModal">
   <div class="modal">
-    <button class="modal-close" onclick="closeNewProjectModal()">✕</button>
-    <div class="modal-title">🆕 New Project</div>
-
-    <div class="form-group" style="margin-bottom:16px;">
-      <label>Project Name</label>
-      <input type="text" id="projName" placeholder="e.g. Home Purchase">
-    </div>
-
+    <button class="modal-close" onclick="closeEditGoalModal()">✕</button>
+    <div class="modal-title">🎯 Set Goal</div>
     <div class="form-group" style="margin-bottom:16px;">
       <label>Goal ($)</label>
-      <input type="number" id="projTarget" placeholder="ex: 50000" min="0" step="0.01">
+      <input type="number" id="goalTarget" placeholder="ex: 1000" min="0" step="0.01">
     </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Start Date</label>
-        <input type="date" id="projStartDate" onclick="this.showPicker && this.showPicker()">
-      </div>
-      <div class="form-group">
-        <label>Deadline (End Date)</label>
-        <input type="date" id="projDate" onclick="this.showPicker && this.showPicker()">
-      </div>
-    </div>
-
-    <div class="form-group" style="margin-bottom:16px;">
-      <label>Risk Profile</label>
-      <select id="projRisk" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-        <option value="conservador">🟢 Conservative</option>
-        <option value="moderado" selected>🟡 Moderate</option>
-        <option value="agressivo">🔴 Aggressive</option>
-      </select>
-    </div>
-
     <div class="form-group" style="margin-bottom:20px;">
-      <label>Project Color</label>
-      <div class="color-row" id="colorPicker">
-        <div class="color-dot selected" style="background:#39ff14;" data-color="#39ff14" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#60a5fa;" data-color="#60a5fa" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#fbbf24;" data-color="#fbbf24" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#f472b6;" data-color="#f472b6" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#a78bfa;" data-color="#a78bfa" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#fb923c;" data-color="#fb923c" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#22d3ee;" data-color="#22d3ee" onclick="selectColor(this)"></div>
-        <div class="color-dot" style="background:#ef4444;" data-color="#ef4444" onclick="selectColor(this)"></div>
-      </div>
+      <label>Deadline</label>
+      <input type="date" id="goalDate" onclick="this.showPicker && this.showPicker()">
     </div>
-
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="createProject()">🚀 Create Project</button>
-      <button class="btn btn-secondary btn-sm" onclick="closeNewProjectModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGoal()">🎯 Save Goal</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeEditGoalModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -1762,9 +1703,8 @@ async function logoutUser() {
 let state = {
   name: '',
   interestRate: 7,
-  projects: [],
+  goal: { target: 0, date: '', contributions: [] },
   portfolio: [],
-  saldoDisponivel: 0
 };
 
 let selectedColor = '#39ff14';
@@ -1790,16 +1730,30 @@ async function load() {
     .single();
   if (error && error.code !== 'PGRST116') { console.error('Load error:', error); return false; }
   if (data && data.data) {
-    // Merge loaded data preserving all fields — never lose projects or portfolio
     const loaded = data.data;
+
+    // ── MIGRAÇÃO AUTOMÁTICA: projetos múltiplos → goal único ──────────
+    let goal = loaded.goal || null;
+    if (!goal && loaded.projects && loaded.projects.length > 0) {
+      const allContributions = loaded.projects
+        .flatMap(p => (p.contributions || []).filter(c => !c.isTransfer))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+      const activeProj = loaded.projects.find(p => !p.closed && !p.transferred)
+        || loaded.projects[loaded.projects.length - 1];
+      goal = {
+        target: activeProj?.target || 0,
+        date:   activeProj?.date   || '',
+        contributions: allContributions
+      };
+    }
+
     state = {
-      name: loaded.name || '',
-      interestRate: loaded.interestRate ?? 7,
-      projects: loaded.projects || [],
-      portfolio: loaded.portfolio || [],
-      saldoDisponivel: loaded.saldoDisponivel || 0,
-      birthdate: loaded.birthdate || '',
-      address: loaded.address || {},
+      name:          loaded.name || '',
+      interestRate:  loaded.interestRate ?? 7,
+      goal:          goal || { target: 0, date: '', contributions: [] },
+      portfolio:     loaded.portfolio || [],
+      birthdate:     loaded.birthdate || '',
+      address:       loaded.address || {},
       declaresUsTax: loaded.declaresUsTax || ''
     };
     return true;
@@ -2051,21 +2005,20 @@ async function initApp() {
       }
     } catch(e) { console.warn('Portfolio migration failed:', e); }
   }
-  // Always ensure portfolio is initialized
+  // Always ensure portfolio and goal are initialized
   if (!state.portfolio) state.portfolio = [];
-  if (!state.projects) state.projects = [];
+  if (!state.goal) state.goal = { target: 0, date: '', contributions: [] };
+  if (!state.goal.contributions) state.goal.contributions = [];
   portfolioEntries = state.portfolio;
 
   // Auto-clear pending contributions: release only on/after next US business day
   const today = todayStr();
   let pendingCleared = false;
-  state.projects.forEach(proj => {
-    (proj.contributions || []).forEach(c => {
-      if (c.pending && nextBusinessDay(c.date) <= today) {
-        c.pending = false;
-        pendingCleared = true;
-      }
-    });
+  (state.goal.contributions || []).forEach(c => {
+    if (c.pending && nextBusinessDay(c.date) <= today) {
+      c.pending = false;
+      pendingCleared = true;
+    }
   });
   if (pendingCleared) await save();
   if (!state.name && currentUser?.user_metadata?.full_name) {
@@ -2216,9 +2169,29 @@ function streakFlames(pct) {
 }
 
 
-function nextProjectNum() {
-  if (!state.projects.length) return 1;
-  return Math.max(...state.projects.map(p => p.num)) + 1;
+// ══════════════════════════════════════════════════
+// EDIT GOAL MODAL
+// ══════════════════════════════════════════════════
+function openEditGoalModal() {
+  const g = state.goal || {};
+  document.getElementById('goalTarget').value = g.target || '';
+  document.getElementById('goalDate').value   = g.date   || '';
+  document.getElementById('editGoalModal').classList.add('open');
+}
+function closeEditGoalModal() {
+  document.getElementById('editGoalModal').classList.remove('open');
+}
+function saveGoal() {
+  const target = parseFloat(document.getElementById('goalTarget').value);
+  const date   = document.getElementById('goalDate').value;
+  if (!target || target <= 0) return alert('Please enter a valid goal amount.');
+  if (!date) return alert('Please select a deadline.');
+  if (!state.goal) state.goal = { contributions: [] };
+  state.goal.target = target;
+  state.goal.date   = date;
+  save();
+  closeEditGoalModal();
+  renderAll();
 }
 
 // ══════════════════════════════════════════════════
@@ -2294,134 +2267,41 @@ function toggleProfileCard() {
 }
 
 // ══════════════════════════════════════════════════
-// COLOR PICKER
-// ══════════════════════════════════════════════════
-function selectColor(el) {
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedColor = el.dataset.color;
-}
-
-// ══════════════════════════════════════════════════
-// MODAL
-// ══════════════════════════════════════════════════
-function openNewProjectModal() {
-  document.getElementById('projName').value = '';
-  document.getElementById('projTarget').value = '';
-  document.getElementById('projStartDate').value = todayStr();
-  document.getElementById('projDate').value = '';
-  document.getElementById('projRisk').value = 'moderado';
-  selectedColor = '#39ff14';
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-  document.querySelector('.color-dot[data-color="#39ff14"]').classList.add('selected');
-  document.getElementById('newProjectModal').classList.add('open');
-}
-
-function closeNewProjectModal() {
-  document.getElementById('newProjectModal').classList.remove('open');
-}
-
-// ══════════════════════════════════════════════════
-// CREATE PROJECT
-// ══════════════════════════════════════════════════
-function createProject() {
-  const name = document.getElementById('projName').value.trim();
-  const target = parseFloat(document.getElementById('projTarget').value);
-  const startDate = document.getElementById('projStartDate').value || todayStr();
-  const date = document.getElementById('projDate').value;
-  const risk = document.getElementById('projRisk').value || 'moderado';
-
-  if (!name) return alert('Please enter a project name.');
-  if (!target || target <= 0) return alert('Please enter a valid goal.');
-  if (!date) return alert('Please select a deadline.');
-  if (daysUntil(date) <= 0) return alert('The deadline must be in the future.');
-
-  const proj = {
-    id: Date.now().toString(),
-    num: nextProjectNum(),
-    name, target, startDate, date,
-    fee: 0,
-    risk,
-    color: selectedColor,
-    contributions: []
-  };
-
-  state.projects.push(proj);
-  save();
-  closeNewProjectModal();
-  renderAll();
-  switchTab('proj-' + proj.id);
-}
-
-// ══════════════════════════════════════════════════
-// DELETE PROJECT
-// ══════════════════════════════════════════════════
-function deleteProject(id) {
-  const proj = state.projects.find(p => p.id == id);
-  if (proj && (proj.closed || proj.transferred)) return alert('Closed projects cannot be deleted. They remain in history.');
-
-  // Check if project has a transfer contribution
-  const transferContrib = proj && proj.contributions && proj.contributions.find(c => c.isTransfer);
-  if (transferContrib) {
-    if (!confirm(`This project contains a transferred balance of ${fmt(transferContrib.amount)}.\n\nIf deleted, this amount will be available to allocate to another project.\n\nDo you want to continue?`)) return;
-    // Preserve the transfer balance
-    state.saldoDisponivel = (state.saldoDisponivel || 0) + transferContrib.amount;
-  } else {
-    if (!confirm('Delete this project and all its contributions?')) return;
-  }
-
-  state.projects = state.projects.filter(p => p.id !== id);
-  save();
-  const panel = document.getElementById('panel-proj-' + id);
-  const tabBtn = document.getElementById('tab-proj-' + id);
-  if (panel) panel.remove();
-  if (tabBtn) tabBtn.remove();
-  switchTab('overview');
-  renderAll();
-}
-
-// ══════════════════════════════════════════════════
 // ADD CONTRIBUTION
 // ══════════════════════════════════════════════════
-function addContribution(projId) {
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
+function addContribution() {
+  const g = state.goal;
+  if (!g) return;
 
-  const amt = parseFloat(document.getElementById('amt-' + projId).value);
-  const dtRaw = document.getElementById('dt-' + projId).value || todayMMDDYYYY();
+  const amt = parseFloat(document.getElementById('amt-goal').value);
+  const dtRaw = document.getElementById('dt-goal').value || todayMMDDYYYY();
   const dt = parseDateInput(dtRaw);
-  const noteSelect = document.getElementById('note-' + projId).value;
-  const noteOtherEl = document.getElementById('noteOther-' + projId);
+  const noteSelect = document.getElementById('note-goal').value;
+  const noteOtherEl = document.getElementById('noteOther-goal');
   const note = noteSelect === 'Other' ? (noteOtherEl ? noteOtherEl.value.trim() : '') : noteSelect;
   if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
 
-  const net = amt;
-  // pending: true if the next US business day after the contribution date hasn't arrived yet
   const pending = nextBusinessDay(dt) > todayStr();
+  g.contributions = g.contributions || [];
+  g.contributions.push({ id: Date.now().toString(), date: dt, amount: amt, fee: 0, net: amt, note, pending });
+  g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  proj.contributions.push({
-    id: Date.now().toString(), date: dt, amount: amt, fee: 0, net, note,
-    pending
-  });
-  proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  document.getElementById('amt-' + projId).value = '';
-  document.getElementById('note-' + projId).value = 'Recurring';
+  document.getElementById('amt-goal').value = '';
+  document.getElementById('note-goal').value = 'Recurring';
   if (noteOtherEl) { noteOtherEl.value = ''; noteOtherEl.style.display = 'none'; }
   save();
-  renderProjectPanel(proj);
+  renderGoalPanel();
   renderOverview();
 }
 
 // ══════════════════════════════════════════════════
 // DELETE CONTRIBUTION
 // ══════════════════════════════════════════════════
-function deleteContribution(projId, contribId) {
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
-  proj.contributions = proj.contributions.filter(c => c.id !== contribId);
+function deleteContribution(contribId) {
+  if (!state.goal) return;
+  state.goal.contributions = (state.goal.contributions || []).filter(c => c.id !== contribId);
   save();
-  renderProjectPanel(proj);
+  renderGoalPanel();
   renderOverview();
 }
 
@@ -2455,6 +2335,10 @@ function switchTab(tabId) {
       disclaimer.style.display = 'none';
       if (checkbox) checkbox.checked = true;
     }
+  }
+
+  if (tabId === 'goal') {
+    renderGoalPanel();
   }
 }
 
@@ -2547,20 +2431,11 @@ function renderOverview() {
   }
 
   // ── SUGGESTED ETFs widget ─────────────────────────
-  const activeProj2 = state.projects.find(p => !p.closed && !p.transferred);
-  if (activeProj2) loadSuggestedEtfs(activeProj2);
+  if (state.goal && state.goal.target > 0) loadSuggestedEtfs({ risk: 'moderado' });
 
-  // Show saldo disponivel banner
-  const saldoBanner = document.getElementById('saldoDisponivelBanner');
-  if (state.saldoDisponivel && state.saldoDisponivel > 0) {
-    saldoBanner.style.display = 'flex';
-    document.getElementById('saldoDisponivelValue').textContent = fmt(state.saldoDisponivel);
-  } else {
-    saldoBanner.style.display = 'none';
-  }
-
-  if (!state.projects.length) {
-    container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No projects yet.<br>Create your first goal!</p></div>`;
+  const g = state.goal;
+  if (!g || !g.target) {
+    container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No goal set yet.<br><button class="btn btn-primary" onclick="openEditGoalModal(); switchTab('goal')">Set your first goal!</button></p></div>`;
     totalBanner.style.display = 'none';
     manifesto.style.display = 'none';
     document.getElementById('ovTotalProjects').textContent = '0';
@@ -2572,279 +2447,211 @@ function renderOverview() {
   totalBanner.style.display = '';
   manifesto.style.display = '';
 
-  let sumContribs = 0;
+  const st = calcProject(g);
+  const estimatedBalance = st.estimatedBalance;
 
-  const cards = state.projects.filter(p => !p.closed && !p.transferred).map(proj => {
-    const st = calcProject(proj);
-    if (!proj.closed && !proj.transferred) {
-      sumContribs += proj.contributions.filter(c => !c.isTransfer).length;
-    }
+  const sumContribs = (g.contributions || []).filter(c => !c.isTransfer).length;
+  const pendingCount = (g.contributions || []).filter(c => c.pending).length;
 
-    const marketGain = (() => {
-      return st.totalInvested > 0
-        ? `💰 <span>${fmt(st.totalInvested)}</span> confirmed · <span style="color:#f59e0b;">${fmt(st.totalPending)}</span> pending`
-        : `🌱 Make your first contribution and watch the market work for you`;
-    })();
+  // Overview card
+  const marketGain = estimatedBalance > 0
+    ? `💰 <span>${fmt(estimatedBalance)}</span> confirmed · <span style="color:#f59e0b;">${fmt(st.totalPending)}</span> pending`
+    : `🌱 Make your first contribution and watch the market work for you`;
 
-    return `
-    <div class="overview-card" style="border-color: rgba(${hexToRgb(proj.color)},0.3);">
-      <div class="ov-num" style="color:${proj.color}; text-shadow: 0 0 15px ${proj.color}55;">${proj.num}</div>
+  container.innerHTML = `
+    <div class="overview-card" style="border-color:rgba(57,255,20,0.3);">
+      <div class="ov-num" style="color:var(--green-neon);text-shadow:0 0 15px rgba(57,255,20,0.4);">🎯</div>
       <div class="ov-info">
-        <div class="ov-name">${proj.name}</div>
+        <div class="ov-name">Goal ${fmt(g.target)}</div>
         <div class="ov-bar-bg">
-          <div class="ov-bar-fill" style="width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 8px ${proj.color}66;"></div>
+          <div class="ov-bar-fill" style="width:${st.pct.toFixed(1)}%;"></div>
         </div>
-        <div class="ov-deadline">📅 ${new Date(proj.date + 'T12:00:00').toLocaleDateString('en-US')} · ${st.daysLeft} days · ${proj.contributions.filter(c => !c.isTransfer).length} contribution(s)</div>
+        <div class="ov-deadline">📅 ${g.date ? new Date(g.date + 'T12:00:00').toLocaleDateString('en-US') : '—'} · ${st.daysLeft} days · ${sumContribs} contribution(s)</div>
         <div class="passive-pill">${marketGain}</div>
-        <button onclick="switchTab('proj-${proj.id}')" style="margin-top:10px;background:linear-gradient(135deg,${proj.color}22,${proj.color}44);border:1px solid ${proj.color}88;color:${proj.color};font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(135deg,${proj.color}44,${proj.color}66)'" onmouseout="this.style.background='linear-gradient(135deg,${proj.color}22,${proj.color}44)'">
+        <button onclick="switchTab('goal')" style="margin-top:10px;background:linear-gradient(135deg,rgba(57,255,20,0.13),rgba(57,255,20,0.25));border:1px solid rgba(57,255,20,0.5);color:var(--green-neon);font-family:'Bebas Neue',cursive;font-size:0.85rem;letter-spacing:2px;padding:7px 18px;border-radius:7px;cursor:pointer;">
           📂 View Contributions & Details
         </button>
       </div>
       <div class="ov-right">
-        <div class="ov-pct" style="color:${proj.color};">${st.pct.toFixed(1)}%</div>
-        <div class="ov-balance">${fmt(st.totalInvested)} / ${fmt(proj.target)}</div>
+        <div class="ov-pct" style="color:var(--green-neon);">${st.pct.toFixed(1)}%</div>
+        <div class="ov-balance">${fmt(estimatedBalance)} / ${fmt(g.target)}</div>
       </div>
     </div>`;
-  }).join('');
 
-  container.innerHTML = cards;
-
-  const activeProjects = state.projects.filter(p => !p.closed && !p.transferred).length;
-  document.getElementById('ovTotalProjects').textContent = activeProjects;
+  document.getElementById('ovTotalProjects').textContent = '1';
   document.getElementById('ovTotalContribs').textContent = sumContribs;
+  document.getElementById('ovTotalPending').textContent = pendingCount;
 
-  // Streak — restrito ao projeto ativo
-  const activeStreakProj = state.projects.find(p => !p.closed && !p.transferred);
-  const streakData = calcStreak(activeStreakProj);
+  // Streak
+  const streakData = calcStreak(g);
   const streakEl = document.getElementById('ovStreak');
   if (streakEl) streakEl.textContent = streakData.days > 0 ? streakFlames(streakData.pct) + ' ' + streakData.days + '-day streak' : '';
-
-  // Side streak widget
   const sideStreakNum = document.getElementById('sideStreakNum');
   const sideStreakFlames = document.getElementById('sideStreakFlames');
   if (sideStreakNum) sideStreakNum.textContent = streakData.days;
   if (sideStreakFlames) sideStreakFlames.textContent = streakFlames(streakData.pct);
 
-  // ── NEW SINGLE PANEL — estimatedBalance-based (Project progress) ───────
-  const activeProj = state.projects.find(p => !p.closed && !p.transferred);
-  if (activeProj) {
-    const st = calcProject(activeProj);
-    const estimatedBalance = st.estimatedBalance;
+  // Goal Panel (OVERVIEW header)
+  const falta        = Math.max(0, g.target - estimatedBalance);
+  const diasRestantes = Math.max(1, st.daysLeft);
+  const aporteNec    = (falta > 0 && diasRestantes > 0) ? falta / diasRestantes : 0;
+  const progresso    = Math.min(100, g.target > 0 ? (estimatedBalance / g.target) * 100 : 0);
 
-    // portfolioReal = valor atual via Plaid (institution_value) — usado só no widget lateral
-    const portfolioReal = (window._lastPlaidData && window._lastPlaidData.holdings)
-      ? window._lastPlaidData.holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0)
-      : 0;
+  document.getElementById('ovGoalHeader').textContent = `Goal — ${fmt(g.target)}`;
+  const subEl = document.getElementById('ovGoalSub');
+  if (subEl) subEl.textContent = g.date ? `📅 Deadline: ${new Date(g.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}` : '';
 
-    const falta         = Math.max(0, activeProj.target - estimatedBalance);
-    const diasRestantes = Math.max(1, st.daysLeft);
-    const aporteNec     = (falta > 0 && diasRestantes > 0) ? falta / diasRestantes : 0;
-    const progresso     = Math.min(100, activeProj.target > 0 ? (estimatedBalance / activeProj.target) * 100 : 0);
+  const rowStyle   = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
+  const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.85rem;color:var(--silver);letter-spacing:0.5px;';
+  const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.85rem;font-weight:700;';
 
-    const pendingCount  = (activeProj.contributions || []).filter(c => c.pending).length;
-    document.getElementById('ovTotalPending').textContent = pendingCount;
+  const metrics = [
+    { label: 'Current balance',           value: fmt(estimatedBalance),      color: 'var(--green-neon)' },
+    { label: 'Still needed',              value: fmt(falta),                 color: '#fbbf24' },
+    { label: 'Days remaining',            value: diasRestantes + ' days',    color: 'var(--silver-light)' },
+    { label: 'Daily contribution needed', value: '$' + aporteNec.toFixed(2), color: estimatedBalance >= g.target ? '#22c55e' : 'var(--green-neon)' },
+  ];
 
-    // Goal header
-    const deadlineFmt = new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'2-digit', day:'2-digit', year:'numeric'});
-    document.getElementById('ovGoalHeader').textContent = `${activeProj.name} — GOAL ${fmt(activeProj.target)}`;
-    const subEl = document.getElementById('ovGoalSub');
-    if (subEl) subEl.textContent = `📅 Deadline: ${new Date(activeProj.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}`;
+  document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => `
+    <div style="${rowStyle}">
+      <span style="${labelStyle}">${m.label}</span>
+      <strong style="${valStyle}color:${m.color};">${m.value}</strong>
+    </div>`).join('') + (estimatedBalance === 0 ? `
+    <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(251,191,36,0.7);padding:8px 0;letter-spacing:0.5px;">
+      ⚠ No contributions recorded yet.
+    </div>` : '');
 
-    // Metrics rows
-    const rowStyle  = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);';
-    const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.85rem;color:var(--silver);letter-spacing:0.5px;';
-    const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.85rem;font-weight:700;';
-
-    const metrics = [
-      { label: 'Current balance',              value: fmt(estimatedBalance),       color: 'var(--green-neon)' },
-      { label: 'Still needed',                 value: fmt(falta),                  color: '#fbbf24' },
-      { label: 'Days remaining',               value: diasRestantes + ' days',     color: 'var(--silver-light)' },
-      { label: 'Daily contribution needed',    value: '$' + aporteNec.toFixed(2),  color: estimatedBalance >= activeProj.target ? '#22c55e' : 'var(--green-neon)' },
-    ];
-
-    document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => `
-      <div style="${rowStyle}">
-        <span style="${labelStyle}">${m.label}</span>
-        <strong style="${valStyle}color:${m.color};">${m.value}</strong>
-      </div>`).join('') + (estimatedBalance === 0 ? `
-      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(251,191,36,0.7);padding:8px 0;letter-spacing:0.5px;">
-        ⚠ No contributions recorded yet for this project.
-      </div>` : '');
-
-    // Progress bar — reflects Project deposits, not market value
-    document.getElementById('ovProgressLabel').textContent = fmt(estimatedBalance) + ' / ' + fmt(activeProj.target);
-    document.getElementById('ovProgressPct').textContent   = progresso.toFixed(1) + '%';
-    document.getElementById('ovProgressFill').style.width  = progresso.toFixed(1) + '%';
-  }
+  document.getElementById('ovProgressLabel').textContent = fmt(estimatedBalance) + ' / ' + fmt(g.target);
+  document.getElementById('ovProgressPct').textContent   = progresso.toFixed(1) + '%';
+  document.getElementById('ovProgressFill').style.width  = progresso.toFixed(1) + '%';
 }
 
 // ══════════════════════════════════════════════════
-// RENDER PROJECT PANEL
+// RENDER GOAL PANEL
 // ══════════════════════════════════════════════════
-function renderProjectPanel(proj) {
-  const st = calcProject(proj);
-  const panelId = 'panel-proj-' + proj.id;
-  let panel = document.getElementById(panelId);
+function renderGoalPanel() {
+  const g = state.goal;
+  const container = document.getElementById('goalPanelContent');
+  if (!container) return;
 
-  const html = `
-  <div style="--project-color: ${proj.color}">
+  if (!g || !g.target) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;">
+        <div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:16px;">🎯 SET YOUR GOAL</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--silver);margin-bottom:24px;">Define your investment target and deadline to get started.</div>
+        <button class="btn btn-primary" onclick="openEditGoalModal()">🎯 Set Goal</button>
+      </div>`;
+    return;
+  }
 
-    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Project Balance</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${(() => { const sd = calcStreak(proj); return sd.days > 0 ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakFlames(sd.pct)} ${sd.days}-day streak</div>` : ''; })()} \n        </div>\n      </div>\n\n    </div>
+  const st = calcProject(g);
+  const goalReached    = st.pct >= 100;
+  const deadlineReached = st.daysLeft === 0;
 
-    <!-- ADD CONTRIBUTION -->
+  const alertHtml = (goalReached || deadlineReached) ? `
+    <div style="background:rgba(57,255,20,0.08);border:1px solid rgba(57,255,20,0.4);border-radius:10px;padding:16px;margin-bottom:20px;text-align:center;">
+      <div style="font-family:'Bebas Neue',cursive;font-size:1.2rem;color:var(--green-neon);letter-spacing:2px;margin-bottom:8px;">
+        ${goalReached ? '🎉 Goal Reached! Congratulations!' : '⏰ Deadline reached!'}
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--silver);margin-bottom:12px;">Define a new goal to keep building your investment habit.</div>
+      <button class="btn btn-primary" onclick="openEditGoalModal()">🎯 Set New Goal</button>
+    </div>` : '';
+
+  container.innerHTML = `<div>
+    ${alertHtml}
+    <div class="kpi-grid" style="margin-bottom:20px;">
+      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(st.totalInvested)}</span><span class="kpi-label">Project Balance</span></div>
+      <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
+      <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining</span></div>
+      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${st.daysLeft}</span><span class="kpi-label">Days Left</span></div>
+      <div class="kpi"><span class="kpi-value silver">${(g.contributions||[]).filter(c=>!c.isTransfer).length}</span><span class="kpi-label">Contributions</span></div>
+      <div class="kpi"><span class="kpi-value gold">${st.pct.toFixed(1)}%</span><span class="kpi-label">Progress</span></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="card-title" style="margin-bottom:0;">📈 Progress — Goal ${fmt(g.target)}</div>
+          <button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="openEditGoalModal()">✏️ Edit Goal</button>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>${fmt(st.totalInvested)} / ${fmt(g.target)}</span><span>${st.pct.toFixed(1)}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${st.pct.toFixed(1)}%;"></div></div>
+        </div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);margin-top:8px;">
+          Deadline: ${g.date ? new Date(g.date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—'}
+        </div>
+      </div>
+      <div class="suggestion-box" style="margin-bottom:0;">
+        <div class="suggestion-icon">💡</div>
+        <div class="suggestion-text">
+          <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
+          <div class="suggestion-amount">${fmt(st.suggestedDaily)}</div>
+          <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left` : 'Set a new goal to continue'}</div>
+          ${(()=>{const sd=calcStreak(g);return sd.days>0?`<div style="margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;">${streakFlames(sd.pct)} ${sd.days}-day streak</div>`:'';})()} 
+        </div>
+      </div>
+    </div>
+
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
       <div class="form-row three">
         <div class="form-group">
           <label>Amount ($)</label>
-          <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00 or -3.00" step="0.01">
+          <input type="number" id="amt-goal" placeholder="ex: 50.00 or -3.00" step="0.01">
         </div>
         <div class="form-group">
           <label>Date</label>
           <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" id="dt-${proj.id}" placeholder="MM/DD/YYYY"
-              maxlength="10" autocomplete="off"
-              oninput="maskDateInput(this)"
-              value="${todayMMDDYYYY()}"
-              style="letter-spacing:1px;flex:1;">
-            <input type="date" id="dtPicker-${proj.id}"
-              style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;"
-              onchange="(function(p){const v=document.getElementById('dtPicker-'+p).value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dt-'+p).value=m+'/'+d+'/'+y;})('${proj.id}')">
-            <button type="button"
-              onclick="const el=document.getElementById('dtPicker-${proj.id}');el.showPicker&&el.showPicker();"
-              style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;"
-              title="Open calendar">📅</button>
+            <input type="text" id="dt-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
+            <input type="date" id="dtPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dt-goal').value=m+'/'+d+'/'+y;})()">
+            <button type="button" onclick="const el=document.getElementById('dtPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
           </div>
         </div>
         <div class="form-group">
           <label>Note (optional)</label>
-          <select id="note-${proj.id}" onchange="const o=document.getElementById('noteOther-${proj.id}'); o.style.display = this.value==='Other' ? 'block' : 'none';"
-            style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+          <select id="note-goal" onchange="const o=document.getElementById('noteOther-goal');o.style.display=this.value==='Other'?'block':'none';" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
             <option value="Recurring">Recurring</option>
             <option value="Extra Contribution">Extra Contribution</option>
             <option value="Other">Other</option>
           </select>
-          <input type="text" id="noteOther-${proj.id}" placeholder="Specify..." style="display:none;margin-top:6px;width:100%;box-sizing:border-box;">
+          <input type="text" id="noteOther-goal" placeholder="Specify..." style="display:none;margin-top:6px;width:100%;box-sizing:border-box;">
         </div>
       </div>
       <div class="btn-row">
-        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ CLOSED — ${proj.closedAcao || 'balance transferred'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
+        <button class="btn btn-primary" onclick="addContribution()">➕ Add Contribution</button>
       </div>
     </div>
 
-    <!-- ETF SUGGESTIONS -->
-    <!-- HISTORY TABLE -->
     <div class="card">
       <div class="card-title">📋 Contribution History</div>
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Accumulated</th>
-              <th>Note</th>
-              <th class="no-print"></th>
-            </tr>
-          </thead>
+          <thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Accumulated</th><th>Note</th><th class="no-print"></th></tr></thead>
           <tbody>
             ${st.rows.length === 0
               ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
               : [...st.rows].reverse().map(r => `
-                <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
+                <tr>
                   <td>${r.idx}</td>
-                  <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('en-US')}</td>
-                  <td class="amount-cell">
-                    ${fmt(r.amount)}
-                    ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFER</span>` : ''}
-                    ${r.pending ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>` : ''}
+                  <td>${new Date(r.date+'T12:00:00').toLocaleDateString('en-US')}</td>
+                  <td class="amount-cell">${fmt(r.amount)}${r.pending?`<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`:''}
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
-                  <td style="color:#888;">${r.note || '—'}</td>
-                  <td class="no-print">
-                    ${r.isTransfer ? `<button class="icon-btn" onclick="editTransferValue('${proj.id}','${r.id}')" title="Editar saldo transferido" style="color:#fbbf24;">✏️</button>` : ''}
-                    ${!proj.transferred && !proj.closed && !r.isTransfer ? `<button class="icon-btn icon-btn-del" onclick="deleteContribution('${proj.id}','${r.id}')" title="Excluir">🗑</button>` : ''}
-                  </td>
-                </tr>`).join('')
-            }
+                  <td style="color:#888;">${r.note||'—'}</td>
+                  <td class="no-print"><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
+                </tr>`).join('')}
           </tbody>
         </table>
       </div>
       <hr class="divider">
       <div class="btn-row no-print">
         <button class="btn btn-gold" onclick="window.print()">🖨 Print Statement</button>
-        <button class="btn btn-secondary btn-sm" onclick="exportCSV('${proj.id}')">📥 Export CSV</button>
-        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-sm" style="border-color:#f59e0b;color:#f59e0b;" onclick="encerrarProjeto('${proj.id}')">🔒 Close Project</button>`}
-        ${proj.transferred || proj.closed ? '' : `<button class="btn btn-danger btn-sm" onclick="deleteProject('${proj.id}')">🗑 Delete Project</button>`}
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Export CSV</button>
       </div>
     </div>
-
   </div>`;
-
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.className = 'tab-panel';
-    panel.id = panelId;
-    document.querySelector('.container').appendChild(panel);
-  }
-  panel.innerHTML = html;
 }
-
-// ══════════════════════════════════════════════════
-// RENDER TABS NAV
-// ══════════════════════════════════════════════════
-function renderTabsNav() {
-  const list = document.getElementById('projectsDropdownList');
-  if (!list) return;
-
-  // Limpar itens de projeto anteriores (manter o "New Project")
-  list.innerHTML = '';
-
-  // Remover botões invisíveis antigos
-  document.querySelectorAll('.proj-tab-btn').forEach(b => b.remove());
-
-  state.projects.forEach(proj => {
-    const stats = calcProject(proj);
-    const pct = stats.pct.toFixed(1);
-    const closedLabel = proj.transferred ? '🔒✅' : proj.closed ? '🔒⏳' : '';
-
-    const item = document.createElement('div');
-    item.className = 'nav-dropdown-item';
-    item.onclick = () => { switchTab('proj-' + proj.id); closeProjectsDropdown(); };
-    item.innerHTML = `
-      <span class="d-num" style="color:${proj.color};">${proj.num}</span>
-      <div class="d-info">
-        <div class="d-name">${proj.name} ${closedLabel}</div>
-        <div class="d-meta">${pct}% · ${stats.daysLeft}d left</div>
-      </div>
-      <span class="d-pct" style="color:${proj.color};">${pct}%</span>
-    `;
-
-    // Botão invisível para switchTab() encontrar por ID
-    const btn = document.createElement('button');
-    btn.id = 'tab-proj-' + proj.id;
-    btn.className = 'tab-btn proj-tab-btn';
-    btn.style.display = 'none';
-    btn.onclick = () => switchTab('proj-' + proj.id);
-    document.getElementById('tabsNav').appendChild(btn);
-
-    list.appendChild(item);
-  });
-}
-
-function toggleProjectsDropdown(e) {
-  e.stopPropagation();
-  document.getElementById('projectsDropdown').classList.toggle('open');
-}
-
-function closeProjectsDropdown() {
-  const dd = document.getElementById('projectsDropdown');
-  if (dd) dd.classList.remove('open');
-}
-
-// Fechar dropdown ao clicar fora
-document.addEventListener('click', () => closeProjectsDropdown());
 
 // ══════════════════════════════════════════════════
 // RENDER ALL
@@ -2965,15 +2772,13 @@ function renderAll() {
   document.getElementById('headerDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' });
   document.getElementById('printDate').textContent = now.toLocaleDateString('en-US', { day:'numeric', month:'long', year:'numeric' });
 
-  if (state.name && state.projects.length > 0) {
-    const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
-    const totalPct = activeProjs.length > 0 ? activeProjs.reduce((acc, p) => acc + calcProject(p).pct, 0) / activeProjs.length : 0;
+  if (state.name && state.goal && state.goal.target > 0) {
+    const st = calcProject(state.goal);
     document.getElementById('statusText').textContent =
-      `${state.name} · ${activeProjs.length} active project(s) · Average progress: ${totalPct.toFixed(1)}%`;
+      `${state.name} · 1 active project(s) · Average progress: ${st.pct.toFixed(1)}%`;
   }
 
-  renderTabsNav();
-  state.projects.forEach(proj => renderProjectPanel(proj));
+  renderGoalPanel();
   renderOverview();
 }
 
@@ -2987,333 +2792,23 @@ function hexToRgb(hex) {
 // ══════════════════════════════════════════════════
 // EXPORT CSV
 // ══════════════════════════════════════════════════
-function exportCSV(projId) {
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
-  const st = calcProject(proj);
-  const rows = [['Project', 'Nº', 'Date', 'Amount', 'Accumulated', 'Note']];
+function exportCSV() {
+  const g = state.goal;
+  if (!g) return;
+  const st = calcProject(g);
+  const rows = [['Goal', 'Nº', 'Date', 'Amount', 'Accumulated', 'Note']];
   st.rows.forEach(r => {
-    rows.push([proj.name, r.idx, r.date, r.amount.toFixed(2),
+    rows.push([`Goal ${g.target}`, r.idx, r.date, r.amount.toFixed(2),
                r.running.toFixed(2), r.note || '']);
   });
   const csv = rows.map(r => r.map(x => `"${x}"`).join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `kash_${proj.name.replace(/\s+/g,'_')}_${todayStr()}.csv`;
+  a.download = `kash_goal_${todayStr()}.csv`;
   a.click();
 }
 
-// Transfer project balance to another project
-async function encerrarProjeto(id) {
-  const proj = state.projects.find(p => p.id == id);
-  if (!proj) return;
-  const st = calcProject(proj);
-  const estimatedBalance = st.estimatedBalance;
-
-  // Saldo real do Portfolio via Plaid
-  let portfolioBalance = null;
-  if (window._lastPlaidData && window._lastPlaidData.holdings && window._lastPlaidData.holdings.length > 0) {
-    portfolioBalance = window._lastPlaidData.holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
-  }
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-
-  const otherProjects = state.projects.filter(p => p.id !== id && !p.closed && !p.transferred);
-  const projectOptions = otherProjects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-
-  const portfolioRow = portfolioBalance !== null ? `
-    <div style="background:var(--black);border-radius:8px;padding:12px;margin-bottom:12px;">
-      <div style="font-size:0.72rem;color:var(--silver);margin-bottom:6px;">DOES THIS PROJECT REPRESENT YOUR REAL PORTFOLIO?</div>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--white);cursor:pointer;">
-          <input type="radio" name="projetoReal" value="sim" onchange="updateSaldoEncerrar(${portfolioBalance.toFixed(2)}, ${estimatedBalance.toFixed(2)})"> 
-          Yes — use Portfolio balance <strong style="color:var(--green-neon);">$${portfolioBalance.toFixed(2)}</strong>
-        </label>
-        <label style="display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--white);cursor:pointer;">
-          <input type="radio" name="projetoReal" value="nao" onchange="updateSaldoEncerrar(${portfolioBalance.toFixed(2)}, ${estimatedBalance.toFixed(2)})" checked>
-          No — use estimated balance <strong style="color:#888;">$${estimatedBalance.toFixed(2)}</strong>
-        </label>
-      </div>
-    </div>` : '';
-
-  modal.innerHTML = `
-    <div style="background:var(--gray-dark);border:1px solid #f59e0b;border-radius:16px;padding:28px;width:min(90vw,440px);max-height:90vh;overflow-y:auto;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#f59e0b;margin-bottom:4px;">🔒 CLOSE PROJECT</div>
-      <div style="font-size:0.8rem;color:var(--silver);margin-bottom:16px;">${proj.name}</div>
-
-      ${portfolioRow}
-
-      <div style="background:var(--black);border-radius:8px;padding:12px;margin-bottom:16px;">
-        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:4px;">REFERENCE BALANCE</div>
-        <div id="encerrarSaldoRef" style="font-size:1.4rem;color:var(--green-neon);font-family:'Bebas Neue',sans-serif;">$${estimatedBalance.toFixed(2)}</div>
-        <div style="font-size:0.7rem;color:#888;margin-top:4px;">Adjust the value in the fields below if needed</div>
-      </div>
-
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">WHAT WOULD YOU LIKE TO DO WITH THE BALANCE?</label>
-      <select id="encerrarAcao" onchange="updateEncerrarModal()" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
-        <option value="pendente">⏳ Keep pending — decide later</option>
-        ${projectOptions ? `<option value="transferir">➡️ Transfer to another project</option>` : ''}
-        <option value="retirar">💸 Record withdrawal</option>
-      </select>
-
-      <div id="encerrarTransferirDiv" style="display:none;margin-bottom:16px;">
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">DESTINATION PROJECT</label>
-        <select id="encerrarTargetProj" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:12px;">
-          ${projectOptions}
-        </select>
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT TO TRANSFER ($)</label>
-        <input type="number" id="encerrarAmount" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
-          style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-      </div>
-
-      <div id="encerrarRetirarDiv" style="display:none;margin-bottom:16px;">
-        <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT WITHDRAWN ($)</label>
-        <input type="number" id="encerrarAmountRetirada" value="${estimatedBalance.toFixed(2)}" min="0" step="0.01"
-          style="width:100%;background:var(--black);border:1px solid var(--green-neon);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;">
-      </div>
-
-      <div style="display:flex;gap:10px;margin-top:8px;">
-        <button class="btn btn-primary btn-sm" onclick="confirmarEncerramento('${id}', this.closest('div[style*=fixed]'))">Confirm</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
-      </div>
-    </div>`;
-
-  document.body.appendChild(modal);
-}
-
-function updateSaldoEncerrar(portfolioVal, estimatedVal) {
-  const isReal = document.querySelector('input[name="projetoReal"]:checked')?.value === 'sim';
-  const val = isReal ? portfolioVal : estimatedVal;
-  document.getElementById('encerrarSaldoRef').textContent = '$' + val.toFixed(2);
-  if (document.getElementById('encerrarAmount')) document.getElementById('encerrarAmount').value = val.toFixed(2);
-  if (document.getElementById('encerrarAmountRetirada')) document.getElementById('encerrarAmountRetirada').value = val.toFixed(2);
-}
-
-function updateEncerrarModal() {
-  const acao = document.getElementById('encerrarAcao').value;
-  document.getElementById('encerrarTransferirDiv').style.display = acao === 'transferir' ? 'block' : 'none';
-  document.getElementById('encerrarRetirarDiv').style.display = acao === 'retirar' ? 'block' : 'none';
-}
-
-function confirmarEncerramento(fromId, modal) {
-  const proj = state.projects.find(p => p.id == fromId);
-  if (!proj) return;
-  const acao = document.getElementById('encerrarAcao').value;
-
-  if (acao === 'transferir') {
-    const targetId = document.getElementById('encerrarTargetProj').value;
-    const targetProj = state.projects.find(p => p.id == targetId);
-    if (!targetProj) return;
-    const valor = parseFloat(document.getElementById('encerrarAmount').value) || 0;
-    if (valor <= 0) return alert('Please enter a valid amount.');
-    targetProj.contributions = targetProj.contributions || [];
-    targetProj.contributions.push({
-      id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      amount: valor, gross: valor, fee: 0, net: valor,
-      note: `Transfer from ${proj.name}`,
-      isTransfer: true,
-      fromProject: proj.name
-    });
-    proj.closed = true;
-    proj.transferred = true;
-    proj.closedBalance = valor;
-    proj.closedAcao = 'transferred to ' + targetProj.name;
-  } else if (acao === 'retirar') {
-    const valor = parseFloat(document.getElementById('encerrarAmountRetirada').value) || 0;
-    proj.closed = true;
-    proj.closedBalance = valor;
-    proj.closedAcao = 'retirada de ' + fmt(valor);
-  } else {
-    // pendente
-    proj.closed = true;
-    proj.closedBalance = null;
-    proj.closedAcao = 'pendente';
-  }
-
-  save();
-  modal.remove();
-  renderAll();
-  if (acao === 'transferir') alert('✅ Balance transferred successfully!');
-  else if (acao === 'retirar') alert('✅ Withdrawal recorded.');
-  else alert('🔒 Project closed. Balance pending — you can transfer at any time.');
-}
-
-function openTransferModal(fromId) {
-  const fromProj = state.projects.find(p => p.id === fromId);
-  if (!fromProj) return;
-  const st = calcProject(fromProj);
-  const balance = st.estimatedBalance;
-
-  const others = state.projects.filter(p => p.id !== fromId && !p.closed && !p.transferred);
-  if (others.length === 0) {
-    alert('Create another project first to transfer the balance.');
-    return;
-  }
-
-  const options = others.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML = `
-    <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,400px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--green-neon);margin-bottom:16px;">TRANSFER BALANCE</div>
-      <div style="font-size:0.85rem;color:var(--silver);margin-bottom:16px;">
-        Saldo estimado de <strong style="color:var(--white);">${fromProj.name}</strong>: 
-        <strong style="color:var(--green-neon);">${fmt(balance)}</strong>
-      </div>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">TRANSFERIR PARA:</label>
-      <select id="transferTarget" style="width:100%;background:var(--black);border:1px solid var(--green-dark);color:var(--white);padding:8px 12px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
-        ${options}
-      </select>
-      <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ The balance will be added as a contribution to the destination project. The source project will be marked as closed.</div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirm Transfer</button>
-        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function executeTransfer(fromId, balance, modal) {
-  const targetId = document.getElementById('transferTarget').value;
-  const targetProj = state.projects.find(p => p.id === targetId);
-  if (!targetProj) return;
-
-  // Add balance as contribution to target project
-  const contrib = {
-    id: Date.now().toString(),
-    date: new Date().toISOString().split('T')[0],
-    gross: balance,
-    fee: 0,
-    net: balance,
-    note: 'Balance transfer'
-  };
-  targetProj.contributions = targetProj.contributions || [];
-  targetProj.contributions.push(contrib);
-
-  // Mark source as transferred
-  const fromProj = state.projects.find(p => p.id === fromId);
-  if (fromProj) fromProj.transferred = true;
-
-  save();
-  renderOverview();
-  modal.remove();
-  alert('✅ Balance successfully transferred to ' + targetProj.name + '!');
-}
-
-// ══════════════════════════════════════════════════
-// ALOCAR SALDO DISPONÍVEL
-// ══════════════════════════════════════════════════
-function alocarSaldoDisponivel() {
-  const saldo = state.saldoDisponivel || 0;
-  if (saldo <= 0) return;
-
-  const activeProjs = state.projects.filter(p => !p.closed && !p.transferred);
-  if (activeProjs.length === 0) {
-    alert('Create an active project first to allocate the balance.');
-    return;
-  }
-
-  const options = activeProjs.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML = `
-    <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,420px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">💰 ALLOCATE AVAILABLE BALANCE</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
-        Available balance: <strong style="color:#fbbf24;">${fmt(saldo)}</strong><br>
-        This amount will be added as a transfer contribution to the destination project and can be adjusted at any time.
-      </div>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">DESTINATION PROJECT</label>
-      <select id="alocarProjSelect" style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:0.9rem;margin-bottom:16px;">
-        ${options}
-      </select>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">AMOUNT TO ALLOCATE ($)</label>
-      <input type="number" id="alocarAmountInput" value="${saldo.toFixed(2)}" min="0" step="0.01"
-        style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-gold btn-sm" onclick="confirmarAlocacao(this.closest('div[style*=fixed]'))">✅ Confirm Allocation</button>
-        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function confirmarAlocacao(modal) {
-  const projId = document.getElementById('alocarProjSelect').value;
-  const valor = parseFloat(document.getElementById('alocarAmountInput').value) || 0;
-  if (valor <= 0) return alert('Please enter a valid amount.');
-
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
-
-  proj.contributions = proj.contributions || [];
-  proj.contributions.push({
-    id: Date.now().toString(),
-    date: new Date().toISOString().split('T')[0],
-    amount: valor, gross: valor, fee: 0, net: valor,
-    note: 'Allocated available balance',
-    isTransfer: true,
-    fromProject: 'Available balance'
-  });
-  proj.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  state.saldoDisponivel = Math.max(0, (state.saldoDisponivel || 0) - valor);
-  save();
-  modal.remove();
-  renderAll();
-  switchTab('proj-' + projId);
-  alert('✅ Balance successfully allocated to ' + proj.name + '!');
-}
-
-// ══════════════════════════════════════════════════
-// EDIT TRANSFER VALUE
-// ══════════════════════════════════════════════════
-function editTransferValue(projId, contribId) {
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
-  const contrib = proj.contributions.find(c => c.id === contribId);
-  if (!contrib || !contrib.isTransfer) return;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML = `
-    <div style="background:var(--gray-dark);border:1px solid rgba(251,191,36,0.4);border-radius:16px;padding:28px;width:min(90vw,400px);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#fbbf24;margin-bottom:8px;letter-spacing:2px;">✏️ ADJUST TRANSFERRED BALANCE</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:20px;letter-spacing:1px;line-height:1.6;">
-        Source: <strong style="color:var(--white);">${contrib.fromProject || 'Previous project'}</strong><br>
-        Current amount: <strong style="color:#fbbf24;">${fmt(contrib.amount)}</strong><br><br>
-        Adjust to the actual consolidated balance in your account.
-      </div>
-      <label style="font-size:0.75rem;color:var(--silver);display:block;margin-bottom:6px;">NEW AMOUNT ($)</label>
-      <input type="number" id="editTransferInput" value="${contrib.amount.toFixed(2)}" min="0" step="0.01"
-        style="width:100%;background:var(--black);border:1px solid #fbbf24;color:var(--white);padding:10px 14px;border-radius:8px;font-size:1rem;margin-bottom:20px;font-family:'Space Mono',monospace;">
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-gold btn-sm" onclick="saveTransferValue('${projId}','${contribId}',this.closest('div[style*=fixed]'))">💾 Save</button>
-        <button class="btn btn-secondary btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-  setTimeout(() => modal.querySelector('#editTransferInput').focus(), 100);
-}
-
-function saveTransferValue(projId, contribId, modal) {
-  const proj = state.projects.find(p => p.id === projId);
-  if (!proj) return;
-  const contrib = proj.contributions.find(c => c.id === contribId);
-  if (!contrib) return;
-  const newValue = parseFloat(document.getElementById('editTransferInput').value);
-  if (!newValue || newValue <= 0) return alert('Please enter a valid amount.');
-  contrib.amount = newValue;
-  contrib.net = newValue;
-  contrib.gross = newValue;
-  save();
-  modal.remove();
-  renderProjectPanel(proj);
-  renderOverview();
-}
 
 // ══════════════════════════════════════════════════
 // HELP / TERMS / PRIVACY MODALS
