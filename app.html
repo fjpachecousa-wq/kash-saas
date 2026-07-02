@@ -2686,113 +2686,53 @@ function renderProjectPanel(proj) {
   const panelId = 'panel-proj-' + proj.id;
   let panel = document.getElementById(panelId);
 
-  // ── Statement data (from Plaid cache) ──────────────────────────────────
-  const txns = (window._lastStatementData?.investment_transactions) || [];
-  const startDate = proj.startDate || proj.date; // fallback to deadline if no startDate
-
-  // All-time totals (PROJECT BALANCE and DIVIDENDS always show full history)
-  const allDeposits    = txns.filter(t => t.subtype === 'buy' || (t.type === 'cash' && t.amount < 0 && t.subtype !== 'dividend'));
-  const allDividends   = txns.filter(t => t.subtype === 'dividend');
-  const totalDeposits  = allDeposits.reduce((s, t) => s + Math.abs(t.amount), 0);
-  const totalDividends = allDividends.reduce((s, t) => s + Math.abs(t.amount), 0);
-
-  // Project-period transactions (contributions from startDate onwards, for history table)
-  const periodTxns = txns
-    .filter(t => t.date >= startDate && t.date <= proj.date)
-    .sort((a, b) => b.date.localeCompare(a.date));
-  const periodDeposits  = periodTxns.filter(t => t.subtype !== 'dividend');
-  const periodDividends = periodTxns.filter(t => t.subtype === 'dividend');
-
-  // KPI calculations based on Statement data
-  const projectBalance = totalDeposits;
-  const remaining      = Math.max(0, proj.target - projectBalance);
-  const pct            = Math.min(100, proj.target > 0 ? (projectBalance / proj.target) * 100 : 0);
-  const daysLeft       = st.daysLeft;
-  const suggestedDaily = daysLeft > 0 && remaining > 0 ? remaining / daysLeft : 0;
-
-  // Last sync label
-  const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-  const lastSyncStr = ls ? new Date(ls).toLocaleString() : '—';
-
-  // Format date for display
-  const fmtDate = (d) => new Date(d + 'T12:00:00').toLocaleDateString('en-US');
-  const startFmt = fmtDate(startDate);
-  const endFmt   = fmtDate(proj.date);
-
   const html = `
   <div style="--project-color: ${proj.color}">
 
-    <!-- KPIs -->
-    <div class="kpi-grid">
-      <div class="kpi">
-        <span class="kpi-value" style="color:${proj.color};">${fmt(projectBalance)}</span>
-        <span class="kpi-label">Project Balance</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value gold">${fmt(remaining)}</span>
-        <span class="kpi-label">Remaining</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value" style="color:${proj.color};">${daysLeft}</span>
-        <span class="kpi-label">Days Left</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value" style="color:var(--blue);">${periodDeposits.length}</span>
-        <span class="kpi-label">Contributions (Period)</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value gold">${pct.toFixed(1)}%</span>
-        <span class="kpi-label">Progress</span>
-      </div>
-      <div class="kpi">
-        <span class="kpi-value" style="color:var(--orange);">${fmt(totalDividends)}</span>
-        <span class="kpi-label">Total Dividends</span>
-      </div>
-    </div>
+    <!-- KPIs -->\n    <div class=\"kpi-grid\">\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${fmt(st.totalInvested)}</span>\n        <span class=\"kpi-label\">Project Balance</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.totalPending)}</span>\n        <span class=\"kpi-label\">Total Pending</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${fmt(st.remaining)}</span>\n        <span class=\"kpi-label\">Remaining</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value\" style=\"color:${proj.color};\">${st.daysLeft}</span>\n        <span class=\"kpi-label\">Days Left</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value silver\">${proj.contributions.filter(c => !c.isTransfer).length}</span>\n        <span class=\"kpi-label\">Contributions</span>\n      </div>\n      <div class=\"kpi\">\n        <span class=\"kpi-value gold\">${st.pct.toFixed(1)}%</span>\n        <span class=\"kpi-label\">Progress</span>\n      </div>\n    </div>\n\n    <!-- PROGRESS BAR + DAILY CONTRIBUTION lado a lado -->\n    <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;\">\n\n      <div class=\"card\" style=\"margin-bottom:0;\">\n        <div class=\"card-title\" style=\"color:${proj.color};\">📈 Progress — ${proj.name}</div>\n        <div class=\"progress-wrap\">\n          <div class=\"progress-label\">\n            <span>${fmt(st.totalInvested)} / ${fmt(proj.target)}</span>\n            <span>${st.pct.toFixed(1)}%</span>\n          </div>\n          <div class=\"progress-bar-bg\">\n            <div class=\"progress-bar-fill\" style=\"width:${st.pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;\"></div>\n          </div>\n        </div>\n        ${st.pct >= 100 ? `<div class=\"alert\" style=\"display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;\">🎉 Goal Reached! Congratulations!</div>` : ''}\n        ${st.pct < 30 && st.daysLeft < 30 && proj.contributions.filter(c => !c.isTransfer).length > 0 ? `<div class=\"alert\" style=\"display:block;\">⚠ Deadline approaching and goal below 30%. Increase your contributions.</div>` : ''}\n      </div>\n\n      <div class=\"suggestion-box\" style=\"margin-bottom:0;border-color:${proj.color}; box-shadow: 0 0 30px ${proj.color}22;\">\n        <div class=\"suggestion-icon\">💡</div>\n        <div class=\"suggestion-text\">\n          <div class=\"kpi-label\" style=\"margin-bottom:4px;\">RECOMMENDED DAILY CONTRIBUTION</div>\n          <div class=\"suggestion-amount\" style=\"color:${proj.color}; text-shadow: 0 0 20px ${proj.color}bb;\">${fmt(st.suggestedDaily)}</div>\n          <div class=\"suggestion-desc\">${st.daysLeft > 0 ? `${st.daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached. <button class=\"btn btn-sm\" style=\"padding:2px 8px;font-size:0.72rem;margin-left:8px;\" onclick=\"openTransferModal(' + proj.id + ')\">Transfer Balance</button>'}</div>\n          ${(() => { const sd = calcStreak(proj); return sd.days > 0 ? `<div style=\"margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;\">${streakFlames(sd.pct)} ${sd.days}-day streak</div>` : ''; })()} \n        </div>\n      </div>\n\n    </div>
 
-    <!-- PROGRESS BAR + DAILY -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div class="card" style="margin-bottom:0;">
-        <div class="card-title" style="color:${proj.color};">📈 Progress — ${proj.name}</div>
-        <div class="progress-wrap">
-          <div class="progress-label">
-            <span>${fmt(projectBalance)} / ${fmt(proj.target)}</span>
-            <span>${pct.toFixed(1)}%</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" style="width:${pct.toFixed(1)}%; background: linear-gradient(90deg, #0d2b0d, ${proj.color}); box-shadow: 0 0 10px ${proj.color}88;"></div>
+    <!-- ADD CONTRIBUTION -->
+    <div class="card no-print">
+      <div class="card-title">💵 Add Contribution</div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="amt-${proj.id}" placeholder="ex: 50.00 or -3.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" id="dt-${proj.id}" placeholder="MM/DD/YYYY"
+              maxlength="10" autocomplete="off"
+              oninput="maskDateInput(this)"
+              value="${todayMMDDYYYY()}"
+              style="letter-spacing:1px;flex:1;">
+            <input type="date" id="dtPicker-${proj.id}"
+              style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;"
+              onchange="(function(p){const v=document.getElementById('dtPicker-'+p).value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dt-'+p).value=m+'/'+d+'/'+y;})('${proj.id}')">
+            <button type="button"
+              onclick="const el=document.getElementById('dtPicker-${proj.id}');el.showPicker&&el.showPicker();"
+              style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;"
+              title="Open calendar">📅</button>
           </div>
         </div>
-        ${pct >= 100 ? `<div class="alert" style="display:block;border-color:${proj.color};color:${proj.color};background:${proj.color}11;">🎉 Goal Reached! Congratulations!</div>` : ''}
-      </div>
-      <div class="suggestion-box" style="margin-bottom:0;border-color:${proj.color};box-shadow:0 0 30px ${proj.color}22;">
-        <div class="suggestion-icon">💡</div>
-        <div class="suggestion-text">
-          <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
-          <div class="suggestion-amount" style="color:${proj.color};text-shadow:0 0 20px ${proj.color}bb;">${fmt(suggestedDaily)}</div>
-          <div class="suggestion-desc">${daysLeft > 0 ? `${daysLeft} days left · ${proj.risk ? proj.risk.charAt(0).toUpperCase()+proj.risk.slice(1) : 'Moderate'} risk` : 'Deadline reached.'}</div>
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <select id="note-${proj.id}" onchange="const o=document.getElementById('noteOther-${proj.id}'); o.style.display = this.value==='Other' ? 'block' : 'none';"
+            style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+            <option value="Recurring">Recurring</option>
+            <option value="Extra Contribution">Extra Contribution</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="noteOther-${proj.id}" placeholder="Specify..." style="display:none;margin-top:6px;width:100%;box-sizing:border-box;">
         </div>
       </div>
-    </div>
-
-    <!-- DEPOSITS + DIVIDENDS CARDS -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
-      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.05),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.25);border-radius:12px;padding:18px 20px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:2px;color:var(--green-neon);margin-bottom:6px;">💵 Deposits</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.6);margin-bottom:12px;">🕐 Last sync: ${lastSyncStr}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:var(--green-neon);margin-bottom:4px;">${fmt(totalDeposits)}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">${allDeposits.length} transactions · all time</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.4);margin-top:6px;">via Acorns / Plaid · synced daily at 6:10 PM</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(251,191,36,0.05),rgba(0,0,0,0.4));border:1px solid rgba(251,191,36,0.25);border-radius:12px;padding:18px 20px;">
-        <div style="font-family:'Bebas Neue',cursive;font-size:0.95rem;letter-spacing:2px;color:var(--gold);margin-bottom:6px;">📊 Dividends</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.6);margin-bottom:12px;">🕐 Last sync: ${lastSyncStr}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:1.3rem;font-weight:700;color:var(--gold);margin-bottom:4px;">${fmt(totalDividends)}</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">${allDividends.length} transactions · all time</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.4);margin-top:6px;">via Acorns / Plaid · synced daily at 6:10 PM</div>
+      <div class="btn-row">
+        ${proj.transferred ? `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#22c55e;padding:8px 0;letter-spacing:1px;">🔒✅ CLOSED — ${proj.closedAcao || 'balance transferred'}</div>` : proj.closed ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 0;"><span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#f59e0b;letter-spacing:1px;">🔒⏳ CLOSED — balance pending</span><button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="encerrarProjeto('${proj.id}')">💸 Allocate Balance</button></div>` : `<button class="btn btn-primary" onclick="addContribution('${proj.id}')">➕ Add Contribution</button>`}
       </div>
     </div>
 
+    <!-- ETF SUGGESTIONS -->
     <!-- HISTORY TABLE -->
     <div class="card">
       <div class="card-title">📋 Contribution History</div>
@@ -2803,33 +2743,33 @@ function renderProjectPanel(proj) {
               <th>#</th>
               <th>Date</th>
               <th>Amount</th>
-              <th>Type</th>
-              <th>Description</th>
+              <th>Accumulated</th>
+              <th>Note</th>
+              <th class="no-print"></th>
             </tr>
           </thead>
           <tbody>
-            ${periodTxns.length === 0
-              ? `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No transactions yet for ${startFmt} – ${endFmt}.</td></tr>`
-              : periodTxns.map((t, i) => {
-                  const isDividend = t.subtype === 'dividend';
-                  const amt = Math.abs(t.amount);
-                  const badge = isDividend
-                    ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.12);color:var(--gold);border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;letter-spacing:1px;">DIVIDEND</span>`
-                    : `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(57,255,20,0.12);color:var(--green-neon);border:1px solid rgba(57,255,20,0.3);border-radius:4px;padding:1px 5px;margin-left:6px;letter-spacing:1px;">CONTRIBUTION</span>`;
-                  return `<tr>
-                    <td>${periodTxns.length - i}</td>
-                    <td>${fmtDate(t.date)}</td>
-                    <td class="amount-cell" style="color:${isDividend ? 'var(--gold)' : 'var(--green-neon)'};font-weight:700;">+${fmt(amt)}${badge}</td>
-                    <td style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">${t.subtype || t.type || '—'}</td>
-                    <td style="font-family:'Space Mono',monospace;font-size:0.72rem;color:#888;">${t.name || '—'}</td>
-                  </tr>`;
-                }).join('')
+            ${st.rows.length === 0
+              ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
+              : [...st.rows].reverse().map(r => `
+                <tr style="${r.isTransfer ? 'background:rgba(251,191,36,0.04);' : ''}">
+                  <td>${r.idx}</td>
+                  <td>${new Date(r.date + 'T12:00:00').toLocaleDateString('en-US')}</td>
+                  <td class="amount-cell">
+                    ${fmt(r.amount)}
+                    ${r.isTransfer ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.15);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">TRANSFER</span>` : ''}
+                    ${r.pending ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>` : ''}
+                  </td>
+                  <td class="running-cell">${fmt(r.running)}</td>
+                  <td style="color:#888;">${r.note || '—'}</td>
+                  <td class="no-print">
+                    ${r.isTransfer ? `<button class="icon-btn" onclick="editTransferValue('${proj.id}','${r.id}')" title="Editar saldo transferido" style="color:#fbbf24;">✏️</button>` : ''}
+                    ${!proj.transferred && !proj.closed && !r.isTransfer ? `<button class="icon-btn icon-btn-del" onclick="deleteContribution('${proj.id}','${r.id}')" title="Excluir">🗑</button>` : ''}
+                  </td>
+                </tr>`).join('')
             }
           </tbody>
         </table>
-      </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.4);margin-top:12px;text-align:center;">
-        Showing transactions from ${startFmt} to ${endFmt} · sourced from Acorns via Plaid
       </div>
       <hr class="divider">
       <div class="btn-row no-print">
@@ -3215,7 +3155,6 @@ function openTransferModal(fromId) {
 
   const options = others.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   const modal = document.createElement('div');
-  modal.id = 'transferBalanceModal';
   modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;';
   modal.innerHTML = `
     <div style="background:var(--gray-dark);border:1px solid var(--green-dark);border-radius:16px;padding:28px;width:min(90vw,400px);">
@@ -3230,15 +3169,15 @@ function openTransferModal(fromId) {
       </select>
       <div style="font-size:0.75rem;color:#f59e0b;margin-bottom:16px;">⚠️ The balance will be added as a contribution to the destination project. The source project will be marked as closed.</div>
       <div style="display:flex;gap:10px;">
-        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, document.getElementById('transferBalanceModal'))">Confirm Transfer</button>
-        <button class="btn btn-sm" onclick="document.getElementById('transferBalanceModal').remove()">Cancel</button>
+        <button class="btn btn-primary btn-sm" onclick="executeTransfer(${fromId}, ${balance.toFixed(2)}, this.closest('div[style*=fixed]'))">Confirm Transfer</button>
+        <button class="btn btn-sm" onclick="this.closest('div[style*=fixed]').remove()">Cancel</button>
       </div>
     </div>`;
   document.body.appendChild(modal);
 }
 
 function executeTransfer(fromId, balance, modal) {
-  const targetId = modal.querySelector('#transferTarget').value;
+  const targetId = parseInt(document.getElementById('transferTarget').value);
   const targetProj = state.projects.find(p => p.id === targetId);
   if (!targetProj) return;
 
