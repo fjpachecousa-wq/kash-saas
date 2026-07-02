@@ -2299,7 +2299,7 @@ function addContribution() {
 // ══════════════════════════════════════════════════
 function deleteContribution(contribId) {
   if (!state.goal) return;
-  state.goal.contributions = (state.goal.contributions || []).filter(c => c.id !== contribId);
+  state.goal.contributions = (state.goal.contributions || []).filter(c => String(c.id) !== String(contribId));
   save();
   renderGoalPanel();
   renderOverview();
