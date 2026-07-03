@@ -1584,6 +1584,25 @@
     </div>
   </div>
 </div>
+
+<!-- ══ CHART OF ACCOUNTS MODAL ("Plano de Contas") ══ -->
+<div class="modal-overlay" id="chartOfAccountsModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeChartOfAccountsModal()">✕</button>
+    <div class="modal-title">⚙️ Manage Types</div>
+    <div id="chartOfAccountsList" style="margin-bottom:16px;max-height:280px;overflow-y:auto;"></div>
+    <div class="form-group" style="margin-bottom:16px;">
+      <label>Add New Type</label>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="newChartOfAccountItem" placeholder="ex: Bonus" style="flex:1;">
+        <button class="btn btn-primary btn-sm" onclick="addChartOfAccountItem()">➕ Add</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary btn-sm" onclick="closeChartOfAccountsModal()">Done</button>
+    </div>
+  </div>
+</div>
 <!-- /appContent -->
 
 <script>
@@ -1754,7 +1773,10 @@ async function load() {
       portfolio:     loaded.portfolio || [],
       birthdate:     loaded.birthdate || '',
       address:       loaded.address || {},
-      declaresUsTax: loaded.declaresUsTax || ''
+      declaresUsTax: loaded.declaresUsTax || '',
+      chartOfAccounts: (loaded.chartOfAccounts && loaded.chartOfAccounts.length)
+        ? loaded.chartOfAccounts
+        : ['Auto Investment', 'Lump Sum', 'Dividend', 'Automated Rebalance']
     };
     return true;
   }
@@ -2276,10 +2298,9 @@ function addContribution() {
   const amt = parseFloat(document.getElementById('amt-goal').value);
   const dtRaw = document.getElementById('dt-goal').value || todayMMDDYYYY();
   const dt = parseDateInput(dtRaw);
-  const noteSelect = document.getElementById('note-goal').value;
-  const noteOtherEl = document.getElementById('noteOther-goal');
-  const note = noteSelect === 'Other' ? (noteOtherEl ? noteOtherEl.value.trim() : '') : noteSelect;
+  const note = document.getElementById('note-goal').value;
   if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
+  if (!note) return alert('Please select a Type.');
 
   const pending = nextBusinessDay(dt) > todayStr();
   g.contributions = g.contributions || [];
@@ -2287,8 +2308,6 @@ function addContribution() {
   g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   document.getElementById('amt-goal').value = '';
-  document.getElementById('note-goal').value = 'Recurring';
-  if (noteOtherEl) { noteOtherEl.value = ''; noteOtherEl.style.display = 'none'; }
   save();
   renderGoalPanel();
   renderOverview();
@@ -2609,13 +2628,11 @@ function renderGoalPanel() {
           </div>
         </div>
         <div class="form-group">
-          <label>Note (optional)</label>
-          <select id="note-goal" onchange="const o=document.getElementById('noteOther-goal');o.style.display=this.value==='Other'?'block':'none';" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
-            <option value="Recurring">Recurring</option>
-            <option value="Extra Contribution">Extra Contribution</option>
-            <option value="Other">Other</option>
+          <label style="display:flex;align-items:center;gap:6px;">Type (required)
+            <span onclick="openChartOfAccountsModal()" title="Manage Types" style="cursor:pointer;font-size:0.85rem;line-height:1;">⚙️</span>
+          </label>
+          <select id="note-goal" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
           </select>
-          <input type="text" id="noteOther-goal" placeholder="Specify..." style="display:none;margin-top:6px;width:100%;box-sizing:border-box;">
         </div>
       </div>
       <div class="btn-row">
@@ -2627,7 +2644,7 @@ function renderGoalPanel() {
       <div class="card-title">📋 Contribution History</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Accumulated</th><th>Note</th><th class="no-print"></th></tr></thead>
+          <thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
           <tbody>
             ${st.rows.length === 0
               ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
@@ -2651,6 +2668,67 @@ function renderGoalPanel() {
       </div>
     </div>
   </div>`;
+  renderTypeOptions();
+}
+
+// ══════════════════════════════════════════════════
+// CHART OF ACCOUNTS ("Plano de Contas") — feeds the Type dropdown
+// ══════════════════════════════════════════════════
+function renderTypeOptions() {
+  const sel = document.getElementById('note-goal');
+  if (!sel) return;
+  const list = state.chartOfAccounts || [];
+  const prev = sel.value;
+  sel.innerHTML = list.map(t => `<option value="${t}">${t}</option>`).join('');
+  if (list.includes(prev)) sel.value = prev;
+}
+
+function openChartOfAccountsModal() {
+  renderChartOfAccountsList();
+  document.getElementById('chartOfAccountsModal').classList.add('open');
+}
+
+function closeChartOfAccountsModal() {
+  document.getElementById('chartOfAccountsModal').classList.remove('open');
+}
+
+function renderChartOfAccountsList() {
+  const wrap = document.getElementById('chartOfAccountsList');
+  if (!wrap) return;
+  const list = state.chartOfAccounts || [];
+  wrap.innerHTML = list.map((t, i) => `
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+      <input type="text" value="${t}" onchange="editChartOfAccountItem(${i}, this.value)" style="flex:1;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;color:var(--white);font-family:'Rajdhani',sans-serif;font-size:0.85rem;">
+      <button class="icon-btn icon-btn-del" onclick="removeChartOfAccountItem(${i})" title="Remove">🗑</button>
+    </div>`).join('') || '<div style="color:var(--silver);font-size:0.8rem;">No types yet — add one below.</div>';
+}
+
+function addChartOfAccountItem() {
+  const input = document.getElementById('newChartOfAccountItem');
+  const val = (input.value || '').trim();
+  if (!val) return;
+  state.chartOfAccounts = state.chartOfAccounts || [];
+  state.chartOfAccounts.push(val);
+  input.value = '';
+  save();
+  renderChartOfAccountsList();
+  renderTypeOptions();
+}
+
+function editChartOfAccountItem(index, value) {
+  const val = (value || '').trim();
+  if (!val) return renderChartOfAccountsList();
+  state.chartOfAccounts[index] = val;
+  save();
+  renderChartOfAccountsList();
+  renderTypeOptions();
+}
+
+function removeChartOfAccountItem(index) {
+  state.chartOfAccounts.splice(index, 1);
+  save();
+  renderChartOfAccountsList();
+  renderTypeOptions();
 }
 
 // ══════════════════════════════════════════════════
