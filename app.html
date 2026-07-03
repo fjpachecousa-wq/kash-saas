@@ -2874,7 +2874,7 @@ function importStatementTransaction(key) {
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
 
-  const amt = parseFloat(txn.amount || 0);
+  const amt = Math.abs(parseFloat(txn.amount || 0));
   g.contributions.push({
     id: Date.now().toString(),
     date: txn.date,
