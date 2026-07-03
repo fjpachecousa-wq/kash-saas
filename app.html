@@ -2794,6 +2794,10 @@ function _txnKey(t) {
   return t.investment_transaction_id || (t.date + '_' + t.amount + '_' + (t.name || ''));
 }
 
+function _cleanTxnName(name) {
+  return ((name || '').split(' - ')[0] || '').trim();
+}
+
 function _daysDiff(d1, d2) {
   return Math.abs((new Date(d1 + 'T12:00:00') - new Date(d2 + 'T12:00:00')) / 86400000);
 }
@@ -2812,7 +2816,7 @@ function runReconciliation() {
   const findMatch = (c) => txns.find(t => {
     const tAmt = Math.abs(parseFloat(t.amount || 0));
     const cAmt = Math.abs(parseFloat(c.amount || 0));
-    return t.name === c.note
+    return _cleanTxnName(t.name) === c.note
       && Math.abs(tAmt - cAmt) < 0.005
       && _daysDiff(t.date, c.date) <= 1;
   });
@@ -2838,10 +2842,10 @@ function runReconciliation() {
     if (g.importedTxnKeys.includes(key)) return;
     const hasManualMatch = g.contributions.some(c => {
       const cAmt = Math.abs(parseFloat(c.amount || 0));
-      return t.name === c.note && Math.abs(amt - cAmt) < 0.005 && _daysDiff(t.date, c.date) <= 1;
+      return _cleanTxnName(t.name) === c.note && Math.abs(amt - cAmt) < 0.005 && _daysDiff(t.date, c.date) <= 1;
     });
     if (hasManualMatch) return;
-    suggestions.push({ key, date: t.date, amount: amt, name: t.name || t.type || '—' });
+    suggestions.push({ key, date: t.date, amount: amt, name: _cleanTxnName(t.name) || t.type || '—' });
   });
 
   window._reconciliationSuggestions = suggestions;
@@ -2885,7 +2889,7 @@ function importStatementTransaction(key) {
     amount: amt,
     fee: 0,
     net: amt,
-    note: txn.name || txn.type || 'Dividend',
+    note: _cleanTxnName(txn.name) || txn.type || 'Dividend',
     pending: false,
     matched: true,
     fromPlaid: true,
