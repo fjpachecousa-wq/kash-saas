@@ -2049,16 +2049,8 @@ async function initApp() {
   if (!state.goal.contributions) state.goal.contributions = [];
   portfolioEntries = state.portfolio;
 
-  // Auto-clear pending contributions: release only on/after next US business day
-  const today = todayStr();
-  let pendingCleared = false;
-  (state.goal.contributions || []).forEach(c => {
-    if (c.pending && nextBusinessDay(c.date) <= today) {
-      c.pending = false;
-      pendingCleared = true;
-    }
-  });
-  if (pendingCleared) await save();
+  // Pending is now decided exclusively by Statement reconciliation (runReconciliation),
+  // not by calendar estimate — removed auto-clear by business day.
   if (!state.name && currentUser?.user_metadata?.full_name) {
     const parts = currentUser.user_metadata.full_name.split(' ');
     state.name = currentUser.user_metadata.full_name;
@@ -2779,7 +2771,13 @@ function closeEditContributionTypeModal() {
 function saveContributionType() {
   const c = (state.goal.contributions || []).find(c => String(c.id) === String(_editingContribId));
   if (!c) return closeEditContributionTypeModal();
-  c.note = document.getElementById('editContribTypeSelect').value;
+  const newType = document.getElementById('editContribTypeSelect').value;
+  if (newType !== c.note) {
+    c.note = newType;
+    // Type changed — old Match (if any) no longer applies; re-evaluate against the Statement.
+    c.matched = false;
+    delete c.txnKey;
+  }
   save();
   renderGoalPanel();
   renderOverview();
@@ -2813,38 +2811,48 @@ function runReconciliation() {
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
 
-  const findMatch = (c) => txns.find(t => {
+  // Transactions already used to confirm a manual contribution — reserved, can't confirm another.
+  const reservedKeys = new Set();
+  g.contributions.forEach(c => { if (c.matched && c.txnKey) reservedKeys.add(c.txnKey); });
+
+  const sameNameAmount = (t, c) => {
     const tAmt = Math.abs(parseFloat(t.amount || 0));
     const cAmt = Math.abs(parseFloat(c.amount || 0));
-    return _cleanTxnName(t.name) === c.note
-      && Math.abs(tAmt - cAmt) < 0.005
-      && _daysDiff(t.date, c.date) <= 1;
-  });
+    return _cleanTxnName(t.name) === c.note && Math.abs(tAmt - cAmt) < 0.005;
+  };
+
+  const findMatch = (c) => {
+    const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
+    // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
+    let hit = candidates.find(t => t.date === c.date);
+    // Fallback: ±1 day, only if no exact-date candidate exists.
+    if (!hit) hit = candidates.find(t => _daysDiff(t.date, c.date) <= 1);
+    return hit;
+  };
 
   // 1) Mark manual contributions that now have a Statement match — Pending disappears.
   let changed = false;
   g.contributions.forEach(c => {
     if (c.matched) return;
-    if (findMatch(c)) {
+    const hit = findMatch(c);
+    if (hit) {
       c.matched = true;
       c.pending = false;
+      c.txnKey = _txnKey(hit);
+      reservedKeys.add(c.txnKey);
       changed = true;
     }
   });
   if (changed) save();
 
-  // 2) Statement entries with real value, not yet imported, with no manual match — suggest.
+  // 2) Statement entries with real value, not reserved/imported — suggest for confirmation.
   const suggestions = [];
   txns.forEach(t => {
     const amt = Math.abs(parseFloat(t.amount || 0));
     if (amt === 0) return;
     const key = _txnKey(t);
     if (g.importedTxnKeys.includes(key)) return;
-    const hasManualMatch = g.contributions.some(c => {
-      const cAmt = Math.abs(parseFloat(c.amount || 0));
-      return _cleanTxnName(t.name) === c.note && Math.abs(amt - cAmt) < 0.005 && _daysDiff(t.date, c.date) <= 1;
-    });
-    if (hasManualMatch) return;
+    if (reservedKeys.has(key)) return;
     suggestions.push({ key, date: t.date, amount: amt, name: _cleanTxnName(t.name) || t.type || '—' });
   });
 
