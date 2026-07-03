@@ -2825,9 +2825,12 @@ function runReconciliation() {
 
   // 0) Backfill: contributions matched before txnKey existed — reconstruct it once,
   // without touching matched/pending (already correct), so they stop being re-offered.
+  // Exact date first, ±1 day as fallback — same rule as the main match.
   g.contributions.forEach(c => {
     if (c.matched && !c.txnKey) {
-      const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && t.date === c.date);
+      const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
+      let hit = candidates.find(t => t.date === c.date);
+      if (!hit) hit = candidates.find(t => _daysDiff(t.date, c.date) <= 1);
       if (hit) {
         c.txnKey = _txnKey(hit);
         reservedKeys.add(c.txnKey);
