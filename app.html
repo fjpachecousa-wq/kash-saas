@@ -2628,6 +2628,8 @@ function renderGoalPanel() {
       </div>
     </div>
 
+    <div id="reconciliationSuggestions"></div>
+
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
       <div class="form-row three">
@@ -2671,7 +2673,7 @@ function renderGoalPanel() {
                   <td class="amount-cell">${fmt(r.amount)}${r.pending?`<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`:''}
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
-                  <td style="color:#888;">${r.note||'—'}</td>
+                  <td style="color:#888;">${r.note||'—'}${r.fromPlaid?' <span title="Imported from Statement">🔗</span>':''}</td>
                   <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Type">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
                 </tr>`).join('')}
           </tbody>
@@ -2685,6 +2687,8 @@ function renderGoalPanel() {
     </div>
   </div>`;
   renderTypeOptions();
+  runReconciliation();
+  renderReconciliationSuggestions();
 }
 
 // ══════════════════════════════════════════════════
@@ -2776,6 +2780,118 @@ function saveContributionType() {
   renderGoalPanel();
   renderOverview();
   closeEditContributionTypeModal();
+}
+
+// ══════════════════════════════════════════════════
+// RECONCILIATION — match manual contributions vs. Plaid Statement
+// Match criteria: Type (exact) + Amount (exact) + Date (±1 day)
+// ══════════════════════════════════════════════════
+function _txnKey(t) {
+  return t.investment_transaction_id || (t.date + '_' + t.amount + '_' + (t.name || ''));
+}
+
+function _daysDiff(d1, d2) {
+  return Math.abs((new Date(d1 + 'T12:00:00') - new Date(d2 + 'T12:00:00')) / 86400000);
+}
+
+function runReconciliation() {
+  const g = state.goal;
+  window._reconciliationSuggestions = [];
+  if (!g) return;
+
+  const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
+  if (!txns.length) return;
+
+  g.contributions = g.contributions || [];
+  g.importedTxnKeys = g.importedTxnKeys || [];
+
+  const findMatch = (c) => txns.find(t => {
+    const tAmt = Math.abs(parseFloat(t.amount || 0));
+    const cAmt = Math.abs(parseFloat(c.amount || 0));
+    return t.name === c.note
+      && Math.abs(tAmt - cAmt) < 0.005
+      && _daysDiff(t.date, c.date) <= 1;
+  });
+
+  // 1) Mark manual contributions that now have a Statement match — Pending disappears.
+  let changed = false;
+  g.contributions.forEach(c => {
+    if (c.matched) return;
+    if (findMatch(c)) {
+      c.matched = true;
+      c.pending = false;
+      changed = true;
+    }
+  });
+  if (changed) save();
+
+  // 2) Statement entries with real value, not yet imported, with no manual match — suggest.
+  const suggestions = [];
+  txns.forEach(t => {
+    const amt = Math.abs(parseFloat(t.amount || 0));
+    if (amt === 0) return;
+    const key = _txnKey(t);
+    if (g.importedTxnKeys.includes(key)) return;
+    const hasManualMatch = g.contributions.some(c => {
+      const cAmt = Math.abs(parseFloat(c.amount || 0));
+      return t.name === c.note && Math.abs(amt - cAmt) < 0.005 && _daysDiff(t.date, c.date) <= 1;
+    });
+    if (hasManualMatch) return;
+    suggestions.push({ key, date: t.date, amount: amt, name: t.name || t.type || '—' });
+  });
+
+  window._reconciliationSuggestions = suggestions;
+  window._lastStatementTxnsForImport = txns;
+}
+
+function renderReconciliationSuggestions() {
+  const wrap = document.getElementById('reconciliationSuggestions');
+  if (!wrap) return;
+  const list = window._reconciliationSuggestions || [];
+  if (!list.length) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `
+    <div class="card no-print" style="border-color:rgba(57,255,20,0.4);">
+      <div class="card-title">🔗 Found in Statement</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:12px;">These appeared in your Acorns Statement but aren't in My Goal yet. Confirm to add.</div>
+      ${list.map(s => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(192,192,192,0.08);">
+          <div>
+            <div style="font-size:0.82rem;color:var(--white);">${s.name}</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">${s.date} · $${s.amount.toFixed(2)}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')">➕ Add</button>
+        </div>`).join('')}
+    </div>`;
+}
+
+function importStatementTransaction(key) {
+  const g = state.goal;
+  if (!g) return;
+  const txns = window._lastStatementTxnsForImport || [];
+  const txn = txns.find(t => _txnKey(t) === key);
+  if (!txn) return;
+
+  g.contributions = g.contributions || [];
+  g.importedTxnKeys = g.importedTxnKeys || [];
+
+  const amt = parseFloat(txn.amount || 0);
+  g.contributions.push({
+    id: Date.now().toString(),
+    date: txn.date,
+    amount: amt,
+    fee: 0,
+    net: amt,
+    note: txn.name || txn.type || 'Dividend',
+    pending: false,
+    matched: true,
+    fromPlaid: true
+  });
+  g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
+  g.importedTxnKeys.push(key);
+
+  save();
+  renderGoalPanel();
+  renderOverview();
 }
 
 // ══════════════════════════════════════════════════
@@ -3471,6 +3587,8 @@ async function fetchStatement(useCacheOnly) {
     container.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>` + rows;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
+    runReconciliation();
+    renderReconciliationSuggestions();
     updateStatementLabels(); // refresh period label with the real most-recent transaction date
 
     if (!useCacheOnly) {
