@@ -2334,6 +2334,10 @@ function addContribution() {
 // ══════════════════════════════════════════════════
 function deleteContribution(contribId) {
   if (!state.goal) return;
+  const target = (state.goal.contributions || []).find(c => String(c.id) === String(contribId));
+  if (target && target.fromPlaid && target.txnKey && state.goal.importedTxnKeys) {
+    state.goal.importedTxnKeys = state.goal.importedTxnKeys.filter(k => k !== target.txnKey);
+  }
   state.goal.contributions = (state.goal.contributions || []).filter(c => String(c.id) !== String(contribId));
   save();
   renderGoalPanel();
@@ -2884,7 +2888,8 @@ function importStatementTransaction(key) {
     note: txn.name || txn.type || 'Dividend',
     pending: false,
     matched: true,
-    fromPlaid: true
+    fromPlaid: true,
+    txnKey: key
   });
   g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
   g.importedTxnKeys.push(key);
