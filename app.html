@@ -1603,6 +1603,22 @@
     </div>
   </div>
 </div>
+
+<!-- ══ EDIT CONTRIBUTION TYPE MODAL ══ -->
+<div class="modal-overlay" id="editContributionTypeModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEditContributionTypeModal()">✕</button>
+    <div class="modal-title">✏️ Edit Type</div>
+    <div class="form-group" style="margin-bottom:20px;">
+      <label>Type</label>
+      <select id="editContribTypeSelect" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;"></select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveContributionType()">💾 Save</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeEditContributionTypeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 <!-- /appContent -->
 
 <script>
@@ -2656,7 +2672,7 @@ function renderGoalPanel() {
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note||'—'}</td>
-                  <td class="no-print"><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
+                  <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Type">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
                 </tr>`).join('')}
           </tbody>
         </table>
@@ -2729,6 +2745,37 @@ function removeChartOfAccountItem(index) {
   save();
   renderChartOfAccountsList();
   renderTypeOptions();
+}
+
+// ══════════════════════════════════════════════════
+// EDIT CONTRIBUTION TYPE (historical entries)
+// ══════════════════════════════════════════════════
+let _editingContribId = null;
+
+function openEditContributionTypeModal(id) {
+  const c = (state.goal.contributions || []).find(c => String(c.id) === String(id));
+  if (!c) return;
+  _editingContribId = id;
+  const sel = document.getElementById('editContribTypeSelect');
+  const list = state.chartOfAccounts || [];
+  sel.innerHTML = list.map(t => `<option value="${t}">${t}</option>`).join('');
+  if (list.includes(c.note)) sel.value = c.note;
+  document.getElementById('editContributionTypeModal').classList.add('open');
+}
+
+function closeEditContributionTypeModal() {
+  document.getElementById('editContributionTypeModal').classList.remove('open');
+  _editingContribId = null;
+}
+
+function saveContributionType() {
+  const c = (state.goal.contributions || []).find(c => String(c.id) === String(_editingContribId));
+  if (!c) return closeEditContributionTypeModal();
+  c.note = document.getElementById('editContribTypeSelect').value;
+  save();
+  renderGoalPanel();
+  renderOverview();
+  closeEditContributionTypeModal();
 }
 
 // ══════════════════════════════════════════════════
