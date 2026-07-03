@@ -2839,6 +2839,17 @@ function runReconciliation() {
     }
   });
 
+  // 0b) Revert orphan confirmations: matched=true but backfill found no real Statement
+  // transaction to back it up (e.g. left over from before the "exact date + reserve" fix).
+  // My Goal is the intention, Statement is the fact — no fact behind it, no longer confirmed.
+  g.contributions.forEach(c => {
+    if (c.matched && !c.txnKey) {
+      c.matched = false;
+      c.pending = true;
+      changed = true;
+    }
+  });
+
   const findMatch = (c) => {
     const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
     // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
