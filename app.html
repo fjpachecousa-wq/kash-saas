@@ -2821,6 +2821,21 @@ function runReconciliation() {
     return _cleanTxnName(t.name) === c.note && Math.abs(tAmt - cAmt) < 0.005;
   };
 
+  let changed = false;
+
+  // 0) Backfill: contributions matched before txnKey existed — reconstruct it once,
+  // without touching matched/pending (already correct), so they stop being re-offered.
+  g.contributions.forEach(c => {
+    if (c.matched && !c.txnKey) {
+      const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && t.date === c.date);
+      if (hit) {
+        c.txnKey = _txnKey(hit);
+        reservedKeys.add(c.txnKey);
+        changed = true;
+      }
+    }
+  });
+
   const findMatch = (c) => {
     const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
     // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
@@ -2831,7 +2846,6 @@ function runReconciliation() {
   };
 
   // 1) Mark manual contributions that now have a Statement match — Pending disappears.
-  let changed = false;
   g.contributions.forEach(c => {
     if (c.matched) return;
     const hit = findMatch(c);
