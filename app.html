@@ -2588,15 +2588,10 @@ function renderGoalPanel() {
           </div>
         </div>
       </div>
-      <div class="kpi"></div>
-      <div class="kpi"></div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
-      <div class="card" style="margin-bottom:0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <div class="card-title" style="margin-bottom:0;">📈 Progress — Goal ${fmt(g.target)}</div>
-          <button class="btn btn-sm" style="font-size:0.7rem;padding:3px 10px;" onclick="openEditGoalModal()">✏️ Edit Goal</button>
+      <div class="kpi" style="grid-column:span 2;text-align:left;padding:14px 18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:0.95rem;color:var(--white);font-weight:600;">📈 Progress — Goal ${fmt(g.target)}</div>
+          <button class="btn btn-sm" style="font-size:0.65rem;padding:3px 10px;" onclick="openEditGoalModal()">✏️ Edit Goal</button>
         </div>
         <div class="progress-wrap">
           <div class="progress-label"><span>${fmt(st.totalInvested)} / ${fmt(g.target)}</span><span>${st.pct.toFixed(1)}%</span></div>
@@ -2606,6 +2601,9 @@ function renderGoalPanel() {
           Deadline: ${g.date ? new Date(g.date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—'}
         </div>
       </div>
+    </div>
+
+    <div style="margin-bottom:24px;">
       <div class="suggestion-box" style="margin-bottom:0;">
         <div class="suggestion-icon">💡</div>
         <div class="suggestion-text">
