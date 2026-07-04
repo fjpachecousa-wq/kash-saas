@@ -2599,18 +2599,6 @@ function renderGoalPanel() {
       </div>
     </div>
 
-    <div style="margin-bottom:24px;">
-      <div class="suggestion-box" style="margin-bottom:0;">
-        <div class="suggestion-icon">💡</div>
-        <div class="suggestion-text">
-          <div class="kpi-label" style="margin-bottom:4px;">RECOMMENDED DAILY CONTRIBUTION</div>
-          <div class="suggestion-amount">${fmt(st.suggestedDaily)}</div>
-          <div class="suggestion-desc">${st.daysLeft > 0 ? `${st.daysLeft} days left` : 'Set a new goal to continue'}</div>
-          ${(()=>{const sd=calcStreak(g);return sd.days>0?`<div style="margin-top:6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:#f97316;letter-spacing:1px;">${streakFlames(sd.pct)} ${sd.days}-day streak</div>`:'';})()} 
-        </div>
-      </div>
-    </div>
-
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
       <div class="form-row three">
