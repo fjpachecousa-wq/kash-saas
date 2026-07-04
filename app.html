@@ -1200,7 +1200,7 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo-area">
+  <div class="logo-area" onclick="switchTab('overview')" style="cursor:pointer;" title="Go to Overview">
     <div class="logo-text">KA<span style="text-shadow:0 0 30px #39ff14;">$</span><span class="logo-h">H</span></div>
     <div class="logo-tagline">Microinvest. Macroresults.</div>
   </div>
@@ -1209,7 +1209,6 @@
       <strong id="headerName">—</strong>
       <span id="headerDate"></span>
     </div>
-    <button class="btn btn-sm no-print" id="dashboardBtn" onclick="switchTab('overview')" style="display:none;font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.5);color:#000;font-weight:700;background:var(--green-neon);" title="Back to Dashboard">⬅ Dashboard</button>
     <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Investor Profile">👤 Profile</button>
     <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
@@ -2348,10 +2347,6 @@ function switchTab(tabId) {
   const panel = document.getElementById('panel-' + tabId);
   if (btn) btn.classList.add('active');
   if (panel) panel.classList.add('active');
-
-  // Show Dashboard button when not on overview
-  const dashBtn = document.getElementById('dashboardBtn');
-  if (dashBtn) dashBtn.style.display = tabId === 'overview' ? 'none' : 'inline-flex';
 
   if (tabId === 'portfolio') {
     const plaidData = window._lastPlaidData;
