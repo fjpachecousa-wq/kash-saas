@@ -2554,9 +2554,22 @@ function renderGoalPanel() {
   container.innerHTML = `<div>
     ${alertHtml}
     <div class="kpi-grid" style="margin-bottom:20px;">
-      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(st.totalInvested)}</span><span class="kpi-label">Project Balance</span></div>
+      <div class="kpi">
+        <div style="display:flex;justify-content:center;gap:16px;">
+          <div>
+            <span class="kpi-value" style="color:var(--green-neon);font-size:0.85em;">${fmt(st.totalInvested)}</span>
+            <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:1px;margin-top:2px;">GOAL</div>
+          </div>
+          <div style="width:1px;background:rgba(192,192,192,0.15);"></div>
+          <div>
+            <span class="kpi-value" style="color:var(--green-neon);font-size:0.85em;">${fmt(getStatementTotal())}</span>
+            <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:1px;margin-top:2px;">ACORNS</div>
+          </div>
+        </div>
+        <span class="kpi-label" style="margin-top:6px;">Balance</span>
+      </div>
+      <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining to Goal</span></div>
       <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
-      <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining</span></div>
       <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${st.daysLeft}</span><span class="kpi-label">Days Left</span></div>
       <div class="kpi"><span class="kpi-value silver">${(g.contributions||[]).filter(c=>!c.isTransfer).length}</span><span class="kpi-label">Contributions</span></div>
       <div class="kpi"><span class="kpi-value gold">${st.pct.toFixed(1)}%</span><span class="kpi-label">Progress</span></div>
@@ -2762,6 +2775,19 @@ function _txnKey(t) {
 
 function _cleanTxnName(name) {
   return ((name || '').split(' - ')[0] || '').trim();
+}
+
+// Total real reportado pela Acorns (Contributions + Dividends, exclui Fees/Taxes) — usado para
+// comparar "pelos seus livros" (GOAL) vs "pelo banco" (ACORNS), no card BALANCE.
+function getStatementTotal() {
+  const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
+  let total = 0;
+  txns.forEach(t => {
+    const key = ((t.subtype || t.type || '') + '').toLowerCase();
+    if (key.includes('fee') || key.includes('tax')) return;
+    total += Math.abs(parseFloat(t.amount || 0));
+  });
+  return total;
 }
 
 function _daysDiff(d1, d2) {
