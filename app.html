@@ -2570,9 +2570,26 @@ function renderGoalPanel() {
       </div>
       <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining to Goal</span></div>
       <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
-      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${st.daysLeft}</span><span class="kpi-label">Days Left</span></div>
-      <div class="kpi"><span class="kpi-value silver">${(g.contributions||[]).filter(c=>!c.isTransfer).length}</span><span class="kpi-label">Contributions</span></div>
-      <div class="kpi"><span class="kpi-value gold">${st.pct.toFixed(1)}%</span><span class="kpi-label">Progress</span></div>
+      <div class="kpi">
+        <div style="display:flex;justify-content:center;gap:16px;">
+          <div>
+            <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${st.daysLeft}</span>
+            <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">DAYS LEFT</div>
+          </div>
+          <div style="width:1px;background:rgba(192,192,192,0.15);"></div>
+          <div>
+            <span class="kpi-value" style="color:var(--gold);font-size:1.5rem;">${st.pct.toFixed(1)}%</span>
+            <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">PROGRESS</div>
+          </div>
+          <div style="width:1px;background:rgba(192,192,192,0.15);"></div>
+          <div>
+            <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.suggestedDaily)}</span>
+            <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">RECOMMENDED DAILY</div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi"></div>
+      <div class="kpi"></div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
