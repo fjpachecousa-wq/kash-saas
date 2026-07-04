@@ -1220,7 +1220,7 @@
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
   <button class="tab-btn" onclick="switchTab('statement')" id="tab-statement">🧾 STATEMENT</button>
-  <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">🎯 MY GOAL</button>
+  <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">📑 TRANSACTIONS</button>
 </nav>
 
 <div class="container">
@@ -2537,6 +2537,7 @@ function renderGoalPanel() {
     return;
   }
 
+  runReconciliation();
   const st = calcProject(g);
   const goalReached    = st.pct >= 100;
   const deadlineReached = st.daysLeft === 0;
@@ -2586,8 +2587,6 @@ function renderGoalPanel() {
       </div>
     </div>
 
-    <div id="reconciliationSuggestions"></div>
-
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
       <div class="form-row three">
@@ -2622,6 +2621,15 @@ function renderGoalPanel() {
         <table>
           <thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
           <tbody>
+            ${(window._reconciliationSuggestions || []).map(s => `
+              <tr style="background:rgba(57,255,20,0.03);border-bottom:1px dashed rgba(57,255,20,0.15);">
+                <td style="color:rgba(192,192,192,0.4);">—</td>
+                <td>${new Date(s.date+'T12:00:00').toLocaleDateString('en-US')}</td>
+                <td class="amount-cell">${fmt(s.amount)}</td>
+                <td class="running-cell" style="color:rgba(192,192,192,0.3);">—</td>
+                <td style="color:#888;">${s.name}</td>
+                <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
+              </tr>`).join('')}
             ${st.rows.length === 0
               ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
               : [...st.rows].reverse().map(r => `
@@ -2645,8 +2653,6 @@ function renderGoalPanel() {
     </div>
   </div>`;
   renderTypeOptions();
-  runReconciliation();
-  renderReconciliationSuggestions();
 }
 
 // ══════════════════════════════════════════════════
@@ -2844,25 +2850,7 @@ function runReconciliation() {
   window._lastStatementTxnsForImport = txns;
 }
 
-function renderReconciliationSuggestions() {
-  const wrap = document.getElementById('reconciliationSuggestions');
-  if (!wrap) return;
-  const list = window._reconciliationSuggestions || [];
-  if (!list.length) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = `
-    <div class="card no-print" style="border-color:rgba(57,255,20,0.4);">
-      <div class="card-title">🔗 Found in Statement</div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);margin-bottom:12px;">These appeared in your Acorns Statement but aren't in My Goal yet. Confirm to add.</div>
-      ${list.map(s => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(192,192,192,0.08);">
-          <div>
-            <div style="font-size:0.82rem;color:var(--white);">${s.name}</div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">${s.date} · $${s.amount.toFixed(2)}</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')">➕ Add</button>
-        </div>`).join('')}
-    </div>`;
-}
+
 
 function importStatementTransaction(key) {
   const g = state.goal;
@@ -3584,7 +3572,7 @@ async function fetchStatement(useCacheOnly) {
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
     runReconciliation();
-    renderReconciliationSuggestions();
+    if (document.getElementById('panel-goal')?.classList.contains('active')) renderGoalPanel();
     updateStatementLabels(); // refresh period label with the real most-recent transaction date
 
     if (!useCacheOnly) {
