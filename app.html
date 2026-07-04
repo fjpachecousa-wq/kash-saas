@@ -2812,8 +2812,8 @@ function runReconciliation() {
   g.importedTxnKeys = g.importedTxnKeys || [];
 
   // Transactions already used to confirm a manual contribution — reserved, can't confirm another.
+  // Built fresh each run from scratch — nothing is trusted just because it was already "confirmed".
   const reservedKeys = new Set();
-  g.contributions.forEach(c => { if (c.matched && c.txnKey) reservedKeys.add(c.txnKey); });
 
   const sameNameAmount = (t, c) => {
     const tAmt = Math.abs(parseFloat(t.amount || 0));
@@ -2821,36 +2821,7 @@ function runReconciliation() {
     return _cleanTxnName(t.name) === c.note && Math.abs(tAmt - cAmt) < 0.005;
   };
 
-  let changed = false;
-
-  // 0) Backfill: contributions matched before txnKey existed — reconstruct it once,
-  // without touching matched/pending (already correct), so they stop being re-offered.
-  // Exact date first, ±1 day as fallback — same rule as the main match.
-  g.contributions.forEach(c => {
-    if (c.matched && !c.txnKey) {
-      const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
-      let hit = candidates.find(t => t.date === c.date);
-      if (!hit) hit = candidates.find(t => _daysDiff(t.date, c.date) <= 1);
-      if (hit) {
-        c.txnKey = _txnKey(hit);
-        reservedKeys.add(c.txnKey);
-        changed = true;
-      }
-    }
-  });
-
-  // 0b) Revert orphan confirmations: matched=true but backfill found no real Statement
-  // transaction to back it up (e.g. left over from before the "exact date + reserve" fix).
-  // My Goal is the intention, Statement is the fact — no fact behind it, no longer confirmed.
-  g.contributions.forEach(c => {
-    if (c.matched && !c.txnKey) {
-      c.matched = false;
-      c.pending = true;
-      changed = true;
-    }
-  });
-
-  const findMatch = (c) => {
+  const findRealMatch = (c) => {
     const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
     // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
     let hit = candidates.find(t => t.date === c.date);
@@ -2859,10 +2830,33 @@ function runReconciliation() {
     return hit;
   };
 
-  // 1) Mark manual contributions that now have a Statement match — Pending disappears.
+  let changed = false;
+
+  // 0) Single rule, no exceptions by origin: every contribution marked "confirmed" (pending:false)
+  // — whether from a real Match, a legacy calendar auto-clear, or an old buggy match — must have
+  // a real Statement transaction behind it right now. Verified → stays confirmed, with proof
+  // (matched + txnKey). Not verified → goes back to Pending. My Goal is intention, Statement is fact.
   g.contributions.forEach(c => {
-    if (c.matched) return;
-    const hit = findMatch(c);
+    if (c.pending) return;
+    const hit = findRealMatch(c);
+    if (hit) {
+      const newKey = _txnKey(hit);
+      if (!c.matched || c.txnKey !== newKey) changed = true;
+      c.matched = true;
+      c.txnKey = newKey;
+      reservedKeys.add(newKey);
+    } else {
+      if (c.matched || c.txnKey) changed = true;
+      c.matched = false;
+      delete c.txnKey;
+      c.pending = true;
+    }
+  });
+
+  // 1) Contributions still Pending — check if the Statement has since confirmed them.
+  g.contributions.forEach(c => {
+    if (!c.pending) return;
+    const hit = findRealMatch(c);
     if (hit) {
       c.matched = true;
       c.pending = false;
