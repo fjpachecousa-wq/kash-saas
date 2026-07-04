@@ -1390,7 +1390,7 @@
         </div>
       </div>
 
-      <div id="statementSummary" style="display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
+      <div id="statementSummary" style="display:none;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;"></div>
 
       <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
         <div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Loading statement...</div>
@@ -3589,6 +3589,7 @@ async function fetchStatement(useCacheOnly) {
         card('Contributions', '$' + sumContributions.toFixed(2), 'var(--green-neon)') +
         card('Dividends', '$' + sumDividends.toFixed(2), 'var(--green-neon)') +
         card('Fees / Taxes', '$' + sumFeesTaxes.toFixed(2), sumFeesTaxes > 0 ? '#ef4444' : 'var(--silver)') +
+        card('Total', '$' + (sumContributions + sumDividends - sumFeesTaxes).toFixed(2), 'var(--white)') +
         card('Total Activity', txns.length + ' txns', 'var(--white)');
     }
 
