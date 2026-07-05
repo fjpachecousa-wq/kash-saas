@@ -2541,6 +2541,7 @@ function renderGoalPanel() {
 
   runReconciliation();
   const st = calcProject(g);
+  const view = window._transactionsView || 'goal';
   const goalReached    = st.pct >= 100;
   const deadlineReached = st.daysLeft === 0;
 
@@ -2557,21 +2558,32 @@ function renderGoalPanel() {
     ${alertHtml}
     <div class="kpi-grid" style="margin-bottom:20px;">
       <div class="kpi">
-        <div style="display:flex;justify-content:center;gap:18px;">
-          <div>
-            <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
-            <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">GOAL</div>
+        <div style="display:flex;justify-content:center;align-items:center;gap:16px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="viewCheck-goal" ${view === 'goal' ? 'checked' : ''} onchange="setTransactionsView('goal')" style="width:15px;height:15px;accent-color:var(--green-neon);cursor:pointer;">
+            <div>
+              <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">GOAL</div>
+            </div>
           </div>
-          <div style="width:1px;background:rgba(192,192,192,0.15);"></div>
-          <div>
-            <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
-            <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">ACORNS</div>
+          <div style="width:1px;background:rgba(192,192,192,0.15);align-self:stretch;"></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div>
+              <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">ACORNS</div>
+            </div>
+            <input type="checkbox" id="viewCheck-acorns" ${view === 'acorns' ? 'checked' : ''} onchange="setTransactionsView('acorns')" style="width:15px;height:15px;accent-color:var(--green-neon);cursor:pointer;">
           </div>
         </div>
         <span class="kpi-label" style="margin-top:8px;">Balance</span>
       </div>
+      ${view === 'goal' ? `
       <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining to Goal</span></div>
       <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
+      ` : `
+      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(getStatementDividends())}</span><span class="kpi-label">Dividends</span></div>
+      <div class="kpi"><span class="kpi-value silver" style="font-size:1.1rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</span><span class="kpi-label">Last Sync · Daily 6:10 PM</span></div>
+      `}
       <div class="kpi">
         <div style="display:flex;justify-content:center;gap:18px;">
           <div>
@@ -2601,6 +2613,7 @@ function renderGoalPanel() {
       </div>
     </div>
 
+    <div id="goalBottomSection">
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
       <div class="form-row four">
@@ -2673,8 +2686,12 @@ function renderGoalPanel() {
         <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Export CSV</button>
       </div>
     </div>
+    </div>
   </div>`;
   renderTypeOptions();
+  document.getElementById('goalBottomSection').style.display = view === 'goal' ? '' : 'none';
+  const acornsEl = document.getElementById('acornsView');
+  if (acornsEl) acornsEl.style.display = view === 'acorns' ? '' : 'none';
 }
 
 // ══════════════════════════════════════════════════
@@ -2797,6 +2814,23 @@ function getStatementTotal() {
     total += Math.abs(parseFloat(t.amount || 0));
   });
   return total;
+}
+
+function getStatementDividends() {
+  const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
+  let total = 0;
+  txns.forEach(t => {
+    const key = ((t.subtype || t.type || '') + '').toLowerCase();
+    if (key.includes('dividend')) total += Math.abs(parseFloat(t.amount || 0));
+  });
+  return total;
+}
+
+// Alterna a visão dentro de TRANSACTIONS entre GOAL (My Goal — padrão) e ACORNS
+// (extrato real do Statement). Seleção única — nunca as duas ao mesmo tempo.
+function setTransactionsView(view) {
+  window._transactionsView = view;
+  renderGoalPanel();
 }
 
 function _daysDiff(d1, d2) {
