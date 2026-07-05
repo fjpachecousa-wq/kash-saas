@@ -2270,15 +2270,25 @@ function addContribution() {
   if (!g) return;
 
   const amt = parseFloat(document.getElementById('amt-goal').value);
-  const dtRaw = document.getElementById('dt-goal').value || todayMMDDYYYY();
-  const dt = parseDateInput(dtRaw);
+  const startRaw = document.getElementById('dtStart-goal').value || todayMMDDYYYY();
+  const endRaw = document.getElementById('dtEnd-goal').value || todayMMDDYYYY();
+  const startDt = parseDateInput(startRaw);
+  const endDt = parseDateInput(endRaw);
   const note = document.getElementById('note-goal').value;
   if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
   if (!note) return alert('Please select a Type.');
+  if (new Date(endDt) < new Date(startDt)) return alert('End Date cannot be before Start Date.');
 
-  const pending = nextBusinessDay(dt) > todayStr();
   g.contributions = g.contributions || [];
-  g.contributions.push({ id: Date.now().toString(), date: dt, amount: amt, fee: 0, net: amt, note, pending });
+  let d = new Date(startDt + 'T12:00:00');
+  const end = new Date(endDt + 'T12:00:00');
+  while (d <= end) {
+    const dateStr = d.toISOString().slice(0, 10);
+    // Every new contribution starts as Pending — only the Statement (fact) can confirm it,
+    // via reconciliation, which runs right away on this same render.
+    g.contributions.push({ id: Date.now().toString() + Math.random().toString(36).slice(2, 6), date: dateStr, amount: amt, fee: 0, net: amt, note, pending: true });
+    d.setDate(d.getDate() + 1);
+  }
   g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
 
   document.getElementById('amt-goal').value = '';
@@ -2292,6 +2302,7 @@ function addContribution() {
 // ══════════════════════════════════════════════════
 function deleteContribution(contribId) {
   if (!state.goal) return;
+  if (!confirm('Are you sure you want to delete this contribution? This cannot be undone.')) return;
   const target = (state.goal.contributions || []).find(c => String(c.id) === String(contribId));
   if (target && target.fromPlaid && target.txnKey && state.goal.importedTxnKeys) {
     state.goal.importedTxnKeys = state.goal.importedTxnKeys.filter(k => k !== target.txnKey);
@@ -2601,17 +2612,25 @@ function renderGoalPanel() {
 
     <div class="card no-print">
       <div class="card-title">💵 Add Contribution</div>
-      <div class="form-row three">
+      <div class="form-row four">
         <div class="form-group">
           <label>Amount ($)</label>
           <input type="number" id="amt-goal" placeholder="ex: 50.00 or -3.00" step="0.01">
         </div>
         <div class="form-group">
-          <label>Date</label>
+          <label>Start Date</label>
           <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" id="dt-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
-            <input type="date" id="dtPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dt-goal').value=m+'/'+d+'/'+y;})()">
-            <button type="button" onclick="const el=document.getElementById('dtPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
+            <input type="text" id="dtStart-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
+            <input type="date" id="dtStartPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtStartPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtStart-goal').value=m+'/'+d+'/'+y;})()">
+            <button type="button" onclick="const el=document.getElementById('dtStartPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <input type="text" id="dtEnd-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
+            <input type="date" id="dtEndPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtEndPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtEnd-goal').value=m+'/'+d+'/'+y;})()">
+            <button type="button" onclick="const el=document.getElementById('dtEndPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
           </div>
         </div>
         <div class="form-group">
