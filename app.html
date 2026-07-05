@@ -2675,9 +2675,13 @@ function renderGoalPanel() {
                 <td style="color:#888;">${s.name}</td>
                 <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
               </tr>`).join('')}
-            ${st.rows.length === 0
-              ? `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
-              : [...st.rows].reverse().map(r => `
+            ${(() => {
+              const allRows = [...st.rows].reverse();
+              if (allRows.length === 0) return `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`;
+              const totalPages = Math.max(1, Math.ceil(allRows.length / PAGE_SIZE));
+              window._myGoalPage = Math.min(Math.max(1, window._myGoalPage || 1), totalPages);
+              const pageRows = allRows.slice((window._myGoalPage - 1) * PAGE_SIZE, window._myGoalPage * PAGE_SIZE);
+              return pageRows.map(r => `
                 <tr>
                   <td>${new Date(r.date+'T12:00:00').toLocaleDateString('en-US')}</td>
                   <td class="amount-cell">${fmt(r.amount)}${r.pending?`<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`:''}
@@ -2685,10 +2689,12 @@ function renderGoalPanel() {
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note||'—'}${r.fromPlaid?' <span title="Imported from Statement">🔗</span>':''}</td>
                   <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Type">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
-                </tr>`).join('')}
+                </tr>`).join('');
+            })()}
           </tbody>
         </table>
       </div>
+      ${paginationHtml(window._myGoalPage || 1, Math.max(1, Math.ceil(st.rows.length / PAGE_SIZE)), 'goToMyGoalPage')}
       <hr class="divider">
       <div class="btn-row no-print">
         <button class="btn btn-gold" onclick="window.print()">🖨 Print Statement</button>
@@ -2810,6 +2816,31 @@ function _txnKey(t) {
 
 function _cleanTxnName(name) {
   return ((name || '').split(' - ')[0] || '').trim();
+}
+
+// ══════════════════════════════════════════════════
+// PAGINAÇÃO — reaproveitada pelas tabelas My Goal e Acorns Statement.
+// Só corta a lista já pronta em pedaços; nenhuma lógica de data envolvida.
+// ══════════════════════════════════════════════════
+const PAGE_SIZE = 50;
+
+function paginationHtml(page, totalPages, gotoFnName) {
+  if (totalPages <= 1) return '';
+  return `<div class="btn-row no-print" style="justify-content:center;align-items:center;gap:14px;margin-top:14px;">
+    <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${gotoFnName}(${page - 1})">‹ Previous</button>
+    <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.7);">Page ${page} of ${totalPages}</span>
+    <button class="btn btn-secondary btn-sm" ${page >= totalPages ? 'disabled' : ''} onclick="${gotoFnName}(${page + 1})">Next ›</button>
+  </div>`;
+}
+
+function goToMyGoalPage(page) {
+  window._myGoalPage = page;
+  renderGoalPanel();
+}
+
+function goToAcornsPage(page) {
+  window._acornsPage = page;
+  renderStatementFromCache();
 }
 
 // Total real reportado pela Acorns (Contributions + Dividends, exclui Fees/Taxes) — usado para
@@ -3606,8 +3637,11 @@ async function fetchStatement(useCacheOnly) {
     }
 
     const sorted = [...txns].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const acornsTotalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+    window._acornsPage = Math.min(Math.max(1, window._acornsPage || 1), acornsTotalPages);
+    const pageTxns = sorted.slice((window._acornsPage - 1) * PAGE_SIZE, window._acornsPage * PAGE_SIZE);
 
-    const rows = sorted.map(t => {
+    const rows = pageTxns.map(t => {
       const amount = parseFloat(t.amount || 0);
       const typeKey = ((t.subtype || t.type || '') + '').toLowerCase();
       const isFeeOrTax = typeKey.includes('fee') || typeKey.includes('tax');
@@ -3642,7 +3676,8 @@ async function fetchStatement(useCacheOnly) {
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
         <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>`;
+      </table>
+      ${paginationHtml(window._acornsPage || 1, acornsTotalPages, 'goToAcornsPage')}`;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
     runReconciliation();
