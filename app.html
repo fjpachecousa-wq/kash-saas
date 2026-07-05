@@ -3446,6 +3446,20 @@ async function renderPlaidHoldings(data) {
 
 // ══════════════════════════════════════════════════
 // STATEMENT (isolado — não compartilha estado com PORTFOLIO)
+//
+// ⚠️ IMPORTANTE — LER ANTES DE MEXER EM SYNC:
+// Holdings (Portfolio) e Investment Transactions (Statement) são DUAS chamadas
+// SEPARADAS ao Plaid, cada uma com custo próprio (~$0.12/chamada):
+//   - syncPlaid()      → action 'get_holdings'               (Portfolio)
+//   - fetchStatement() → action 'get_investment_transactions' (Statement)
+// O sync automático diário (runAutoSyncIfDue, 1x/dia útil às 18:10) chama as
+// DUAS, uma atrás da outra — é o único gatilho automático/periódico do app.
+//
+// syncStatement() abaixo é o COMANDO OFICIAL para sync extraordinário
+// (manual, via Console) de SOMENTE o Statement, sem gastar uma chamada extra
+// de Portfolio caso não seja necessário. Para um sync extraordinário COMPLETO
+// (Statement + Portfolio), rode manualmente: await syncPlaid(); await fetchStatement();
+// Fora do sync das 18:10, NENHUM sync deve acontecer sozinho — só sob pedido explícito.
 // ══════════════════════════════════════════════════
 async function syncStatement() {
   const access_token = localStorage.getItem('plaid_access_token');
