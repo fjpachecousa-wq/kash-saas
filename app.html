@@ -1219,7 +1219,6 @@
 <nav class="nav-bar no-print" id="tabsNav">
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
-  <button class="tab-btn" onclick="switchTab('statement')" id="tab-statement">🧾 STATEMENT</button>
   <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">📑 TRANSACTIONS</button>
 </nav>
 
@@ -1325,46 +1324,6 @@
   </div>
 
   <!-- ══ STATEMENT TAB (isolado — não compartilha estado com PORTFOLIO) ══ -->
-  <div class="tab-panel" id="panel-statement">
-    <div style="padding:24px 0;">
-
-      <div style="margin-bottom:20px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">🧾 STATEMENT</div>
-        <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Cash activity reported by Plaid — last 90 days</div>
-      </div>
-
-      <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
-          <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
-          <div id="statementPeriodLabel" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);">Loading period...</div>
-        </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-          <div id="statementSyncLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.75);">🕐 Last sync: —</div>
-          <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">Auto-synced daily at 6:10 PM</span>
-        </div>
-      </div>
-
-      <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
-        ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
-        <div style="margin-top:10px;display:flex;align-items:flex-start;gap:8px;">
-          <input type="checkbox" id="hideStatementDisclaimer" onchange="toggleStatementDisclaimer()"
-            style="margin-top:2px;accent-color:#ffc107;width:14px;height:14px;cursor:pointer;flex-shrink:0;">
-          <label for="hideStatementDisclaimer"
-            style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(255,193,7,0.75);letter-spacing:0.5px;cursor:pointer;">
-            Don't show this again
-          </label>
-        </div>
-      </div>
-
-      <div id="statementSummary" style="display:none;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;"></div>
-
-      <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
-        <div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Loading statement...</div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- ══ OVERVIEW TAB ══════════════════════════════ -->
   <div class="tab-panel active" id="panel-overview">
   <div class="content-row">
@@ -1527,6 +1486,41 @@
 <!-- PANEL: MY GOAL -->
 <div class="tab-panel" id="panel-goal">
   <div id="goalPanelContent"><!-- injetado por renderGoalPanel() --></div>
+
+  <!-- ACORNS VIEW — movido do antigo painel STATEMENT (Passo 1). Ainda escondido;
+       o Passo 2 vai ligar a exibição às caixas de seleção GOAL/ACORNS do Card 1. -->
+  <div id="acornsView" style="display:none;padding:24px 0;">
+
+    <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
+        <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
+        <div id="statementPeriodLabel" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);">Loading period...</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div id="statementSyncLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.75);">🕐 Last sync: —</div>
+        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">Auto-synced daily at 6:10 PM</span>
+      </div>
+    </div>
+
+    <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
+      ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
+      <div style="margin-top:10px;display:flex;align-items:flex-start;gap:8px;">
+        <input type="checkbox" id="hideStatementDisclaimer" onchange="toggleStatementDisclaimer()"
+          style="margin-top:2px;accent-color:#ffc107;width:14px;height:14px;cursor:pointer;flex-shrink:0;">
+        <label for="hideStatementDisclaimer"
+          style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(255,193,7,0.75);letter-spacing:0.5px;cursor:pointer;">
+          Don't show this again
+        </label>
+      </div>
+    </div>
+
+    <div id="statementSummary" style="display:none;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;"></div>
+
+    <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
+      <div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Loading statement...</div>
+    </div>
+
+  </div>
 </div>
 
 </div><!-- /container -->
@@ -2331,7 +2325,7 @@ function switchTab(tabId) {
     if (plaidData) renderPlaidHoldings(plaidData);
   }
 
-  if (tabId === 'statement') {
+  if (tabId === 'goal') {
     renderStatementFromCache();
     const disclaimer = document.getElementById('statementDisclaimer');
     const checkbox = document.getElementById('hideStatementDisclaimer');
@@ -2339,9 +2333,6 @@ function switchTab(tabId) {
       disclaimer.style.display = 'none';
       if (checkbox) checkbox.checked = true;
     }
-  }
-
-  if (tabId === 'goal') {
     renderGoalPanel();
   }
 }
