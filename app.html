@@ -1491,17 +1491,6 @@
        o Passo 2 vai ligar a exibição às caixas de seleção GOAL/ACORNS do Card 1. -->
   <div id="acornsView" style="display:none;padding:24px 0;">
 
-    <div style="background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
-        <div id="statementOriginLabel" style="font-family:'Bebas Neue',cursive;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
-        <div id="statementPeriodLabel" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);">Loading period...</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-        <div id="statementSyncLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:rgba(192,192,192,0.75);">🕐 Last sync: —</div>
-        <span style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);">Auto-synced daily at 6:10 PM</span>
-      </div>
-    </div>
-
     <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
       ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
       <div style="margin-top:10px;display:flex;align-items:flex-start;gap:8px;">
@@ -1513,8 +1502,6 @@
         </label>
       </div>
     </div>
-
-    <div id="statementSummary" style="display:none;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;"></div>
 
     <div id="statementContent" style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.15);border-radius:12px;padding:20px;">
       <div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Loading statement...</div>
@@ -1576,6 +1563,45 @@
     <div class="btn-row">
       <button class="btn btn-primary" onclick="saveContributionType()">💾 Save</button>
       <button class="btn btn-secondary btn-sm" onclick="closeEditContributionTypeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADD TRANSACTION MODAL ══ -->
+<div class="modal-overlay" id="addTransactionModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAddTransactionModal()">✕</button>
+    <div class="modal-title">➕ Add Transaction</div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Amount ($)</label>
+      <input type="number" id="amt-goal" placeholder="ex: 50.00 or -3.00" step="0.01">
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Start Date</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" id="dtStart-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" style="letter-spacing:1px;flex:1;">
+        <input type="date" id="dtStartPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtStartPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtStart-goal').value=m+'/'+d+'/'+y;})()">
+        <button type="button" onclick="const el=document.getElementById('dtStartPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>End Date</label>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" id="dtEnd-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" style="letter-spacing:1px;flex:1;">
+        <input type="date" id="dtEndPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtEndPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtEnd-goal').value=m+'/'+d+'/'+y;})()">
+        <button type="button" onclick="const el=document.getElementById('dtEndPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:20px;">
+      <label style="display:flex;align-items:center;gap:6px;">Type (required)
+        <span onclick="openChartOfAccountsModal()" title="Manage Types" style="cursor:pointer;font-size:0.85rem;line-height:1;">⚙️</span>
+      </label>
+      <select id="note-goal" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="addContribution()">➕ Add Transaction</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeAddTransactionModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -2171,6 +2197,17 @@ function openEditGoalModal() {
 function closeEditGoalModal() {
   document.getElementById('editGoalModal').classList.remove('open');
 }
+
+function openAddTransactionModal() {
+  document.getElementById('amt-goal').value = '';
+  document.getElementById('dtStart-goal').value = todayMMDDYYYY();
+  document.getElementById('dtEnd-goal').value = todayMMDDYYYY();
+  renderTypeOptions();
+  document.getElementById('addTransactionModal').classList.add('open');
+}
+function closeAddTransactionModal() {
+  document.getElementById('addTransactionModal').classList.remove('open');
+}
 function saveGoal() {
   const target = parseFloat(document.getElementById('goalTarget').value);
   const date   = document.getElementById('goalDate').value;
@@ -2289,6 +2326,7 @@ function addContribution() {
   save();
   renderGoalPanel();
   renderOverview();
+  closeAddTransactionModal();
 }
 
 // ══════════════════════════════════════════════════
@@ -2582,7 +2620,12 @@ function renderGoalPanel() {
       <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
       ` : `
       <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(getStatementDividends())}</span><span class="kpi-label">Dividends</span></div>
-      <div class="kpi"><span class="kpi-value silver" style="font-size:1.1rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</span><span class="kpi-label">Last Sync · Daily 6:10 PM</span></div>
+      <div class="kpi" style="position:relative;">
+        <div style="position:absolute;top:8px;right:12px;font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(57,255,20,0.7);letter-spacing:1px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()}</div>
+        <span class="kpi-value silver" style="font-size:0.95rem;display:block;margin-top:12px;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</span>
+        <span class="kpi-label">Last Sync</span>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(192,192,192,0.4);margin-top:3px;">Auto-synced daily · 6:10 PM</div>
+      </div>
       `}
       <div class="kpi">
         <div style="display:flex;justify-content:center;gap:18px;">
@@ -2613,52 +2656,19 @@ function renderGoalPanel() {
       </div>
     </div>
 
-    <div id="goalBottomSection">
-    <div class="card no-print">
-      <div class="card-title">💵 Add Contribution</div>
-      <div class="form-row four">
-        <div class="form-group">
-          <label>Amount ($)</label>
-          <input type="number" id="amt-goal" placeholder="ex: 50.00 or -3.00" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Start Date</label>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" id="dtStart-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
-            <input type="date" id="dtStartPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtStartPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtStart-goal').value=m+'/'+d+'/'+y;})()">
-            <button type="button" onclick="const el=document.getElementById('dtStartPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>End Date</label>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <input type="text" id="dtEnd-goal" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" value="${todayMMDDYYYY()}" style="letter-spacing:1px;flex:1;">
-            <input type="date" id="dtEndPicker-goal" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('dtEndPicker-goal').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('dtEnd-goal').value=m+'/'+d+'/'+y;})()">
-            <button type="button" onclick="const el=document.getElementById('dtEndPicker-goal');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label style="display:flex;align-items:center;gap:6px;">Type (required)
-            <span onclick="openChartOfAccountsModal()" title="Manage Types" style="cursor:pointer;font-size:0.85rem;line-height:1;">⚙️</span>
-          </label>
-          <select id="note-goal" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
-          </select>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="addContribution()">➕ Add Contribution</button>
-      </div>
+    <div class="btn-row no-print" style="margin-bottom:20px;">
+      <button class="btn btn-primary" onclick="openAddTransactionModal()">➕ Add Transaction</button>
     </div>
 
+    <div id="goalBottomSection">
     <div class="card">
-      <div class="card-title">📋 Contribution History</div>
+      <div class="card-title" style="margin-bottom:14px;">📋 My Goal</div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
+          <thead><tr><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
           <tbody>
             ${(window._reconciliationSuggestions || []).map(s => `
               <tr style="background:rgba(57,255,20,0.03);border-bottom:1px dashed rgba(57,255,20,0.15);">
-                <td style="color:rgba(192,192,192,0.4);">—</td>
                 <td>${new Date(s.date+'T12:00:00').toLocaleDateString('en-US')}</td>
                 <td class="amount-cell">${fmt(s.amount)}</td>
                 <td class="running-cell" style="color:rgba(192,192,192,0.3);">—</td>
@@ -2666,10 +2676,9 @@ function renderGoalPanel() {
                 <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
               </tr>`).join('')}
             ${st.rows.length === 0
-              ? `<tr><td colspan="6" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
+              ? `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`
               : [...st.rows].reverse().map(r => `
                 <tr>
-                  <td>${r.idx}</td>
                   <td>${new Date(r.date+'T12:00:00').toLocaleDateString('en-US')}</td>
                   <td class="amount-cell">${fmt(r.amount)}${r.pending?`<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`:''}
                   </td>
@@ -3272,12 +3281,14 @@ async function connectPlaid() {
         if (!exchData.access_token) throw new Error('Failed to exchange token');
         localStorage.setItem('plaid_access_token', exchData.access_token);
         localStorage.setItem('plaid_item_id', exchData.item_id || '');
+        const realInstitutionName = metadata?.institution?.name || 'Acorns';
+        localStorage.setItem('plaid_institution_name', realInstitutionName);
         // Salva no Supabase
         await _supabase.from('plaid_connections').upsert({
           user_id: currentUser.id,
           access_token: exchData.access_token,
           item_id: exchData.item_id || '',
-          institution_name: 'Acorns',
+          institution_name: realInstitutionName,
           updated_at: new Date().toISOString()
         }, { onConflict: 'user_id' });
         document.getElementById('plaidConnectBtn').style.display = 'none';
@@ -3594,32 +3605,6 @@ async function fetchStatement(useCacheOnly) {
       return;
     }
 
-    // ── Resumo das operações (isolado — não afeta lista de transações abaixo) ──
-    let sumContributions = 0, sumDividends = 0, sumFeesTaxes = 0;
-    txns.forEach(t => {
-      const amt = Math.abs(parseFloat(t.amount || 0));
-      const key = ((t.subtype || t.type || '') + '').toLowerCase();
-      if (key.includes('fee') || key.includes('tax')) sumFeesTaxes += amt;
-      else if (key.includes('dividend')) sumDividends += amt;
-      else if (key.includes('contribution')) sumContributions += amt;
-    });
-
-    const summaryEl = document.getElementById('statementSummary');
-    if (summaryEl) {
-      summaryEl.style.display = 'grid';
-      const card = (label, value, color) => `
-        <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:12px;">
-          <div style="font-size:0.65rem;color:var(--silver);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">${label}</div>
-          <div style="font-size:1rem;font-weight:700;color:${color};">${value}</div>
-        </div>`;
-      summaryEl.innerHTML =
-        card('Contributions', '$' + sumContributions.toFixed(2), 'var(--green-neon)') +
-        card('Dividends', '$' + sumDividends.toFixed(2), 'var(--green-neon)') +
-        card('Fees / Taxes', '$' + sumFeesTaxes.toFixed(2), sumFeesTaxes > 0 ? '#ef4444' : 'var(--silver)') +
-        card('Total', '$' + (sumContributions + sumDividends - sumFeesTaxes).toFixed(2), 'var(--white)') +
-        card('Total Activity', txns.length + ' txns', 'var(--white)');
-    }
-
     const sorted = [...txns].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     const rows = sorted.map(t => {
@@ -3640,24 +3625,23 @@ async function fetchStatement(useCacheOnly) {
         color = 'var(--green-neon)';
         sign = '+';
       }
-      const label = (t.subtype || t.type || '—').replace(/_/g, ' ');
+      const cleanName = _cleanTxnName(t.name) || (t.subtype || t.type || '—').replace(/_/g, ' ');
+      const dateDisplay = new Date(t.date + 'T12:00:00').toLocaleDateString('en-US');
 
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(192,192,192,0.08);">
-        <div>
-          <div style="font-size:0.95rem;color:var(--white);">${t.name || 'Transaction'}</div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.55);margin-top:3px;text-transform:uppercase;">${t.date} · ${label}</div>
-        </div>
-        <div style="font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;color:${color};">${sign}$${displayAmount}</div>
-      </div>`;
+      return `<tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+        <td style="padding:8px 4px;color:var(--white);">${dateDisplay}</td>
+        <td style="padding:8px 4px;color:${color};">${sign}$${displayAmount}</td>
+        <td style="padding:8px 4px;color:rgba(192,192,192,0.3);">—</td>
+        <td style="padding:8px 4px;color:#888;">${cleanName}</td>
+      </tr>`;
     }).join('');
 
     container.innerHTML = `
       <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:10px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(57,255,20,0.2);margin-bottom:2px;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;font-weight:700;">Data · Description</div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;font-weight:700;">Valor</div>
-      </div>
-      ${rows}`;
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+        <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
     runReconciliation();
