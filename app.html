@@ -3637,7 +3637,7 @@ async function fetchStatement(useCacheOnly) {
     }).join('');
 
     container.innerHTML = `
-      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:10px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:10px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()} · ${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
         <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
         <tbody>${rows}</tbody>
