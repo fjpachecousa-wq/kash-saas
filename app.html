@@ -2453,7 +2453,6 @@ function renderOverview() {
   if (!g || !g.target) {
     container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No goal set yet.<br><button class="btn btn-primary" onclick="openEditGoalModal(); switchTab('goal')">Set your first goal!</button></p></div>`;
     totalBanner.style.display = 'none';
-    manifesto.style.display = 'none';
     document.getElementById('ovTotalProjects').textContent = '0';
     document.getElementById('ovTotalContribs').textContent = '0';
     document.getElementById('ovTotalPending').textContent = '0';
@@ -2461,7 +2460,6 @@ function renderOverview() {
   }
 
   totalBanner.style.display = '';
-  manifesto.style.display = '';
 
   const st = calcProject(g);
   const estimatedBalance = st.estimatedBalance;
