@@ -2022,7 +2022,7 @@ tr:hover td {
           <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
             <div>
               <div id="ovGoalHeader" style="font-family:'Orbitron',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.35);margin-bottom:4px;">GOAL</div>
-              <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);"></div>
+              <div id="ovGoalSub" style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);"></div>
             </div>
           
           </div>
@@ -3252,14 +3252,14 @@ function renderGoalPanel() {
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.65);letter-spacing:1px;margin-top:3px;">GOAL</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">GOAL</div>
             </div>
           </div>
           <div style="width:1px;background:rgba(192,192,192,0.15);align-self:stretch;"></div>
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.65);letter-spacing:1px;margin-top:3px;">ACORNS</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">ACORNS</div>
             </div>
           </div>
         </div>
@@ -3271,10 +3271,10 @@ function renderGoalPanel() {
       ` : `
       <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(getStatementDividends())}</span><span class="kpi-label">Dividends</span></div>
       <div class="kpi" style="position:relative;">
-        <div style="position:absolute;top:8px;right:12px;font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(57,255,20,0.7);letter-spacing:1px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()}</div>
+        <div style="position:absolute;top:8px;right:12px;font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--kash-muted);letter-spacing:1px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()}</div>
         <span class="kpi-value silver" style="font-size:0.95rem;display:block;margin-top:12px;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</span>
         <span class="kpi-label">Last Sync</span>
-        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:rgba(192,192,192,0.4);margin-top:3px;">Auto-synced daily · 6:10 PM</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--kash-muted);margin-top:3px;">Auto-synced daily · 6:10 PM</div>
       </div>
       `}
       <div class="kpi">
@@ -3300,7 +3300,7 @@ function renderGoalPanel() {
           <div class="progress-label"><span>${fmt(st.totalInvested)} / ${fmt(g.target)}</span><span>${st.pct.toFixed(1)}%</span></div>
           <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${st.pct.toFixed(1)}%;"></div></div>
         </div>
-        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.5);margin-top:8px;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--kash-muted);margin-top:8px;">
           Deadline: ${g.date ? new Date(g.date + 'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—'}
         </div>
       </div>
@@ -3313,8 +3313,8 @@ function renderGoalPanel() {
     <div id="goalBottomSection">
     <div class="card">
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
-        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.75);'}">📋 My Goal</span>
-        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.75);'}">🔗 Acorns Statement</span>
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">📋 My Goal</span>
+        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">🔗 Acorns Statement</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -4325,10 +4325,10 @@ async function fetchStatement(useCacheOnly) {
 
     container.innerHTML = `
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
-        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:rgba(192,192,192,0.75);">📋 My Goal</span>
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--kash-muted);">📋 My Goal</span>
         <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
       </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
         <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
         <tbody>${rows}</tbody>
