@@ -3542,63 +3542,58 @@ function runReconciliation() {
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
 
-  // Transactions already used to confirm a manual contribution — reserved, can't confirm another.
-  // Built fresh each run from scratch — nothing is trusted just because it was already "confirmed".
-  const reservedKeys = new Set();
-
   const sameNameAmount = (t, c) => {
     const tAmt = Math.abs(parseFloat(t.amount || 0));
     const cAmt = Math.abs(parseFloat(c.amount || 0));
     return _cleanTxnName(t.name) === c.note && Math.abs(tAmt - cAmt) < 0.005;
   };
 
-  const findRealMatch = (c) => {
-    const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
-    // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
-    let hit = candidates.find(t => t.date === c.date);
-    // Fallback: ±1 day, only if no exact-date candidate exists.
-    if (!hit) hit = candidates.find(t => _daysDiff(t.date, c.date) <= 1);
-    return hit;
-  };
+  // Duas rodadas GLOBAIS (não por lançamento isolado) — evita que um lançamento sem
+  // match exato ainda disponível "roube" via fallback ±1 dia uma transação que pertence
+  // exatamente (por data) a outro lançamento ainda não processado.
+  const reservedKeys = new Set();
+  const matchResult = new Map(); // contribution -> txnKey
 
-  let changed = false;
-
-  // 0) Single rule, no exceptions by origin: every contribution marked "confirmed" (pending:false)
-  // — whether from a real Match, a legacy calendar auto-clear, or an old buggy match — must have
-  // a real Statement transaction behind it right now. Verified → stays confirmed, with proof
-  // (matched + txnKey). Not verified → goes back to Pending. My Goal is intention, Statement is fact.
+  // Rodada 1: TODOS os lançamentos tentam achar data exata primeiro, sem exceção.
   g.contributions.forEach(c => {
-    if (c.pending) return;
-    const hit = findRealMatch(c);
+    const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && t.date === c.date);
     if (hit) {
-      const newKey = _txnKey(hit);
-      if (!c.matched || c.txnKey !== newKey) changed = true;
+      const key = _txnKey(hit);
+      reservedKeys.add(key);
+      matchResult.set(c, key);
+    }
+  });
+
+  // Rodada 2: só quem sobrou sem data exata tenta o fallback ±1 dia, só com o que sobrou livre.
+  g.contributions.forEach(c => {
+    if (matchResult.has(c)) return;
+    const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && _daysDiff(t.date, c.date) <= 1);
+    if (hit) {
+      const key = _txnKey(hit);
+      reservedKeys.add(key);
+      matchResult.set(c, key);
+    }
+  });
+
+  // Aplicar resultado: regra de ouro mantida — todo lançamento reavaliado do zero a cada render.
+  let changed = false;
+  g.contributions.forEach(c => {
+    const key = matchResult.get(c);
+    if (key) {
+      if (!c.matched || c.txnKey !== key || c.pending) changed = true;
       c.matched = true;
-      c.txnKey = newKey;
-      reservedKeys.add(newKey);
+      c.txnKey = key;
+      c.pending = false;
     } else {
-      if (c.matched || c.txnKey) changed = true;
+      if (c.matched || c.txnKey || !c.pending) changed = true;
       c.matched = false;
       delete c.txnKey;
       c.pending = true;
     }
   });
-
-  // 1) Contributions still Pending — check if the Statement has since confirmed them.
-  g.contributions.forEach(c => {
-    if (!c.pending) return;
-    const hit = findRealMatch(c);
-    if (hit) {
-      c.matched = true;
-      c.pending = false;
-      c.txnKey = _txnKey(hit);
-      reservedKeys.add(c.txnKey);
-      changed = true;
-    }
-  });
   if (changed) save();
 
-  // 2) Statement entries with real value, not reserved/imported — suggest for confirmation.
+  // Sugestões: transações reais sem lançamento correspondente e não importadas antes.
   const suggestions = [];
   txns.forEach(t => {
     const amt = Math.abs(parseFloat(t.amount || 0));
