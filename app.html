@@ -3252,14 +3252,14 @@ function renderGoalPanel() {
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.35);letter-spacing:1px;margin-top:3px;">GOAL</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.65);letter-spacing:1px;margin-top:3px;">GOAL</div>
             </div>
           </div>
           <div style="width:1px;background:rgba(192,192,192,0.15);align-self:stretch;"></div>
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.35);letter-spacing:1px;margin-top:3px;">ACORNS</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.65);letter-spacing:1px;margin-top:3px;">ACORNS</div>
             </div>
           </div>
         </div>
@@ -3313,8 +3313,8 @@ function renderGoalPanel() {
     <div id="goalBottomSection">
     <div class="card">
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
-        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.4);'}">📋 My Goal</span>
-        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.4);'}">🔗 Acorns Statement</span>
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.75);'}">📋 My Goal</span>
+        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.75);'}">🔗 Acorns Statement</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -4325,8 +4325,8 @@ async function fetchStatement(useCacheOnly) {
 
     container.innerHTML = `
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
-        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;color:rgba(192,192,192,0.4);">📋 My Goal</span>
-        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:rgba(192,192,192,0.75);">📋 My Goal</span>
+        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
       </div>
       <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
