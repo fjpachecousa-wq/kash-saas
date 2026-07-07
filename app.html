@@ -3250,19 +3250,17 @@ function renderGoalPanel() {
       <div class="kpi">
         <div style="display:flex;justify-content:center;align-items:center;gap:16px;">
           <div style="display:flex;align-items:center;gap:8px;">
-            <input type="checkbox" id="viewCheck-goal" ${view === 'goal' ? 'checked' : ''} onchange="setTransactionsView('goal')" style="width:15px;height:15px;accent-color:var(--green-neon);cursor:pointer;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">GOAL</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.35);letter-spacing:1px;margin-top:3px;">GOAL</div>
             </div>
           </div>
           <div style="width:1px;background:rgba(192,192,192,0.15);align-self:stretch;"></div>
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
               <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.6);letter-spacing:1px;margin-top:3px;">ACORNS</div>
+              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(192,192,192,0.35);letter-spacing:1px;margin-top:3px;">ACORNS</div>
             </div>
-            <input type="checkbox" id="viewCheck-acorns" ${view === 'acorns' ? 'checked' : ''} onchange="setTransactionsView('acorns')" style="width:15px;height:15px;accent-color:var(--green-neon);cursor:pointer;">
           </div>
         </div>
         <span class="kpi-label" style="margin-top:8px;">Balance</span>
@@ -3314,7 +3312,10 @@ function renderGoalPanel() {
 
     <div id="goalBottomSection">
     <div class="card">
-      <div class="card-title" style="margin-bottom:14px;">📋 My Goal</div>
+      <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.4);'}">📋 My Goal</span>
+        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:rgba(192,192,192,0.4);'}">🔗 Acorns Statement</span>
+      </div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
@@ -3474,7 +3475,7 @@ function _cleanTxnName(name) {
 // PAGINAÇÃO — reaproveitada pelas tabelas My Goal e Acorns Statement.
 // Só corta a lista já pronta em pedaços; nenhuma lógica de data envolvida.
 // ══════════════════════════════════════════════════
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 
 function paginationHtml(page, totalPages, gotoFnName) {
   if (totalPages <= 1) return '';
@@ -4323,7 +4324,10 @@ async function fetchStatement(useCacheOnly) {
     }).join('');
 
     container.innerHTML = `
-      <div class="card-title" style="margin-bottom:2px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns'))} Statement</div>
+      <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
+        <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;color:rgba(192,192,192,0.4);">📋 My Goal</span>
+        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:0.95rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
+      </div>
       <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
         <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
