@@ -3556,8 +3556,12 @@ function runReconciliation() {
     const candidates = txns.filter(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c));
     // Exact date first — this is the expected case (Acorns invests same-day, Statement shows real date).
     let hit = candidates.find(t => t.date === c.date);
-    // Fallback: ±1 day, only if no exact-date candidate exists.
-    if (!hit) hit = candidates.find(t => _daysDiff(t.date, c.date) <= 1);
+    // Fallback: real transaction dated same day or up to 1 day AFTER the intended date —
+    // never before, since Acorns only delays confirmation, it never confirms in advance.
+    if (!hit) hit = candidates.find(t => {
+      const diff = (new Date(t.date + 'T12:00:00') - new Date(c.date + 'T12:00:00')) / 86400000;
+      return diff >= 0 && diff <= 1;
+    });
     return hit;
   };
 
