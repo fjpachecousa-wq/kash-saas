@@ -2210,7 +2210,15 @@ tr:hover td {
 <div class="modal-overlay" id="editContributionTypeModal">
   <div class="modal">
     <button class="modal-close" onclick="closeEditContributionTypeModal()">✕</button>
-    <div class="modal-title">✏️ Edit Type</div>
+    <div class="modal-title">✏️ Edit Transaction</div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Date</label>
+      <input type="text" id="editContribDate" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;letter-spacing:1px;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label>Amount ($)</label>
+      <input type="number" id="editContribAmount" step="0.01" min="0" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;">
+    </div>
     <div class="form-group" style="margin-bottom:20px;">
       <label>Type</label>
       <select id="editContribTypeSelect" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:7px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--white);outline:none;box-sizing:border-box;"></select>
@@ -3252,7 +3260,7 @@ function renderGoalPanel() {
         <div style="display:flex;justify-content:center;align-items:center;gap:16px;">
           <div style="display:flex;align-items:center;gap:8px;">
             <div>
-              <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(st.totalInvested)}</span>
+              <span class="kpi-value" style="color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};font-size:1.5rem;">${fmt(st.totalInvested)}</span>
               <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">GOAL</div>
             </div>
           </div>
@@ -3342,7 +3350,7 @@ function renderGoalPanel() {
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note||'—'}${r.fromPlaid?' <span title="Imported from Statement">🔗</span>':''}</td>
-                  <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Type">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
+                  <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Transaction">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
                 </tr>`).join('');
             })()}
           </tbody>
@@ -3436,6 +3444,9 @@ function openEditContributionTypeModal(id) {
   const list = state.chartOfAccounts || [];
   sel.innerHTML = list.map(t => `<option value="${t}">${t}</option>`).join('');
   if (list.includes(c.note)) sel.value = c.note;
+  const [cy, cm, cd] = c.date.split('-');
+  document.getElementById('editContribDate').value = `${cm}/${cd}/${cy}`;
+  document.getElementById('editContribAmount').value = c.amount;
   document.getElementById('editContributionTypeModal').classList.add('open');
 }
 
@@ -3447,10 +3458,26 @@ function closeEditContributionTypeModal() {
 function saveContributionType() {
   const c = (state.goal.contributions || []).find(c => String(c.id) === String(_editingContribId));
   if (!c) return closeEditContributionTypeModal();
+
   const newType = document.getElementById('editContribTypeSelect').value;
-  if (newType !== c.note) {
-    c.note = newType;
-    // Type changed — old Match (if any) no longer applies; re-evaluate against the Statement.
+  const newDateRaw = document.getElementById('editContribDate').value;
+  const newAmount = parseFloat(document.getElementById('editContribAmount').value);
+
+  const dateParts = newDateRaw.split('/');
+  if (dateParts.length !== 3 || dateParts[2].length !== 4) { alert('Invalid date. Use MM/DD/YYYY.'); return; }
+  if (isNaN(newAmount) || newAmount <= 0) { alert('Invalid amount.'); return; }
+
+  const newDateStr = parseDateInput(newDateRaw);
+
+  const somethingChanged = (newType !== c.note) || (newDateStr !== c.date) || (Math.abs(newAmount - c.amount) > 0.005);
+
+  c.note = newType;
+  c.date = newDateStr;
+  c.amount = newAmount;
+  c.net = newAmount - (c.fee || 0);
+
+  if (somethingChanged) {
+    // Data, Valor ou Type mudaram — o Match antigo (se houver) não vale mais; reavaliar contra o Statement.
     c.matched = false;
     delete c.txnKey;
   }
@@ -3548,26 +3575,13 @@ function runReconciliation() {
     return _cleanTxnName(t.name) === c.note && Math.abs(tAmt - cAmt) < 0.005;
   };
 
-  // Duas rodadas GLOBAIS (não por lançamento isolado) — evita que um lançamento sem
-  // match exato ainda disponível "roube" via fallback ±1 dia uma transação que pertence
-  // exatamente (por data) a outro lançamento ainda não processado.
+  // Match estritamente por Data+Valor+Type idênticos. Sem fallback de tolerância de data —
+  // qualquer divergência de data mantém o lançamento em Pending até resolução via +Add manual.
   const reservedKeys = new Set();
   const matchResult = new Map(); // contribution -> txnKey
 
-  // Rodada 1: TODOS os lançamentos tentam achar data exata primeiro, sem exceção.
   g.contributions.forEach(c => {
     const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && t.date === c.date);
-    if (hit) {
-      const key = _txnKey(hit);
-      reservedKeys.add(key);
-      matchResult.set(c, key);
-    }
-  });
-
-  // Rodada 2: só quem sobrou sem data exata tenta o fallback ±1 dia, só com o que sobrou livre.
-  g.contributions.forEach(c => {
-    if (matchResult.has(c)) return;
-    const hit = txns.find(t => !reservedKeys.has(_txnKey(t)) && sameNameAmount(t, c) && _daysDiff(t.date, c.date) <= 1);
     if (hit) {
       const key = _txnKey(hit);
       reservedKeys.add(key);
