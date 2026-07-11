@@ -3278,6 +3278,7 @@ function renderGoalPanel() {
     <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Dividends</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementDividends())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">⏭️ Next Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${computeNextSyncLabel()}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Days Left</span><strong style="${valStyle}color:var(--green-neon);">${st.daysLeft}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
   `;
@@ -3494,9 +3495,11 @@ const PAGE_SIZE = 20;
 function paginationHtml(page, totalPages, gotoFnName) {
   if (totalPages <= 1) return '';
   return `<div class="btn-row no-print" style="justify-content:center;align-items:center;gap:14px;margin-top:14px;">
+    <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${gotoFnName}(1)" title="First page">« First</button>
     <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${gotoFnName}(${page - 1})">‹ Previous</button>
     <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);">Page ${page} of ${totalPages}</span>
     <button class="btn btn-secondary btn-sm" ${page >= totalPages ? 'disabled' : ''} onclick="${gotoFnName}(${page + 1})">Next ›</button>
+    <button class="btn btn-secondary btn-sm" ${page >= totalPages ? 'disabled' : ''} onclick="${gotoFnName}(${totalPages})" title="Last page">Last »</button>
   </div>`;
 }
 
@@ -3855,6 +3858,15 @@ function isBusinessDayToday() {
   if (dow === 0 || dow === 6) return false; // Sun/Sat
   const iso = now.toISOString().slice(0, 10);
   return !autoSyncUsHolidays(now.getFullYear()).has(iso);
+}
+
+function computeNextSyncLabel() {
+  const now = new Date();
+  const pastSyncTime = (now.getHours() > AUTO_SYNC_HOUR) || (now.getHours() === AUTO_SYNC_HOUR && now.getMinutes() >= AUTO_SYNC_MINUTE);
+  const nextDate = (isBusinessDayToday() && !pastSyncTime) ? todayStr() : nextBusinessDay(todayStr());
+  const [y, m, d] = nextDate.split('-');
+  const dt = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), AUTO_SYNC_HOUR, AUTO_SYNC_MINUTE);
+  return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 // Decides if today's auto-sync should run: once per business day, only after 6:10 PM has passed.
