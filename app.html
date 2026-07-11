@@ -3332,7 +3332,7 @@ function renderGoalPanel() {
               return pageRows.map(r => `
                 <tr>
                   <td>${new Date(r.date+'T12:00:00').toLocaleDateString('en-US')}</td>
-                  <td class="amount-cell">${fmt(r.amount)}${r.pending?`<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`:''}
+                  <td class="amount-cell">${fmt(r.amount)}${r.pending ? (r.date > todayStr() ? `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(94,106,99,0.05);color:var(--kash-muted);border:1px solid rgba(94,106,99,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">📅 SCHEDULED</span>` : `<span style="font-family:'Space Mono',monospace;font-size:0.58rem;background:rgba(251,191,36,0.05);color:#f59e0b;border:1px solid rgba(251,191,36,0.3);border-radius:4px;padding:1px 5px;margin-left:4px;letter-spacing:1px;">⏳ PENDING</span>`) : ''}
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note||'—'}${r.fromPlaid?' <span title="Imported from Statement">🔗</span>':''}</td>
