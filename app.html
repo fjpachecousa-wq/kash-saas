@@ -3136,7 +3136,8 @@ function renderOverview() {
   const estimatedBalance = st.estimatedBalance;
 
   const sumContribs = (g.contributions || []).filter(c => !c.isTransfer).length;
-  const pendingCount = (g.contributions || []).filter(c => c.pending).length;
+  const todayS_stats = todayStr();
+  const pendingCount = (g.contributions || []).filter(c => c.pending && c.date <= todayS_stats).length;
 
   // Overview card
   const marketGain = estimatedBalance > 0
@@ -3275,7 +3276,7 @@ function renderGoalPanel() {
     <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Dividends</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementDividends())}</strong></div>
-    <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'}) : '—'; })()}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">⏭️ Next Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${computeNextSyncLabel()}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Days Left</span><strong style="${valStyle}color:var(--green-neon);">${st.daysLeft}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
@@ -3937,7 +3938,7 @@ async function initPlaid() {
 
 function updatePlaidStatus() {
   const lastSync = parseInt(localStorage.getItem('plaid_last_sync') || '0');
-  const lastSyncStr = lastSync ? new Date(lastSync).toLocaleString() : 'Never';
+  const lastSyncStr = lastSync ? new Date(lastSync).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'}) : 'Never';
   const statusEl = document.getElementById('plaidStatus');
   const infoEl = document.getElementById('plaidSyncInfo');
   if (statusEl) statusEl.textContent = 'Connected · Last sync: ' + lastSyncStr;
@@ -4236,7 +4237,7 @@ function updateStatementLabels() {
   if (syncLabel) {
     const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0');
     syncLabel.textContent = ls
-      ? '🕐 Last sync: ' + new Date(ls).toLocaleString()
+      ? '🕐 Last sync: ' + new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'})
       : '🕐 Last sync: —';
   }
 }
