@@ -3253,54 +3253,40 @@ function renderGoalPanel() {
       <button class="btn btn-primary" onclick="openEditGoalModal()">🎯 Set New Goal</button>
     </div>` : '';
 
+  const todayS = todayStr();
+  const scheduledTotal = (g.contributions || []).filter(c => c.pending && c.date > todayS).reduce((s, c) => s + c.net, 0);
+  const pendingDueTotal = (g.contributions || []).filter(c => c.pending && c.date <= todayS).reduce((s, c) => s + c.net, 0);
+  const netStillNeeded = Math.max(0, st.remaining - scheduledTotal - pendingDueTotal);
+  const adjustedSuggestedDaily = st.daysLeft > 0 ? netStillNeeded / st.daysLeft : 0;
+
+  const rowStyle   = 'display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(15,46,46,0.08);';
+  const labelStyle = 'font-family:"Space Mono",monospace;font-size:0.85rem;color:var(--kash-muted);letter-spacing:0.5px;';
+  const valStyle   = 'font-family:"Space Mono",monospace;font-size:0.85rem;font-weight:700;';
+
+  const goalRows = `
+    <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Remaining to Goal</span><strong style="${valStyle}color:#eab308;">${fmt(st.remaining)}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">📅 Scheduled</span><strong style="${valStyle}color:var(--silver);">${fmt(scheduledTotal)}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">⏳ Pending</span><strong style="${valStyle}color:#f59e0b;">${fmt(pendingDueTotal)}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Days Left</span><strong style="${valStyle}color:var(--green-neon);">${st.daysLeft}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
+  `;
+
+  const acornsRows = `
+    <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Dividends</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementDividends())}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Days Left</span><strong style="${valStyle}color:var(--green-neon);">${st.daysLeft}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
+  `;
+
   container.innerHTML = `<div>
     ${alertHtml}
-    <div class="kpi-grid" style="margin-bottom:20px;">
-      <div class="kpi">
-        <div style="display:flex;justify-content:center;align-items:center;gap:16px;">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div>
-              <span class="kpi-value" style="color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};font-size:1.5rem;">${fmt(st.totalInvested)}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">GOAL</div>
-            </div>
-          </div>
-          <div style="width:1px;background:rgba(192,192,192,0.15);align-self:stretch;"></div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <div>
-              <span class="kpi-value" style="color:var(--green-neon);font-size:1.5rem;">${fmt(getStatementTotal())}</span>
-              <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">ACORNS</div>
-            </div>
-          </div>
-        </div>
-        <span class="kpi-label" style="margin-top:8px;">Balance</span>
-      </div>
-      ${view === 'goal' ? `
-      <div class="kpi"><span class="kpi-value gold">${fmt(st.remaining)}</span><span class="kpi-label">Remaining to Goal</span></div>
-      <div class="kpi"><span class="kpi-value gold">${fmt(st.totalPending)}</span><span class="kpi-label">Total Pending</span></div>
-      ` : `
-      <div class="kpi"><span class="kpi-value" style="color:var(--green-neon);">${fmt(getStatementDividends())}</span><span class="kpi-label">Dividends</span></div>
-      <div class="kpi" style="position:relative;">
-        <div style="position:absolute;top:8px;right:12px;font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--kash-muted);letter-spacing:1px;">🔗 ${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()}</div>
-        <span class="kpi-value silver" style="font-size:0.95rem;display:block;margin-top:12px;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString() : '—'; })()}</span>
-        <span class="kpi-label">Last Sync</span>
-        <div style="font-family:'Space Mono',monospace;font-size:0.55rem;color:var(--kash-muted);margin-top:3px;">Auto-synced daily · 6:10 PM</div>
-      </div>
-      `}
-      <div class="kpi">
-        <div style="display:flex;justify-content:center;gap:18px;">
-          <div>
-            <span class="kpi-value" style="color:var(--green-neon);font-size:1.8rem;">${st.daysLeft}</span>
-            <div style="font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">DAYS LEFT</div>
-          </div>
-          <div style="width:1px;background:rgba(192,192,192,0.15);"></div>
-          <div>
-            <span class="kpi-value" style="color:var(--green-neon);font-size:1.8rem;">${fmt(st.suggestedDaily)}</span>
-            <div style="font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--kash-muted);letter-spacing:1px;margin-top:3px;">RECOMMENDED DAILY</div>
-          </div>
-        </div>
-        <span class="kpi-label" style="margin-top:8px;">Projection</span>
-      </div>
-      <div class="kpi" style="grid-column:span 2;text-align:left;padding:14px 18px;">
+    <div class="kpi" style="text-align:left;padding:18px 22px;margin-bottom:20px;">
+      ${view === 'goal' ? goalRows : acornsRows}
+      <div style="margin-top:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-family:'Inter',sans-serif;font-size:0.95rem;color:var(--white);font-weight:600;">📈 Progress — Goal ${fmt(g.target)}</div>
           <button class="btn btn-sm" style="font-size:0.65rem;padding:3px 10px;" onclick="openEditGoalModal()">✏️ Edit Goal</button>
@@ -4440,15 +4426,15 @@ async function fetchStatement(useCacheOnly) {
 </div>
 
 <!-- ══ INACTIVITY WARNING POPUP ══════════════════ -->
-<div id="inactivityPopup" style="display:none;position:fixed;inset:0;background:rgba(245,242,232,0.92);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:rgba(255,255,255,0.96);backdrop-filter:blur(14px);border:1px solid rgba(15,46,46,0.15);box-shadow:0 18px 45px rgba(15,46,46,0.18);border-radius:20px;padding:36px;width:min(90vw,400px);text-align:center;">
+<div id="inactivityPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:linear-gradient(135deg,#0d1a0d,#111811);border:1px solid rgba(57,255,20,0.3);border-radius:20px;padding:36px;width:min(90vw,400px);text-align:center;">
     <div style="font-size:2.5rem;margin-bottom:12px;">⏳</div>
-    <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--kash-green-deep);letter-spacing:3px;margin-bottom:8px;">Are You Still There?</div>
-    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--kash-muted);margin-bottom:8px;">You'll be signed out automatically in</div>
-    <div id="inactivityCountdown" style="font-family:'Orbitron',sans-serif;font-size:3rem;color:#eab308;line-height:1;margin-bottom:20px;">30</div>
+    <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:3px;margin-bottom:8px;">Are You Still There?</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);margin-bottom:8px;">You'll be signed out automatically in</div>
+    <div id="inactivityCountdown" style="font-family:'Orbitron',sans-serif;font-size:3rem;color:#f97316;line-height:1;margin-bottom:20px;">30</div>
     <div style="display:flex;gap:12px;justify-content:center;">
-      <button class="btn btn-primary" onclick="dismissInactivityPopup()" style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;">✅ Yes, I'm Here</button>
-      <button onclick="logoutUser()" style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:transparent;color:#dc2626;cursor:pointer;">Sign Out</button>
+      <button onclick="dismissInactivityPopup()" style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:none;background:var(--green-neon);color:#000;cursor:pointer;">✅ Yes, I'm Here</button>
+      <button onclick="logoutUser()" style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:transparent;color:rgba(239,68,68,0.8);cursor:pointer;">Sign Out</button>
     </div>
   </div>
 </div>
