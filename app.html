@@ -2031,16 +2031,7 @@ tr:hover td {
           <!-- Metrics rows -->
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;" id="ovMetricsRows"></div>
 
-          <!-- Progress bar -->
-          <div class="progress-wrap" style="margin:0;">
-            <div class="progress-label">
-              <span id="ovProgressLabel" style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--silver);">$0.00 / $0.00</span>
-              <span id="ovProgressPct" style="font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--green-neon);">0%</span>
-            </div>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" id="ovProgressFill" style="width:0%;"></div>
-            </div>
-          </div>
+          <!-- Progress bar removida do Card 1, conforme solicitado -->
 
         </div>
       </div>
@@ -3195,7 +3186,7 @@ function renderOverview() {
   const aporteNec    = (netAindaNaoCoberto > 0 && diasRestantes > 0) ? netAindaNaoCoberto / diasRestantes : 0;
   const progresso    = Math.min(100, g.target > 0 ? (estimatedBalance / g.target) * 100 : 0);
 
-  document.getElementById('ovGoalHeader').textContent = `Goal — ${fmt(g.target)}`;
+  document.getElementById('ovGoalHeader').textContent = `Goal : ${fmt(g.target)}`;
   const subEl = document.getElementById('ovGoalSub');
   if (subEl) subEl.textContent = g.date ? `📅 Deadline: ${new Date(g.date + 'T12:00:00').toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'})}` : '';
 
@@ -3221,9 +3212,10 @@ function renderOverview() {
       ⚠ No contributions recorded yet.
     </div>` : '');
 
-  document.getElementById('ovProgressLabel').textContent = fmt(estimatedBalance) + ' / ' + fmt(g.target);
-  document.getElementById('ovProgressPct').textContent   = progresso.toFixed(1) + '%';
-  document.getElementById('ovProgressFill').style.width  = progresso.toFixed(1) + '%';
+  // Barra de progresso do Card 1 removida — linhas protegidas contra elemento ausente
+  const _ovpl = document.getElementById('ovProgressLabel'); if (_ovpl) _ovpl.textContent = fmt(estimatedBalance) + ' / ' + fmt(g.target);
+  const _ovpp = document.getElementById('ovProgressPct');   if (_ovpp) _ovpp.textContent = progresso.toFixed(1) + '%';
+  const _ovpf = document.getElementById('ovProgressFill');  if (_ovpf) _ovpf.style.width = progresso.toFixed(1) + '%';
 }
 
 // ══════════════════════════════════════════════════
