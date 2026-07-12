@@ -2075,6 +2075,14 @@ tr:hover td {
 
     <div class="col-side">
 
+      <!-- WIDGET 1: UPCOMING DEPOSITS -->
+      <div class="side-widget" style="border-color:rgba(200,162,74,0.25);">
+        <div class="side-title" style="color:var(--kash-gold);">⏭️ Upcoming Deposits</div>
+        <div id="sideUpcomingDeposits">
+          <!-- injetado por renderOverview() -->
+        </div>
+      </div>
+
       <!-- WIDGET 2: ASSET PORTFOLIO -->
       <div class="side-widget" style="border-color:rgba(96,165,250,0.2);">
         <div class="side-title" style="color:rgba(96,165,250,0.75);">📈 Asset Portfolio</div>
@@ -3086,6 +3094,28 @@ function renderOverview() {
   const container = document.getElementById('projectsContainer');
   const totalBanner = document.getElementById('totalBanner');
   const manifesto = document.getElementById('manifestoBanner');
+
+  // ── UPCOMING DEPOSITS (próximas 3 datas Scheduled — futuro estrito) ─────
+  const upcomingEl = document.getElementById('sideUpcomingDeposits');
+  if (upcomingEl) {
+    const todayS_up = todayStr();
+    const upcoming = (state.goal && state.goal.contributions ? state.goal.contributions : [])
+      .filter(c => c.pending && c.date > todayS_up)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 3);
+
+    if (upcoming.length > 0) {
+      upcomingEl.innerHTML = upcoming.map(c => {
+        const [uy, um, ud] = c.date.split('-');
+        return `<div class="port-row">
+          <span class="port-label">${um}/${ud}/${uy} · ${c.note}</span>
+          <span class="port-value" style="color:var(--kash-gold);">${fmt(c.amount)}</span>
+        </div>`;
+      }).join('');
+    } else {
+      upcomingEl.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--kash-muted);">No upcoming deposits scheduled.</div>`;
+    }
+  }
 
   // ── ASSET PORTFOLIO — dados Plaid ─────────────────
   const plaidData = window._lastPlaidData;
