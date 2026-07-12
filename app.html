@@ -3123,24 +3123,19 @@ function renderOverview() {
     const securities = plaidData.securities || [];
 
     if (sideAssetList) {
-      const rowStyleEtf = 'display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(15,46,46,0.06);font-family:"Space Mono",monospace;font-size:0.85rem;';
-      const header = `<div style="${rowStyleEtf}font-weight:700;border-bottom:1px solid rgba(15,46,46,0.15);">
-        <span style="color:var(--kash-muted);flex:1;">ETF</span>
-        <span style="color:var(--kash-muted);text-align:right;width:70px;">Shares</span>
-        <span style="color:var(--kash-muted);text-align:right;width:70px;">Value</span>
-      </div>`;
-      const rows = holdings.map(h => {
+      sideAssetList.innerHTML = holdings.map(h => {
         const sec    = securities.find(s => s.security_id === h.security_id);
         const ticker = sec?.ticker_symbol || '—';
         const qty    = parseFloat(h.quantity || 0);
         const value  = parseFloat(h.institution_value || 0);
-        return `<div style="${rowStyleEtf}">
-          <span style="color:var(--kash-muted);flex:1;">${ticker}</span>
-          <span style="color:var(--silver);text-align:right;width:70px;">${qty.toFixed(4)}</span>
-          <span style="color:var(--white);font-weight:700;text-align:right;width:70px;">${fmt(value)}</span>
+        return `<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--green-neon);letter-spacing:2px;">${ticker}</span>
+            <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--white);font-weight:700;">${fmt(value)}</span>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);margin-top:2px;">${qty.toFixed(4)} shares</div>
         </div>`;
       }).join('');
-      sideAssetList.innerHTML = header + rows;
     }
   } else {
     if (sideAssetList) sideAssetList.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);">No holdings synced yet.</div>`;
