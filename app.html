@@ -1927,7 +1927,11 @@ tr:hover td {
       </div>
       <div class="form-group">
         <label>Date of Birth</label>
-        <input type="text" id="birthdate" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" readonly>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <input type="text" id="birthdate" placeholder="MM/DD/YYYY" maxlength="10" autocomplete="off" oninput="maskDateInput(this)" readonly style="flex:1;">
+          <input type="date" id="birthdatePicker" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" onchange="(function(){const v=document.getElementById('birthdatePicker').value;if(!v)return;const[y,m,d]=v.split('-');document.getElementById('birthdate').value=m+'/'+d+'/'+y;})()">
+          <button type="button" onclick="const el=document.getElementById('birthdatePicker');el.showPicker&&el.showPicker();" style="background:transparent;border:1px solid var(--green-dark);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:1rem;color:var(--green-neon);flex-shrink:0;" title="Open calendar">📅</button>
+        </div>
       </div>
       <div class="form-group">
         <label>Email</label>
