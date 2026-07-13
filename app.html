@@ -3123,7 +3123,8 @@ function renderOverview() {
     const securities = plaidData.securities || [];
 
     if (sideAssetList) {
-      sideAssetList.innerHTML = holdings.map(h => {
+      const totalValue = holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
+      const rows = holdings.map(h => {
         const sec    = securities.find(s => s.security_id === h.security_id);
         const ticker = sec?.ticker_symbol || '—';
         const qty    = parseFloat(h.quantity || 0);
@@ -3136,6 +3137,11 @@ function renderOverview() {
           <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);margin-top:2px;">${qty.toFixed(4)} shares</div>
         </div>`;
       }).join('');
+      const totalRow = `<div style="padding:10px 0 2px;margin-top:4px;border-top:1px solid rgba(200,162,74,0.3);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:'Orbitron',sans-serif;font-size:0.85rem;color:var(--kash-gold);letter-spacing:1px;">TOTAL</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;">${fmt(totalValue)}</span>
+      </div>`;
+      sideAssetList.innerHTML = rows + totalRow;
     }
   } else {
     if (sideAssetList) sideAssetList.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);">No holdings synced yet.</div>`;
