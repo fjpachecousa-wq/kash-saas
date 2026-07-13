@@ -2115,9 +2115,8 @@ tr:hover td {
               oninput="cpFieldChanged('cpDaily')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn btn-primary btn-sm" onclick="runContributionPlanner()" style="flex:1;">🧮 Calculate</button>
-            <button type="button" onclick="resetContributionPlanner()" class="btn btn-secondary btn-sm" style="flex:1;">↺ Clear</button>
+          <div style="display:flex;">
+            <button type="button" onclick="resetContributionPlanner()" class="btn btn-secondary btn-sm" style="flex:1;max-width:calc(50% - 4px);">↺ Clear</button>
           </div>
           <div id="cpResult" style="display:none;margin-top:4px;background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.2);border-radius:9px;padding:12px 14px;text-align:center;">
             <div id="cpResultLabel" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px;"></div>
