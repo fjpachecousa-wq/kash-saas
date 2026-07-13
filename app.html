@@ -2093,36 +2093,32 @@ tr:hover td {
         <span class="side-link" onclick="switchTab('portfolio')">View full portfolio →</span>
       </div>
 
-      <!-- WIDGET 3: ETFs FOR YOUR PROFILE -->
+      <!-- WIDGET 3: CONTRIBUTION PLANNER -->
       <div class="side-widget">
-        <div class="side-title" style="justify-content:space-between;">
-          <span>📊 SUGGESTED ETFs <span id="sideEtfProfile" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);font-weight:400;"></span></span>
-        </div>
-        <div id="sideEtfList">
-          <!-- injetado por renderOverview() -->
-        </div>
-      </div>
-
-      <!-- WIDGET 4: CONTRIBUTION CALCULATOR -->
-      <div class="side-widget">
-        <div class="side-title">🧮 Contribution Calculator</div>
+        <div class="side-title">📐 Contribution Planner</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Daily contribution ($)</div>
-            <input type="number" id="calcDaily" min="0" step="0.01" placeholder="e.g. 10.00"
-              oninput="runCalc()"
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Goal amount ($)</div>
+            <input type="number" id="cpGoal" min="0" step="0.01" placeholder="e.g. 1000.00"
+              oninput="runContributionPlanner('goal')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Number of days</div>
-            <input type="number" id="calcDays" min="1" step="1" placeholder="e.g. 30"
-              oninput="runCalc()"
+            <input type="number" id="cpDays" min="1" step="1" placeholder="e.g. 100"
+              oninput="runContributionPlanner('days')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
-          <div id="calcResult" style="display:none;margin-top:4px;background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.2);border-radius:9px;padding:12px 14px;text-align:center;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px;">YOU'LL HAVE</div>
-            <div id="calcTotal" style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.4);line-height:1;">$0.00</div>
-            <div id="calcSub" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);margin-top:4px;"></div>
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Daily deposit ($)</div>
+            <input type="number" id="cpDaily" min="0" step="0.01" placeholder="e.g. 10.00"
+              oninput="runContributionPlanner('daily')"
+              style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
+          </div>
+          <div id="cpResult" style="display:none;margin-top:4px;background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.2);border-radius:9px;padding:12px 14px;text-align:center;">
+            <div id="cpResultLabel" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px;"></div>
+            <div id="cpResultVal" style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.4);line-height:1;">—</div>
+            <div id="cpResultSub" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);margin-top:4px;"></div>
           </div>
         </div>
       </div>
@@ -3148,7 +3144,7 @@ function renderOverview() {
   }
 
   // ── SUGGESTED ETFs widget ─────────────────────────
-  if (state.goal && state.goal.target > 0) loadSuggestedEtfs({ risk: 'moderado' });
+  // Suggested ETFs removido — substituído pelo Contribution Planner
 
   const g = state.goal;
   if (!g || !g.target) {
@@ -3748,17 +3744,55 @@ async function loadSuggestedEtfs(proj) {
     </div>`).join('');
 }
 
-function runCalc() {
-  const daily = parseFloat(document.getElementById('calcDaily').value);
-  const days  = parseInt(document.getElementById('calcDays').value);
-  const result = document.getElementById('calcResult');
-  const totalEl = document.getElementById('calcTotal');
-  const subEl   = document.getElementById('calcSub');
-  if (!daily || !days || daily <= 0 || days <= 0) { result.style.display = 'none'; return; }
-  const total = daily * days;
+function runContributionPlanner(editedField) {
+  const goalEl  = document.getElementById('cpGoal');
+  const daysEl  = document.getElementById('cpDays');
+  const dailyEl = document.getElementById('cpDaily');
+  const result  = document.getElementById('cpResult');
+  const labelEl = document.getElementById('cpResultLabel');
+  const valEl   = document.getElementById('cpResultVal');
+  const subEl   = document.getElementById('cpResultSub');
+
+  const goal  = parseFloat(goalEl.value);
+  const days  = parseInt(daysEl.value);
+  const daily = parseFloat(dailyEl.value);
+
+  const hasGoal  = !isNaN(goal)  && goal  > 0;
+  const hasDays  = !isNaN(days)  && days  > 0;
+  const hasDaily = !isNaN(daily) && daily > 0;
+
+  const filledCount = [hasGoal, hasDays, hasDaily].filter(Boolean).length;
+
+  if (filledCount < 2) { result.style.display = 'none'; return; }
+
+  // Decide qual campo calcular: o que falta, OU (se os 3 já estão preenchidos)
+  // o campo que NÃO foi o último editado, priorizando recalcular "goal" por padrão.
+  let target;
+  if (!hasGoal) target = 'goal';
+  else if (!hasDays) target = 'days';
+  else if (!hasDaily) target = 'daily';
+  else target = (editedField === 'goal') ? 'days' : 'goal';
+
+  if (target === 'goal') {
+    const g = days * daily;
+    goalEl.value = g.toFixed(2);
+    labelEl.textContent = 'GOAL REACHED';
+    valEl.textContent = '$' + g.toFixed(2);
+    subEl.textContent = '$' + daily.toFixed(2) + '/day over ' + days + ' day' + (days !== 1 ? 's' : '');
+  } else if (target === 'days') {
+    const d = Math.ceil(goal / daily);
+    daysEl.value = d;
+    labelEl.textContent = 'DAYS NEEDED';
+    valEl.textContent = d;
+    subEl.textContent = '$' + daily.toFixed(2) + '/day to reach $' + goal.toFixed(2);
+  } else {
+    const dl = goal / days;
+    dailyEl.value = dl.toFixed(2);
+    labelEl.textContent = 'DAILY NEEDED';
+    valEl.textContent = '$' + dl.toFixed(2);
+    subEl.textContent = 'over ' + days + ' day' + (days !== 1 ? 's' : '') + ' to reach $' + goal.toFixed(2);
+  }
   result.style.display = 'block';
-  totalEl.textContent = '$' + total.toFixed(2);
-  subEl.textContent = '$' + daily.toFixed(2) + '/day × ' + days + ' day' + (days !== 1 ? 's' : '');
 }
 
 function renderAll() {
