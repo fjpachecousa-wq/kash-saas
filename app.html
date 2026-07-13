@@ -2120,6 +2120,7 @@ tr:hover td {
             <div id="cpResultVal" style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.4);line-height:1;">—</div>
             <div id="cpResultSub" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);margin-top:4px;"></div>
           </div>
+          <button type="button" onclick="resetContributionPlanner()" class="btn btn-secondary btn-sm" style="width:100%;font-size:0.7rem;">↺ Reset</button>
         </div>
       </div>
 
@@ -3793,6 +3794,13 @@ function runContributionPlanner(editedField) {
     subEl.textContent = 'over ' + days + ' day' + (days !== 1 ? 's' : '') + ' to reach $' + goal.toFixed(2);
   }
   result.style.display = 'block';
+}
+
+function resetContributionPlanner() {
+  document.getElementById('cpGoal').value = '';
+  document.getElementById('cpDays').value = '';
+  document.getElementById('cpDaily').value = '';
+  document.getElementById('cpResult').style.display = 'none';
 }
 
 function renderAll() {
