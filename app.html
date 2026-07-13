@@ -3761,31 +3761,27 @@ function runContributionPlanner() {
   const hasDaily = !isNaN(daily) && daily > 0;
 
   const filledCount = [hasGoal, hasDays, hasDaily].filter(Boolean).length;
-
   if (filledCount < 2) { alert('Fill in at least 2 fields to calculate the third.'); result.style.display = 'none'; return; }
 
-  // Calcula o campo que estiver vazio. Se os 3 já estiverem preenchidos, recalcula Days por padrão.
+  // Nunca escreve de volta nos campos — só exibe o resultado, sempre a partir do que está digitado agora.
   let target;
   if (!hasGoal) target = 'goal';
   else if (!hasDays) target = 'days';
   else if (!hasDaily) target = 'daily';
-  else target = 'days';
+  else target = 'daily'; // 3 preenchidos: mostra Daily necessário como referência
 
   if (target === 'goal') {
     const g = days * daily;
-    goalEl.value = g.toFixed(2);
     labelEl.textContent = 'GOAL REACHED';
     valEl.textContent = '$' + g.toFixed(2);
     subEl.textContent = '$' + daily.toFixed(2) + '/day over ' + days + ' day' + (days !== 1 ? 's' : '');
   } else if (target === 'days') {
     const d = Math.ceil(goal / daily);
-    daysEl.value = d;
     labelEl.textContent = 'DAYS NEEDED';
     valEl.textContent = d;
     subEl.textContent = '$' + daily.toFixed(2) + '/day to reach $' + goal.toFixed(2);
   } else {
     const dl = goal / days;
-    dailyEl.value = dl.toFixed(2);
     labelEl.textContent = 'DAILY NEEDED';
     valEl.textContent = '$' + dl.toFixed(2);
     subEl.textContent = 'over ' + days + ' day' + (days !== 1 ? 's' : '') + ' to reach $' + goal.toFixed(2);
