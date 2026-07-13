@@ -2100,25 +2100,30 @@ tr:hover td {
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Goal amount ($)</div>
             <input type="number" id="cpGoal" min="0" step="0.01" placeholder="e.g. 1000.00"
+              oninput="cpFieldChanged('cpGoal')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Number of days</div>
             <input type="number" id="cpDays" min="1" step="1" placeholder="e.g. 100"
+              oninput="cpFieldChanged('cpDays')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--silver);margin-bottom:4px;">Daily deposit ($)</div>
             <input type="number" id="cpDaily" min="0" step="0.01" placeholder="e.g. 10.00"
+              oninput="cpFieldChanged('cpDaily')"
               style="width:100%;background:rgba(0,0,0,0.5);border:1px solid rgba(57,255,20,0.2);border-radius:7px;padding:8px 10px;font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--white);outline:none;box-sizing:border-box;">
           </div>
-          <button class="btn btn-primary btn-sm" onclick="runContributionPlanner()" style="width:100%;">🧮 Calculate</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm" onclick="runContributionPlanner()" style="flex:1;">🧮 Calculate</button>
+            <button type="button" onclick="resetContributionPlanner()" class="btn btn-secondary btn-sm" style="flex:1;">↺ Clear</button>
+          </div>
           <div id="cpResult" style="display:none;margin-top:4px;background:rgba(57,255,20,0.05);border:1px solid rgba(57,255,20,0.2);border-radius:9px;padding:12px 14px;text-align:center;">
             <div id="cpResultLabel" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:1px;margin-bottom:4px;"></div>
             <div id="cpResultVal" style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--green-neon);text-shadow:0 0 12px rgba(57,255,20,0.4);line-height:1;">—</div>
             <div id="cpResultSub" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);margin-top:4px;"></div>
           </div>
-          <button type="button" onclick="resetContributionPlanner()" class="btn btn-secondary btn-sm" style="width:100%;font-size:0.7rem;">↺ Reset</button>
         </div>
       </div>
 
@@ -3743,6 +3748,14 @@ async function loadSuggestedEtfs(proj) {
     </div>`).join('');
 }
 
+let cpEditHistory = [];
+
+function cpFieldChanged(fieldId) {
+  cpEditHistory = cpEditHistory.filter(id => id !== fieldId);
+  cpEditHistory.push(fieldId);
+  runContributionPlanner();
+}
+
 function runContributionPlanner() {
   const goalEl  = document.getElementById('cpGoal');
   const daysEl  = document.getElementById('cpDays');
@@ -3761,27 +3774,36 @@ function runContributionPlanner() {
   const hasDaily = !isNaN(daily) && daily > 0;
 
   const filledCount = [hasGoal, hasDays, hasDaily].filter(Boolean).length;
-  if (filledCount < 2) { alert('Fill in at least 2 fields to calculate the third.'); result.style.display = 'none'; return; }
+  if (filledCount < 2) { result.style.display = 'none'; return; }
 
-  // Nunca escreve de volta nos campos — só exibe o resultado, sempre a partir do que está digitado agora.
-  let target;
-  if (!hasGoal) target = 'goal';
-  else if (!hasDays) target = 'days';
-  else if (!hasDaily) target = 'daily';
-  else target = 'daily'; // 3 preenchidos: mostra Daily necessário como referência
+  // O campo calculado é sempre o que NÃO está entre os 2 editados mais recentemente —
+  // assim, mudar qualquer outro campo sempre recalcula esse, sem travar.
+  const allFields = ['cpGoal', 'cpDays', 'cpDaily'];
+  const recentlyEdited = cpEditHistory.slice(-2);
+  let targetField = allFields.find(f => !recentlyEdited.includes(f));
+  // Se ainda não há histórico suficiente (ex: valores pré-existentes sem edição), calcula o que estiver vazio.
+  if (!hasGoal)      targetField = 'cpGoal';
+  else if (!hasDays)  targetField = 'cpDays';
+  else if (!hasDaily) targetField = 'cpDaily';
 
-  if (target === 'goal') {
+  if (targetField === 'cpGoal') {
+    if (!hasDays || !hasDaily) { result.style.display = 'none'; return; }
     const g = days * daily;
+    goalEl.value = g.toFixed(2);
     labelEl.textContent = 'GOAL REACHED';
     valEl.textContent = '$' + g.toFixed(2);
     subEl.textContent = '$' + daily.toFixed(2) + '/day over ' + days + ' day' + (days !== 1 ? 's' : '');
-  } else if (target === 'days') {
+  } else if (targetField === 'cpDays') {
+    if (!hasGoal || !hasDaily) { result.style.display = 'none'; return; }
     const d = Math.ceil(goal / daily);
+    daysEl.value = d;
     labelEl.textContent = 'DAYS NEEDED';
     valEl.textContent = d;
     subEl.textContent = '$' + daily.toFixed(2) + '/day to reach $' + goal.toFixed(2);
   } else {
+    if (!hasGoal || !hasDays) { result.style.display = 'none'; return; }
     const dl = goal / days;
+    dailyEl.value = dl.toFixed(2);
     labelEl.textContent = 'DAILY NEEDED';
     valEl.textContent = '$' + dl.toFixed(2);
     subEl.textContent = 'over ' + days + ' day' + (days !== 1 ? 's' : '') + ' to reach $' + goal.toFixed(2);
@@ -3794,6 +3816,7 @@ function resetContributionPlanner() {
   document.getElementById('cpDays').value = '';
   document.getElementById('cpDaily').value = '';
   document.getElementById('cpResult').style.display = 'none';
+  cpEditHistory = [];
 }
 
 function renderAll() {
