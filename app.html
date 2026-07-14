@@ -3336,9 +3336,14 @@ function renderGoalPanel() {
 
     <div id="goalBottomSection">
     <div class="card">
-      <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
+      <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;align-items:center;">
         <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">📋 My Goal</span>
         <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">🔗 Acorns Statement</span>
+        ${view === 'goal' ? `
+        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-muted);">
+          <input type="checkbox" id="hideScheduledCheckbox" onchange="toggleHideScheduled()" ${localStorage.getItem('kash_hide_scheduled') === '1' ? 'checked' : ''} style="accent-color:var(--green-neon);cursor:pointer;">
+          Hide Scheduled
+        </label>` : ''}
       </div>
       <div class="table-wrap">
         <table>
@@ -3353,7 +3358,10 @@ function renderGoalPanel() {
                 <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
               </tr>`).join('')}
             ${(() => {
-              const allRows = [...st.rows].reverse();
+              let allRows = [...st.rows].reverse();
+              if (localStorage.getItem('kash_hide_scheduled') === '1') {
+                allRows = allRows.filter(r => !(r.pending && r.date > todayStr()));
+              }
               if (allRows.length === 0) return `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`;
               const totalPages = Math.max(1, Math.ceil(allRows.length / PAGE_SIZE));
               window._myGoalPage = Math.min(Math.max(1, window._myGoalPage || 1), totalPages);
@@ -3371,7 +3379,7 @@ function renderGoalPanel() {
           </tbody>
         </table>
       </div>
-      ${paginationHtml(window._myGoalPage || 1, Math.max(1, Math.ceil(st.rows.length / PAGE_SIZE)), 'goToMyGoalPage')}
+      ${paginationHtml(window._myGoalPage || 1, Math.max(1, Math.ceil((localStorage.getItem('kash_hide_scheduled') === '1' ? st.rows.filter(r => !(r.pending && r.date > todayStr())) : st.rows).length / PAGE_SIZE)), 'goToMyGoalPage')}
       <hr class="divider">
       <div class="btn-row no-print">
         <button class="btn btn-gold" onclick="window.print()">🖨 Print Statement</button>
@@ -3568,6 +3576,13 @@ function getStatementDividends() {
 // (extrato real do Statement). Seleção única — nunca as duas ao mesmo tempo.
 function setTransactionsView(view) {
   window._transactionsView = view;
+  renderGoalPanel();
+}
+
+function toggleHideScheduled() {
+  const checked = document.getElementById('hideScheduledCheckbox').checked;
+  localStorage.setItem('kash_hide_scheduled', checked ? '1' : '0');
+  window._myGoalPage = 1; // volta pra primeira página, já que a contagem de linhas muda
   renderGoalPanel();
 }
 
