@@ -3340,6 +3340,7 @@ function renderGoalPanel() {
 
     <div class="btn-row no-print" style="margin-bottom:20px;">
       <button class="btn btn-primary" onclick="openAddTransactionModal()">➕ Add Transaction</button>
+      ${window._closingEligible ? `<button class="btn btn-gold" onclick="recordMonthlyClosing()">✅ Confirm Closing — ${(() => { const [cy,cm] = window._closingEligible.periodEndDate.split('-'); return new Date(parseInt(cy), parseInt(cm)-1, 1).toLocaleDateString('en-US',{month:'long'}) + ' ' + cy; })()} — ${fmt(window._closingEligible.totalDeposited)}</button>` : ''}
     </div>
 
     <div id="goalBottomSection">
@@ -3560,9 +3561,13 @@ function goToAcornsPage(page) {
 // Total real reportado pela Acorns (Contributions + Dividends, exclui Fees/Taxes) — usado para
 // comparar "pelos seus livros" (GOAL) vs "pelo banco" (ACORNS), no card BALANCE.
 function getStatementTotal() {
+  const closure = window._lastClosureData;
+  const closureBase = closure ? parseFloat(closure.total_deposited || 0) : 0;
+  const closureEndDate = closure ? closure.period_end_date : null;
   const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
-  let total = 0;
+  let total = closureBase;
   txns.forEach(t => {
+    if (closureEndDate && t.date <= closureEndDate) return;
     const key = ((t.subtype || t.type || '') + '').toLowerCase();
     if (key.includes('fee') || key.includes('tax')) return;
     total += Math.abs(parseFloat(t.amount || 0));
@@ -3571,9 +3576,13 @@ function getStatementTotal() {
 }
 
 function getStatementDividends() {
+  const closure = window._lastClosureData;
+  const closureBase = closure ? parseFloat(closure.total_dividends || 0) : 0;
+  const closureEndDate = closure ? closure.period_end_date : null;
   const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
-  let total = 0;
+  let total = closureBase;
   txns.forEach(t => {
+    if (closureEndDate && t.date <= closureEndDate) return;
     const key = ((t.subtype || t.type || '') + '').toLowerCase();
     if (key.includes('dividend')) total += Math.abs(parseFloat(t.amount || 0));
   });
@@ -3657,6 +3666,104 @@ function runReconciliation() {
 
   window._reconciliationSuggestions = suggestions;
   window._lastStatementTxnsForImport = txns;
+}
+
+function lastDayOfPrevMonth(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const firstOfThisMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+  const lastOfPrev = new Date(firstOfThisMonth);
+  lastOfPrev.setDate(lastOfPrev.getDate() - 1);
+  return lastOfPrev.toISOString().slice(0, 10);
+}
+async function loadLatestClosure() {
+  if (!currentUser) return null;
+  const { data, error } = await _supabase
+    .from('statement_closures')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('period_end_date', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) { console.error('loadLatestClosure error:', error); return null; }
+  window._lastClosureData = data || null;
+  return data || null;
+}
+function checkClosingEligibility() {
+  window._closingEligible = null;
+  const g = state.goal;
+  if (!g) return;
+  const periodEndDate = lastDayOfPrevMonth(todayStr());
+  if (businessDaysLate(periodEndDate) < 5) return;
+  const lastClosure = window._lastClosureData;
+  if (lastClosure && lastClosure.period_end_date >= periodEndDate) return;
+  const dayMatched = (g.contributions || []).some(c => c.date === periodEndDate && c.matched === true);
+  if (!dayMatched) return;
+  const totals = computeClosureTotals(periodEndDate);
+  window._closingEligible = {
+    periodEndDate,
+    periodYear: parseInt(periodEndDate.slice(0, 4)),
+    periodMonth: parseInt(periodEndDate.slice(5, 7)),
+    totalDeposited: totals.totalDeposited,
+    totalDividends: totals.totalDividends,
+    transactionCount: totals.transactionCount,
+    rawTransactions: totals.rawTransactions
+  };
+}
+function computeClosureTotals(periodEndDate) {
+  const txns = (window._lastStatementData && window._lastStatementData.investment_transactions) || [];
+  const prevClosure = window._lastClosureData;
+  const prevTotal = prevClosure ? parseFloat(prevClosure.total_deposited || 0) : 0;
+  const prevDividends = prevClosure ? parseFloat(prevClosure.total_dividends || 0) : 0;
+  const prevEndDate = prevClosure ? prevClosure.period_end_date : null;
+  let periodDeposited = 0;
+  let periodDividends = 0;
+  const raw = [];
+  txns.forEach(t => {
+    if (t.date > periodEndDate) return;
+    if (prevEndDate && t.date <= prevEndDate) return;
+    const key = ((t.subtype || t.type || '') + '').toLowerCase();
+    if (key.includes('fee') || key.includes('tax')) return;
+    const amt = Math.abs(parseFloat(t.amount || 0));
+    periodDeposited += amt;
+    if (key.includes('dividend')) periodDividends += amt;
+    raw.push(t);
+  });
+  return {
+    totalDeposited: prevTotal + periodDeposited,
+    totalDividends: prevDividends + periodDividends,
+    transactionCount: raw.length,
+    rawTransactions: raw
+  };
+}
+async function recordMonthlyClosing() {
+  await loadLatestClosure();
+  checkClosingEligibility();
+  const eligible = window._closingEligible;
+  if (!eligible) {
+    alert('Closing conditions are no longer met. Please refresh and try again.');
+    renderGoalPanel();
+    return;
+  }
+  const { error } = await _supabase.from('statement_closures').insert({
+    user_id: currentUser.id,
+    period_year: eligible.periodYear,
+    period_month: eligible.periodMonth,
+    period_end_date: eligible.periodEndDate,
+    closed_at: new Date().toISOString(),
+    total_deposited: eligible.totalDeposited,
+    total_dividends: eligible.totalDividends,
+    transaction_count: eligible.transactionCount,
+    raw_transactions: eligible.rawTransactions
+  });
+  if (error) {
+    console.error('recordMonthlyClosing error:', error);
+    alert('Error recording closing: ' + error.message);
+    return;
+  }
+  await loadLatestClosure();
+  window._closingEligible = null;
+  renderGoalPanel();
+  renderOverview();
 }
 
 
@@ -4026,6 +4133,7 @@ async function runAutoSyncIfDue() {
     console.error('Auto-sync error:', e);
   } finally {
     localStorage.setItem('plaid_auto_sync_date', todayStr);
+    checkClosingEligibility();
   }
 }
 
@@ -4071,6 +4179,7 @@ async function initPlaid() {
     document.getElementById('plaidConnectBtn').style.display = 'none';
     updatePlaidStatus();
   }
+  await loadLatestClosure(); checkClosingEligibility();
 }
 
 function updatePlaidStatus() {
@@ -4374,7 +4483,7 @@ function updateStatementLabels() {
     originLabel.textContent = '🔗 ' + instName + ' SYNC';
   }
   if (periodLabel) {
-    const startD = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+    const startD = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
     const fmt = (d) => d.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
     const txns = window._lastStatementData?.investment_transactions;
     if (txns && txns.length > 0) {
@@ -4443,7 +4552,7 @@ async function fetchStatement(useCacheOnly) {
 
     const txns = data.investment_transactions || [];
     if (txns.length === 0) {
-      container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">No transactions found in the last 90 days.</div>';
+      container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">No transactions found in the last 60 days.</div>';
       return;
     }
 
@@ -4486,7 +4595,7 @@ async function fetchStatement(useCacheOnly) {
         <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--kash-muted);">📋 My Goal</span>
         <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
       </div>
-      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 90 DAYS</div>
+      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 60 DAYS</div>
       <div class="table-wrap">
       <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
         <thead><tr style="border-bottom:1px solid rgba(57,255,20,0.2);"><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Date</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Amount</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Accumulated</th><th style="padding:8px 4px;text-align:left;font-family:'Space Mono',monospace;font-size:0.75rem;color:rgba(57,255,20,0.7);letter-spacing:1px;text-transform:uppercase;">Type</th></tr></thead>
