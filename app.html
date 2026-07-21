@@ -3629,20 +3629,17 @@ function runReconciliation() {
     }
   });
 
-  // Aplicar resultado: regra de ouro mantida — todo lançamento reavaliado do zero a cada render.
+  // Uma vez confirmado (matched:true), o lançamento nunca é desmarcado — mesmo que a
+  // transação saia da janela ao vivo depois. Só lançamentos ainda pendentes são reavaliados.
   let changed = false;
   g.contributions.forEach(c => {
+    if (c.matched) return; // já confirmado — nunca reavaliar de novo
     const key = matchResult.get(c);
     if (key) {
-      if (!c.matched || c.txnKey !== key || c.pending) changed = true;
+      changed = true;
       c.matched = true;
       c.txnKey = key;
       c.pending = false;
-    } else {
-      if (c.matched || c.txnKey || !c.pending) changed = true;
-      c.matched = false;
-      delete c.txnKey;
-      c.pending = true;
     }
   });
   if (changed) save();
