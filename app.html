@@ -2043,9 +2043,7 @@ tr:hover td {
       <!-- Stats footer -->
       <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
         <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--silver);letter-spacing:1px;">
-          Active Goal: <strong style="color:var(--white);" id="ovTotalProjects">0</strong>
-          &nbsp;·&nbsp;
-          Contributions: <strong style="color:var(--white);" id="ovTotalContribs">0</strong>
+          <strong style="color:var(--gold);">About Active Goal</strong>
           &nbsp;·&nbsp;
           Scheduled: <strong style="color:var(--kash-muted);" id="ovTotalScheduled">0</strong>
           &nbsp;·&nbsp;
@@ -2053,7 +2051,6 @@ tr:hover td {
           &nbsp;·&nbsp;
           Fail: <strong style="color:#dc2626;" id="ovTotalFail">0</strong>
         </div>
-        <div id="ovStreak" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#f97316;letter-spacing:1px;"></div>
       </div>
 
     </div>
@@ -3157,8 +3154,6 @@ function renderOverview() {
   if (!g || !g.target) {
     container.innerHTML = `<div class="empty-state" id="emptyState"><div class="icon">🎯</div><p>No goal set yet.<br><button class="btn btn-primary" onclick="openEditGoalModal(); switchTab('goal')">Set your first goal!</button></p></div>`;
     totalBanner.style.display = 'none';
-    document.getElementById('ovTotalProjects').textContent = '0';
-    document.getElementById('ovTotalContribs').textContent = '0';
     document.getElementById('ovTotalPending').textContent = '0';
     return;
   }
@@ -3199,16 +3194,12 @@ function renderOverview() {
       </div>
     </div>`;
 
-  document.getElementById('ovTotalProjects').textContent = '1';
-  document.getElementById('ovTotalContribs').textContent = sumContribs;
   document.getElementById('ovTotalScheduled').textContent = scheduledCount;
   document.getElementById('ovTotalPending').textContent = pendingCount;
   document.getElementById('ovTotalFail').textContent = failCount;
 
   // Streak
   const streakData = calcStreak(g);
-  const streakEl = document.getElementById('ovStreak');
-  if (streakEl) streakEl.textContent = streakData.days > 0 ? streakData.days + '-day streak' : '';
   const sideStreakNum = document.getElementById('sideStreakNum');
   const sideStreakFlames = document.getElementById('sideStreakFlames');
   if (sideStreakNum) sideStreakNum.textContent = streakData.days;
