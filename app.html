@@ -3090,10 +3090,13 @@ function renderOverview() {
   const upcomingEl = document.getElementById('sideUpcomingDeposits');
   if (upcomingEl) {
     const todayS_up = todayStr();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() + 3);
+    const cutoffStr = cutoffDate.getFullYear() + '-' + String(cutoffDate.getMonth()+1).padStart(2,'0') + '-' + String(cutoffDate.getDate()).padStart(2,'0');
+
     const upcoming = (state.goal && state.goal.contributions ? state.goal.contributions : [])
-      .filter(c => c.pending && c.date > todayS_up)
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .slice(0, 3);
+      .filter(c => c.pending && c.date > todayS_up && c.date <= cutoffStr)
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     if (upcoming.length > 0) {
       upcomingEl.innerHTML = upcoming.map(c => {
