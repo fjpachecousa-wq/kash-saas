@@ -1982,7 +1982,7 @@ tr:hover td {
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
           <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;color:var(--green-neon);letter-spacing:2px;">📈 MY ASSET PORTFOLIO</div>
-          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Live portfolio synced from your brokerage via Plaid</div>
+          <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Holdings synced daily from your brokerage via Plaid · Live prices via Yahoo Finance</div>
         </div>
       </div>
 
@@ -1998,7 +1998,7 @@ tr:hover td {
             <span id="plaidSyncBtn" style="display:none;"></span>
           </div>
         </div>
-        <div id="plaidSyncInfo" style="display:none;margin-top:12px;font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.5);letter-spacing:0.5px;"></div>
+        <div id="plaidSyncInfo" style="display:none;margin-top:12px;font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.75);letter-spacing:0.5px;"></div>
         <div id="plaidHoldings" style="margin-top:16px;"></div>
       </div>
 
@@ -4288,8 +4288,7 @@ async function renderPlaidHoldings(data) {
 
   // Label header
   const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
-  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.58rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:12px;">' + instName + ' HOLDINGS — LIVE</div>'
-    + '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Fetching quotes...</div>';
+  container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Fetching quotes...</div>';
 
   // Buscar cotações em paralelo via Edge Function
   const tickers = data.holdings.map(h => {
@@ -4380,7 +4379,7 @@ async function renderPlaidHoldings(data) {
     </div>`;
   }).join('');
 
-  const listBlock = `<div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);letter-spacing:1px;margin-bottom:8px;">${instName} HOLDINGS — LIVE</div>${listRows}`;
+  const listBlock = `${listRows}`;
 
   // Cards de desempenho — 2 por linha
   const cardsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;">${cards}</div>`;
