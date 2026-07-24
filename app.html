@@ -3313,6 +3313,17 @@ function renderGoalPanel() {
     <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
   `;
 
+  const myGoalFilteredRows = (() => {
+    let rows = [...st.rows].reverse();
+    if (localStorage.getItem('kash_hide_scheduled') === '1') {
+      rows = rows.filter(r => !(r.pending && r.date > todayStr()));
+    }
+    if (window._myGoalTypeFilter) rows = rows.filter(r => r.note === window._myGoalTypeFilter);
+    if (window._myGoalDateFrom) rows = rows.filter(r => r.date >= window._myGoalDateFrom);
+    if (window._myGoalDateTo) rows = rows.filter(r => r.date <= window._myGoalDateTo);
+    return rows;
+  })();
+
   container.innerHTML = `<div>
     ${alertHtml}
     <div class="kpi" style="text-align:left;padding:18px 22px;margin-bottom:20px;">
@@ -3348,6 +3359,22 @@ function renderGoalPanel() {
           Hide Scheduled
         </label>` : ''}
       </div>
+      ${view === 'goal' ? `
+      <div class="no-print" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+        <select id="myGoalTypeFilter" onchange="setMyGoalFilter('type', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:5px 8px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
+          <option value="">All Types</option>
+          ${(state.chartOfAccounts || []).map(t => `<option value="${t}" ${window._myGoalTypeFilter === t ? 'selected' : ''}>${t}</option>`).join('')}
+        </select>
+        <label style="display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--kash-muted);">
+          From
+          <input type="date" id="myGoalDateFrom" value="${window._myGoalDateFrom || ''}" onchange="setMyGoalFilter('dateFrom', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:4px 6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
+        </label>
+        <label style="display:flex;align-items:center;gap:4px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--kash-muted);">
+          To
+          <input type="date" id="myGoalDateTo" value="${window._myGoalDateTo || ''}" onchange="setMyGoalFilter('dateTo', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:4px 6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
+        </label>
+        ${(window._myGoalTypeFilter || window._myGoalDateFrom || window._myGoalDateTo) ? `<button class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:0.65rem;" onclick="clearMyGoalFilters()">✖ Clear Filters</button>` : ''}
+      </div>` : ''}
       <div class="table-wrap">
         <table>
           <thead><tr><th>Date</th><th>Amount</th><th>Accumulated</th><th>Type</th><th class="no-print"></th></tr></thead>
@@ -3361,11 +3388,8 @@ function renderGoalPanel() {
                 <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
               </tr>`).join('')}
             ${(() => {
-              let allRows = [...st.rows].reverse();
-              if (localStorage.getItem('kash_hide_scheduled') === '1') {
-                allRows = allRows.filter(r => !(r.pending && r.date > todayStr()));
-              }
-              if (allRows.length === 0) return `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions yet.</td></tr>`;
+              const allRows = myGoalFilteredRows;
+              if (allRows.length === 0) return `<tr><td colspan="5" style="text-align:center;color:#555;padding:30px;">No contributions match the current filters.</td></tr>`;
               const totalPages = Math.max(1, Math.ceil(allRows.length / PAGE_SIZE));
               window._myGoalPage = Math.min(Math.max(1, window._myGoalPage || 1), totalPages);
               const pageRows = allRows.slice((window._myGoalPage - 1) * PAGE_SIZE, window._myGoalPage * PAGE_SIZE);
@@ -3382,7 +3406,7 @@ function renderGoalPanel() {
           </tbody>
         </table>
       </div>
-      ${paginationHtml(window._myGoalPage || 1, Math.max(1, Math.ceil((localStorage.getItem('kash_hide_scheduled') === '1' ? st.rows.filter(r => !(r.pending && r.date > todayStr())) : st.rows).length / PAGE_SIZE)), 'goToMyGoalPage')}
+      ${paginationHtml(window._myGoalPage || 1, Math.max(1, Math.ceil(myGoalFilteredRows.length / PAGE_SIZE)), 'goToMyGoalPage')}
       <hr class="divider">
       <div class="btn-row no-print">
         <button class="btn btn-gold" onclick="window.print()">🖨 Print Statement</button>
@@ -3594,6 +3618,23 @@ function toggleHideScheduled() {
   const checked = document.getElementById('hideScheduledCheckbox').checked;
   localStorage.setItem('kash_hide_scheduled', checked ? '1' : '0');
   window._myGoalPage = 1; // volta pra primeira página, já que a contagem de linhas muda
+  renderGoalPanel();
+}
+
+// Filtros da tabela My Goal (Type + período). Reseta pra página 1 a cada mudança.
+function setMyGoalFilter(kind, value) {
+  if (kind === 'type') window._myGoalTypeFilter = value;
+  if (kind === 'dateFrom') window._myGoalDateFrom = value;
+  if (kind === 'dateTo') window._myGoalDateTo = value;
+  window._myGoalPage = 1;
+  renderGoalPanel();
+}
+
+function clearMyGoalFilters() {
+  window._myGoalTypeFilter = '';
+  window._myGoalDateFrom = '';
+  window._myGoalDateTo = '';
+  window._myGoalPage = 1;
   renderGoalPanel();
 }
 
