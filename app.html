@@ -3353,15 +3353,10 @@ function renderGoalPanel() {
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;align-items:center;">
         <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">📋 My Goal</span>
         <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">🔗 Acorns Statement</span>
-        ${view === 'goal' ? `
-        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-muted);">
-          <input type="checkbox" id="hideScheduledCheckbox" onchange="toggleHideScheduled()" ${localStorage.getItem('kash_hide_scheduled') === '1' ? 'checked' : ''} style="accent-color:var(--green-neon);cursor:pointer;">
-          Hide Scheduled
-        </label>` : ''}
       </div>
       ${view === 'goal' ? `
       <div class="no-print" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
-        <select id="myGoalTypeFilter" onchange="setMyGoalFilter('type', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:5px 8px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
+        <select id="myGoalTypeFilter" onchange="setMyGoalFilter('type', this.value)" style="width:auto;background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:5px 8px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
           <option value="">All Types</option>
           ${(state.chartOfAccounts || []).map(t => `<option value="${t}" ${window._myGoalTypeFilter === t ? 'selected' : ''}>${t}</option>`).join('')}
         </select>
@@ -3374,6 +3369,10 @@ function renderGoalPanel() {
           <input type="date" id="myGoalDateTo" value="${window._myGoalDateTo || ''}" onchange="setMyGoalFilter('dateTo', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:4px 6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
         </label>
         ${(window._myGoalTypeFilter || window._myGoalDateFrom || window._myGoalDateTo) ? `<button class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:0.65rem;" onclick="clearMyGoalFilters()">✖ Clear Filters</button>` : ''}
+        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-muted);">
+          <input type="checkbox" id="hideScheduledCheckbox" onchange="toggleHideScheduled()" ${localStorage.getItem('kash_hide_scheduled') === '1' ? 'checked' : ''} style="accent-color:var(--green-neon);cursor:pointer;">
+          Hide Scheduled
+        </label>
       </div>` : ''}
       <div class="table-wrap">
         <table>
