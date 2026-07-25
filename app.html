@@ -3369,7 +3369,7 @@ function renderGoalPanel() {
           <input type="date" id="myGoalDateTo" value="${window._myGoalDateTo || ''}" onchange="setMyGoalFilter('dateTo', this.value)" style="background:rgba(0,0,0,0.5);border:1px solid var(--green-dark);border-radius:6px;padding:4px 6px;font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);outline:none;">
         </label>
         ${(window._myGoalTypeFilter || window._myGoalDateFrom || window._myGoalDateTo) ? `<button class="btn btn-secondary btn-sm" style="padding:3px 10px;font-size:0.65rem;" onclick="clearMyGoalFilters()">✖ Clear Filters</button>` : ''}
-        <label style="margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-muted);">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-muted);">
           <input type="checkbox" id="hideScheduledCheckbox" onchange="toggleHideScheduled()" ${localStorage.getItem('kash_hide_scheduled') === '1' ? 'checked' : ''} style="accent-color:var(--green-neon);cursor:pointer;">
           Hide Scheduled
         </label>
