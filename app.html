@@ -4485,7 +4485,7 @@ async function renderPlaidHoldings(data) {
     const diffText  = diffPct === null ? '—' : (diffPct >= 0 ? '+' : '') + diffPct.toFixed(2) + '%';
 
     const ledgerRows = ledger.slice(0, 5).map(r => {
-      const d = new Date(r.snapshot_date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+      const d = new Date(r.snapshot_date + 'T12:00:00').toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
       const sh = parseFloat(r.shares_acquired || 0);
       const pp = r.price_paid_per_share != null ? '$' + parseFloat(r.price_paid_per_share).toFixed(2) : '—';
       const vp = '$' + parseFloat(r.value_paid || 0).toFixed(2);
@@ -4499,27 +4499,27 @@ async function renderPlaidHoldings(data) {
 
     const ledgerBlock = ledger.length > 0 ? `
       <div style="border-top:1px dashed rgba(15,46,46,0.15);padding-top:8px;margin-top:8px;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-muted);letter-spacing:0.5px;margin-bottom:6px;">HISTÓRICO DE AQUISIÇÕES</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-muted);letter-spacing:0.5px;margin-bottom:6px;">ACQUISITION HISTORY</div>
         <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.62rem;">
           <thead><tr style="border-bottom:1px solid rgba(15,46,46,0.1);">
-            <th style="text-align:left;padding:2px;color:var(--kash-muted);font-weight:400;">DATA</th>
+            <th style="text-align:left;padding:2px;color:var(--kash-muted);font-weight:400;">DATE</th>
             <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">SHARES</th>
-            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">PREÇO</th>
-            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">VALOR</th>
+            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">PRICE</th>
+            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">VALUE</th>
           </tr></thead>
           <tbody>${ledgerRows}</tbody>
         </table>
         <div style="display:flex;gap:8px;margin-top:8px;">
           <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">MÉDIA PAGA</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">AVG PAID</div>
             <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);">${avgPricePeriod !== null ? '$' + avgPricePeriod.toFixed(2) : '—'}</div>
           </div>
           <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">MERCADO HOJE</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">MARKET TODAY</div>
             <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);">${price !== null ? '$' + price.toFixed(2) : '—'}</div>
           </div>
           <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">DIFERENÇA</div>
+            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">DIFFERENCE</div>
             <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:${diffColor};">${diffText}</div>
           </div>
         </div>
