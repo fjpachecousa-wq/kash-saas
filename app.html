@@ -4472,7 +4472,7 @@ async function renderPlaidHoldings(data) {
 
   const assetCard = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.2);border-radius:10px;padding:16px;margin:20px 0;">
     <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--green-neon);margin-bottom:12px;">📊 Asset Portfolio</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Total Deposited</div>
         <div style="font-size:1rem;font-weight:700;color:var(--white);">$${_totalDeposited.toFixed(2)}</div>
@@ -4485,21 +4485,16 @@ async function renderPlaidHoldings(data) {
         <div style="font-size:0.7rem;color:var(--kash-gold);margin-bottom:4px;">Est. Real-Time</div>
         <div style="font-size:1rem;font-weight:700;color:var(--kash-gold);">$${_totalEstRealTime.toFixed(2)}</div>
       </div>
-    </div>
-    ${_contextNote}
-    <div style="margin-top:14px;padding-top:14px;border-top:1px dashed rgba(57,255,20,0.15);">
-      <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--silver);letter-spacing:0.5px;margin-bottom:8px;">YOUR PORTFOLIO PERFORMANCE — TRAILING 12 MONTHS</div>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-        <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
-          <div style="font-size:0.62rem;color:var(--silver);margin-bottom:4px;">YOUR PORTFOLIO (YTD)</div>
-          <div style="font-size:0.9rem;font-weight:700;color:${_pctColor(_blendedYtd)};">${_fmtPct(_blendedYtd)}</div>
-        </div>
-        <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
-          <div style="font-size:0.62rem;color:var(--silver);margin-bottom:4px;">YOUR PORTFOLIO (1Y)</div>
-          <div style="font-size:0.9rem;font-weight:700;color:${_pctColor(_blendedY1)};">${_fmtPct(_blendedY1)}</div>
-        </div>
+      <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
+        <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">YTD</div>
+        <div style="font-size:1rem;font-weight:700;color:${_pctColor(_blendedYtd)};">${_fmtPct(_blendedYtd)}</div>
+      </div>
+      <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
+        <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">1 Year</div>
+        <div style="font-size:1rem;font-weight:700;color:${_pctColor(_blendedY1)};">${_fmtPct(_blendedY1)}</div>
       </div>
     </div>
+    ${_contextNote}
   </div>`;
   container.innerHTML = listBlock + assetCard + cardsHtml;
 
