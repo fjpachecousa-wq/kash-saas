@@ -3125,27 +3125,66 @@ function renderOverview() {
     const holdings   = plaidData.holdings;
     const securities = plaidData.securities || [];
 
-    if (sideAssetList) {
+    const renderAssetRows = (quoteMap) => {
+      if (!sideAssetList) return;
       const totalValue = holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
+      let totalEst = 0;
       const rows = holdings.map(h => {
         const sec    = securities.find(s => s.security_id === h.security_id);
         const ticker = sec?.ticker_symbol || '—';
         const qty    = parseFloat(h.quantity || 0);
         const value  = parseFloat(h.institution_value || 0);
+        const q      = quoteMap ? quoteMap[ticker] : null;
+        const est    = q?.price != null ? qty * q.price : null;
+        totalEst += est !== null ? est : value;
         return `<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <span style="font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--green-neon);letter-spacing:2px;">${ticker}</span>
-            <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--white);font-weight:700;">${fmt(value)}</span>
+            <div style="display:flex;gap:10px;">
+              <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--white);font-weight:700;min-width:52px;text-align:right;">${fmt(value)}</span>
+              <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${est !== null ? fmt(est) : '—'}</span>
+            </div>
           </div>
           <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);margin-top:2px;">${qty.toFixed(4)} shares</div>
         </div>`;
       }).join('');
+      const headerRow = `<div style="display:flex;justify-content:flex-end;gap:10px;padding-bottom:4px;">
+        <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--kash-muted);letter-spacing:0.5px;min-width:52px;text-align:right;">LAST SYNC</span>
+        <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--kash-muted);letter-spacing:0.5px;min-width:52px;text-align:right;">EST. RT</span>
+      </div>`;
       const totalRow = `<div style="padding:10px 0 2px;margin-top:4px;border-top:1px solid rgba(200,162,74,0.3);display:flex;justify-content:space-between;align-items:center;">
         <span style="font-family:'Orbitron',sans-serif;font-size:0.85rem;color:var(--kash-gold);letter-spacing:1px;">TOTAL</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;">${fmt(totalValue)}</span>
+        <div style="display:flex;gap:10px;">
+          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${fmt(totalValue)}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${quoteMap ? fmt(totalEst) : '—'}</span>
+        </div>
       </div>`;
-      sideAssetList.innerHTML = rows + totalRow;
-    }
+      sideAssetList.innerHTML = headerRow + rows + totalRow;
+    };
+
+    renderAssetRows(null);
+
+    const tickersOv = holdings.map(h => {
+      const sec = securities.find(s => s.security_id === h.security_id);
+      return sec?.ticker_symbol || null;
+    }).filter(Boolean);
+
+    (async () => {
+      const quoteMapOv = {};
+      await Promise.all(tickersOv.map(async ticker => {
+        try {
+          const res = await fetch(PLAID_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get_quote', ticker })
+          });
+          quoteMapOv[ticker] = await res.json();
+        } catch(e) {
+          quoteMapOv[ticker] = null;
+        }
+      }));
+      renderAssetRows(quoteMapOv);
+    })();
   } else {
     if (sideAssetList) sideAssetList.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);">No holdings synced yet.</div>`;
   }
