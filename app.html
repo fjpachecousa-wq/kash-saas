@@ -4317,56 +4317,6 @@ async function syncPlaid() {
   }
 }
 
-async function recordPortfolioLedgerIfNeeded(data, quoteMap) {
-  if (!currentUser || !data.holdings) return;
-  const today = todayStr();
-  try {
-    const { data: existing, error: readErr } = await _supabase
-      .from('portfolio_daily_ledger')
-      .select('ticker, snapshot_date, running_shares_total')
-      .eq('user_id', currentUser.id)
-      .order('snapshot_date', { ascending: false });
-    if (readErr) { console.error('recordPortfolioLedgerIfNeeded read error:', readErr); return; }
-
-    const lastByTicker = {};
-    (existing || []).forEach(r => { if (!lastByTicker[r.ticker]) lastByTicker[r.ticker] = r; });
-
-    const rows = [];
-    data.holdings.forEach(h => {
-      const sec = (data.securities || []).find(s => s.security_id === h.security_id);
-      const ticker = sec?.ticker_symbol;
-      if (!ticker) return;
-
-      const qty = parseFloat(h.quantity || 0);
-      const last = lastByTicker[ticker];
-      if (last && last.snapshot_date === today) return; // já gravado hoje
-
-      const prevQty = last ? parseFloat(last.running_shares_total) : 0;
-      const sharesAcquired = qty - prevQty;
-      if (Math.abs(sharesAcquired) < 0.00001) return; // sem mudança de shares
-
-      const price = quoteMap[ticker]?.price ?? null;
-      rows.push({
-        user_id: currentUser.id,
-        ticker,
-        snapshot_date: today,
-        shares_acquired: sharesAcquired,
-        price_paid_per_share: price,
-        value_paid: price !== null ? sharesAcquired * price : 0,
-        running_shares_total: qty
-      });
-    });
-
-    if (rows.length === 0) return;
-    const { error } = await _supabase
-      .from('portfolio_daily_ledger')
-      .upsert(rows, { onConflict: 'user_id,ticker,snapshot_date', ignoreDuplicates: true });
-    if (error) console.error('recordPortfolioLedgerIfNeeded insert error:', error);
-  } catch (e) {
-    console.error('recordPortfolioLedgerIfNeeded exception:', e);
-  }
-}
-
 async function renderPlaidHoldings(data) {
   if (data && data.holdings) window._lastPlaidData = data;
   const container = document.getElementById('plaidHoldings');
@@ -4397,25 +4347,6 @@ async function renderPlaidHoldings(data) {
       quoteMap[ticker] = await res.json();
     } catch(e) {
       quoteMap[ticker] = null;
-    }
-  }));
-
-  // Grava automaticamente o ledger diário — 1x por dia por ticker, sem ação manual.
-  await recordPortfolioLedgerIfNeeded(data, quoteMap);
-
-  const ledgerMap = {};
-  await Promise.all(tickers.map(async ticker => {
-    try {
-      const { data: rows, error } = await _supabase
-        .from('portfolio_daily_ledger')
-        .select('snapshot_date, shares_acquired, price_paid_per_share, value_paid')
-        .eq('user_id', currentUser.id)
-        .eq('ticker', ticker)
-        .order('snapshot_date', { ascending: false })
-        .limit(30);
-      ledgerMap[ticker] = error ? [] : (rows || []);
-    } catch(e) {
-      ledgerMap[ticker] = [];
     }
   }));
 
@@ -4466,65 +4397,6 @@ async function renderPlaidHoldings(data) {
     const ytdText  = ytd === null ? '—' : (ytd >= 0 ? '+' : '') + ytd.toFixed(2) + '%';
     const y1Text   = y1  === null ? '—' : (y1  >= 0 ? '+' : '') + y1.toFixed(2) + '%';
 
-    const ledger = ledgerMap[ticker] || [];
-    let avgPricePeriod = null;
-    if (ledger.length > 0) {
-      let sumValue = 0, sumShares = 0;
-      ledger.forEach(r => {
-        const sh = parseFloat(r.shares_acquired || 0);
-        if (sh > 0 && r.price_paid_per_share != null) {
-          sumValue += parseFloat(r.value_paid || 0);
-          sumShares += sh;
-        }
-      });
-      avgPricePeriod = sumShares > 0 ? sumValue / sumShares : null;
-    }
-    const diffPct = (avgPricePeriod !== null && price !== null && avgPricePeriod > 0)
-      ? ((price - avgPricePeriod) / avgPricePeriod) * 100 : null;
-    const diffColor = diffPct === null ? 'var(--kash-muted)' : diffPct >= 0 ? '#1B8A3E' : '#ef4444';
-    const diffText  = diffPct === null ? '—' : (diffPct >= 0 ? '+' : '') + diffPct.toFixed(2) + '%';
-
-    const ledgerRows = ledger.slice(0, 5).map(r => {
-      const d = new Date(r.snapshot_date + 'T12:00:00').toLocaleDateString('en-US', { day: '2-digit', month: 'short' });
-      const sh = parseFloat(r.shares_acquired || 0);
-      const pp = r.price_paid_per_share != null ? '$' + parseFloat(r.price_paid_per_share).toFixed(2) : '—';
-      const vp = '$' + parseFloat(r.value_paid || 0).toFixed(2);
-      return `<tr>
-        <td style="padding:4px 2px;color:var(--silver);">${d}</td>
-        <td style="padding:4px 2px;text-align:right;color:var(--silver);">${sh.toFixed(4)}</td>
-        <td style="padding:4px 2px;text-align:right;color:var(--silver);">${pp}</td>
-        <td style="padding:4px 2px;text-align:right;color:var(--green-neon);">${vp}</td>
-      </tr>`;
-    }).join('');
-
-    const ledgerBlock = ledger.length > 0 ? `
-      <div style="border-top:1px dashed rgba(15,46,46,0.15);padding-top:8px;margin-top:8px;">
-        <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-muted);letter-spacing:0.5px;margin-bottom:6px;">ACQUISITION HISTORY</div>
-        <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.62rem;">
-          <thead><tr style="border-bottom:1px solid rgba(15,46,46,0.1);">
-            <th style="text-align:left;padding:2px;color:var(--kash-muted);font-weight:400;">DATE</th>
-            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">SHARES</th>
-            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">PRICE</th>
-            <th style="text-align:right;padding:2px;color:var(--kash-muted);font-weight:400;">VALUE</th>
-          </tr></thead>
-          <tbody>${ledgerRows}</tbody>
-        </table>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">AVG PAID</div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);">${avgPricePeriod !== null ? '$' + avgPricePeriod.toFixed(2) : '—'}</div>
-          </div>
-          <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">MARKET TODAY</div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--white);">${price !== null ? '$' + price.toFixed(2) : '—'}</div>
-          </div>
-          <div style="flex:1;">
-            <div style="font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--kash-muted);">DIFFERENCE</div>
-            <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:${diffColor};">${diffText}</div>
-          </div>
-        </div>
-      </div>` : '';
-
     return `
     <div style="background:rgba(255,255,255,0.74);backdrop-filter:blur(14px);border:1px solid var(--kash-border);border-radius:12px;padding:14px 16px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
@@ -4561,7 +4433,6 @@ async function renderPlaidHoldings(data) {
           <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:${y1Color};">${y1Text}</div>
         </div>
       </div>
-      ${ledgerBlock}
     </div>`;
   }).join('');
 
