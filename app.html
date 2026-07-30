@@ -4601,16 +4601,16 @@ function renderMacroAnalysis() {
   const pct = v => { const n = parseFloat(v); return isNaN(n) ? '—' : (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%'; };
   const pctColor = v => { const n = parseFloat(v); return isNaN(n) ? 'var(--kash-muted)' : n >= 0 ? 'var(--kash-green-bright)' : '#B45145'; };
   const rowsHtml = imp.rows.map(r => {
-    const classe = (r['Classe de Ativo'] || '').trim();
-    const isFixedIncome = classe.toLowerCase().indexOf('renda fixa') !== -1 || classe.toLowerCase().indexOf('fixed') !== -1;
+    const classe = (r['Asset Class'] || '').trim();
+    const isFixedIncome = classe.toLowerCase().indexOf('fixed') !== -1;
     const reliability = isFixedIncome
       ? '<span style="background:var(--kash-cream-2);color:#27500A;border:1px solid #639922;border-radius:6px;padding:2px 7px;">High, yield-anchored</span>'
       : '<span style="background:var(--kash-cream-2);color:#8A6A1F;border:1px solid var(--kash-gold);border-radius:6px;padding:2px 7px;">Low, contextual</span>';
     return `<tr style="border-bottom:1px solid var(--kash-border);">
       <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${r['Ticker'] || '—'}</td>
       <td style="padding:7px 10px;color:var(--kash-muted);">${classe || '—'}</td>
-      <td style="padding:7px 10px;text-align:right;color:${pctColor(r['ROI 1A'])};">${pct(r['ROI 1A'])}</td>
-      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${pct(r['Tx Divd'])}</td>
+      <td style="padding:7px 10px;text-align:right;color:${pctColor(r['ROI 1Y'])};">${pct(r['ROI 1Y'])}</td>
+      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${pct(r['Dividend Yield'])}</td>
       <td style="padding:7px 10px;">${reliability}</td>
     </tr>`;
   }).join('');
