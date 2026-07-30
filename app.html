@@ -1995,7 +1995,7 @@ tr:hover td {
             <button class="btn btn-sm" style="border-color:var(--kash-gold);color:var(--kash-text);" onclick="document.getElementById('macroCsvInput').click()">📥 Import CSV</button>
           </div>
         </div>
-        <div style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);margin-bottom:14px;">
+        <div id="macroDisclaimer" style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);margin-bottom:14px;">
           Informational only, based on the file you imported. Not a recommendation.
         </div>
         <div id="macroAnalysisTable"></div>
@@ -2432,7 +2432,8 @@ async function load() {
       declaresUsTax: loaded.declaresUsTax || '',
       chartOfAccounts: (loaded.chartOfAccounts && loaded.chartOfAccounts.length)
         ? loaded.chartOfAccounts
-        : ['Auto Investment', 'Lump Sum', 'Dividend', 'Automated Rebalance']
+        : ['Auto Investment', 'Lump Sum', 'Dividend', 'Automated Rebalance'],
+      etfMacroImport: loaded.etfMacroImport || null
     };
     return true;
   }
@@ -4581,12 +4582,18 @@ async function handleMacroCsvUpload(event) {
 function renderMacroAnalysis() {
   const container = document.getElementById('macroAnalysisTable');
   const lastImportEl = document.getElementById('macroLastImport');
+  const disclaimerEl = document.getElementById('macroDisclaimer');
   if (!container) return;
   const imp = state.etfMacroImport;
   if (!imp || !imp.rows || imp.rows.length === 0) {
     container.innerHTML = '';
     if (lastImportEl) lastImportEl.textContent = 'No file imported yet';
+    if (disclaimerEl) disclaimerEl.textContent = 'Informational only, based on the file you imported. Not a recommendation.';
     return;
+  }
+  const importedDateTime = new Date(imp.importedAt).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+  if (disclaimerEl) {
+    disclaimerEl.textContent = 'Informational only, based on the file you imported on ' + importedDateTime + '. Not a recommendation.';
   }
   if (lastImportEl) {
     lastImportEl.textContent = 'Last import: ' + new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
