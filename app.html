@@ -4604,21 +4604,35 @@ function renderMacroAnalysis() {
   }
   const pct = v => { const n = parseFloat(v); return isNaN(n) ? '—' : (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%'; };
   const pctColor = v => { const n = parseFloat(v); return isNaN(n) ? 'var(--kash-muted)' : n >= 0 ? 'var(--kash-green-bright)' : '#B45145'; };
+  const portfolioTickers = new Set(
+    (window._lastPlaidData?.securities || []).map(s => (s.ticker_symbol || '').toUpperCase()).filter(Boolean)
+  );
+  let hasWatchOnly = false;
   const rowsHtml = imp.rows.map(r => {
     const classe = (r['Asset Class'] || '').trim();
     const isFixedIncome = classe.toLowerCase().indexOf('fixed') !== -1;
     const reliability = isFixedIncome
       ? '<span style="background:var(--kash-cream-2);color:#27500A;border:1px solid #639922;border-radius:6px;padding:2px 7px;">High, yield-anchored</span>'
       : '<span style="background:var(--kash-cream-2);color:#8A6A1F;border:1px solid var(--kash-gold);border-radius:6px;padding:2px 7px;">Low, contextual</span>';
+    const ticker = (r['Ticker'] || '').trim();
+    const isWatchOnly = ticker && !portfolioTickers.has(ticker.toUpperCase());
+    if (isWatchOnly) hasWatchOnly = true;
+    const watchBadge = isWatchOnly
+      ? ' <span style="font-family:\'Inter\',sans-serif;background:var(--kash-cream-2);color:var(--kash-muted);border:1px solid var(--kash-border-strong);border-radius:6px;padding:1px 6px;font-size:0.58rem;font-weight:600;">👁 Watch only</span>'
+      : '';
     return `<tr style="border-bottom:1px solid var(--kash-border);">
-      <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${r['Ticker'] || '—'}</td>
+      <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${ticker || '—'}${watchBadge}</td>
       <td style="padding:7px 10px;color:var(--kash-muted);">${classe || '—'}</td>
       <td style="padding:7px 10px;text-align:right;color:${pctColor(r['ROI 1Y'])};">${pct(r['ROI 1Y'])}</td>
       <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${pct(r['Dividend Yield'])}</td>
       <td style="padding:7px 10px;">${reliability}</td>
     </tr>`;
   }).join('');
+  const watchLegend = hasWatchOnly
+    ? `<div style="font-family:'Inter',sans-serif;font-size:0.66rem;color:var(--kash-muted);margin-bottom:8px;">👁 Watch only — not part of your synced portfolio.</div>`
+    : '';
   container.innerHTML = `
+    ${watchLegend}
     <div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;overflow:hidden;">
       <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.68rem;">
         <thead>
