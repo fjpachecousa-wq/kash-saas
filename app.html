@@ -4553,7 +4553,7 @@ function parseMacroCsvText(text) {
     const cells = lines[i].split(',').map(c => c.trim());
     const row = {};
     headers.forEach((h, idx) => { row[h] = cells[idx] !== undefined ? cells[idx] : ''; });
-    if (row['Ticker'] && row['Ticker'].toUpperCase() !== 'EXEMPLO') rows.push(row);
+    if (row['Ticker']) rows.push(row);
   }
   return rows;
 }
@@ -4592,8 +4592,12 @@ function renderMacroAnalysis() {
     return;
   }
   const importedDateTime = new Date(imp.importedAt).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+  const daysSinceImport = Math.floor((Date.now() - new Date(imp.importedAt).getTime()) / (1000 * 60 * 60 * 24));
+  const staleBadge = daysSinceImport > 30
+    ? ` <span style="background:var(--kash-cream-2);color:#8A6A1F;border:1px solid var(--kash-gold);border-radius:6px;padding:2px 7px;font-family:'Space Mono',monospace;font-size:0.62rem;">${daysSinceImport} days old — consider updating</span>`
+    : '';
   if (disclaimerEl) {
-    disclaimerEl.textContent = 'Informational only, based on the file you imported on ' + importedDateTime + '. Not a recommendation.';
+    disclaimerEl.innerHTML = 'Informational only, based on the file you imported on ' + importedDateTime + '. Not a recommendation.' + staleBadge;
   }
   if (lastImportEl) {
     lastImportEl.textContent = 'Last import: ' + new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
