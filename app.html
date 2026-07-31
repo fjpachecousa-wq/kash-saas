@@ -1880,7 +1880,7 @@ tr:hover td {
 <nav class="nav-bar no-print" id="tabsNav">
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
-  <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">📑 TRANSACTIONS</button>
+  <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">📑 MY GOAL</button>
 </nav>
 
 <div class="container">
@@ -2046,7 +2046,7 @@ tr:hover td {
           &nbsp;·&nbsp;
           Pending: <strong style="color:#f59e0b;" id="ovTotalPending">0</strong>
           &nbsp;·&nbsp;
-          Fail: <strong style="color:#dc2626;" id="ovTotalFail">0</strong>
+          Not completed: <strong style="color:#dc2626;" id="ovTotalFail">0</strong>
         </div>
       </div>
 
@@ -3129,7 +3129,7 @@ function renderOverview() {
       if (!sideAssetList) return;
       const totalValue = holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
       let totalEst = 0;
-      const rows = holdings.map(h => {
+      holdings.forEach(h => {
         const sec    = securities.find(s => s.security_id === h.security_id);
         const ticker = sec?.ticker_symbol || '—';
         const qty    = parseFloat(h.quantity || 0);
@@ -3137,29 +3137,15 @@ function renderOverview() {
         const q      = quoteMap ? quoteMap[ticker] : null;
         const est    = q?.price != null ? qty * q.price : null;
         totalEst += est !== null ? est : value;
-        return `<div style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-family:'Orbitron',sans-serif;font-size:1.05rem;color:var(--green-neon);letter-spacing:2px;">${ticker}</span>
-            <div style="display:flex;gap:10px;">
-              <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--white);font-weight:700;min-width:52px;text-align:right;">${fmt(value)}</span>
-              <span style="font-family:'Space Mono',monospace;font-size:0.72rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${est !== null ? fmt(est) : '—'}</span>
-            </div>
-          </div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--silver);margin-top:2px;">${qty.toFixed(4)} shares</div>
-        </div>`;
-      }).join('');
-      const headerRow = `<div style="display:flex;justify-content:flex-end;gap:10px;padding-bottom:4px;">
-        <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--kash-muted);letter-spacing:0.5px;min-width:52px;text-align:right;">LAST SYNC</span>
-        <span style="font-family:'Space Mono',monospace;font-size:0.58rem;color:var(--kash-muted);letter-spacing:0.5px;min-width:52px;text-align:right;">EST. RT</span>
-      </div>`;
-      const totalRow = `<div style="padding:10px 0 2px;margin-top:4px;border-top:1px solid rgba(200,162,74,0.3);display:flex;justify-content:space-between;align-items:center;">
-        <span style="font-family:'Orbitron',sans-serif;font-size:0.85rem;color:var(--kash-gold);letter-spacing:1px;">TOTAL</span>
+      });
+      const totalRow = `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
+        <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-muted);">Total</span>
         <div style="display:flex;gap:10px;">
-          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${fmt(totalValue)}</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-gold);font-weight:700;min-width:52px;text-align:right;">${quoteMap ? fmt(totalEst) : '—'}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.95rem;color:var(--white);font-weight:700;">${fmt(totalValue)}</span>
+          <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-gold);">${quoteMap ? fmt(totalEst) : '—'}</span>
         </div>
       </div>`;
-      sideAssetList.innerHTML = headerRow + rows + totalRow;
+      sideAssetList.innerHTML = totalRow;
     };
 
     renderAssetRows(null);
@@ -3274,11 +3260,16 @@ function renderOverview() {
     { label: '⏳ Pending',                value: fmt(pendingDueTotalOv),     color: '#f59e0b' },
   ];
 
-  document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => `
-    <div style="${rowStyle}">
+  document.getElementById('ovMetricsRows').innerHTML = metrics.map(m => {
+    const row = `<div style="${rowStyle}">
       <span style="${labelStyle}">${m.label}</span>
       <strong style="${valStyle}color:${m.color};">${m.value}</strong>
-    </div>`).join('') + (estimatedBalance === 0 ? `
+    </div>`;
+    const note = (m.label === 'Daily contribution needed' && netAindaNaoCoberto <= 0 && (scheduledTotalOv + pendingDueTotalOv) > 0)
+      ? `<div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--kash-muted);padding:0 0 6px;">Already covered by the scheduled deposits below.</div>`
+      : '';
+    return row + note;
+  }).join('') + (estimatedBalance === 0 ? `
     <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(251,191,36,0.7);padding:8px 0;letter-spacing:0.5px;">
       ⚠ No contributions recorded yet.
     </div>` : '');
