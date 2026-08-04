@@ -3125,52 +3125,17 @@ function renderOverview() {
     const holdings   = plaidData.holdings;
     const securities = plaidData.securities || [];
 
-    const renderAssetRows = (quoteMap) => {
+    const renderAssetRows = () => {
       if (!sideAssetList) return;
       const totalValue = holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
-      let totalEst = 0;
-      holdings.forEach(h => {
-        const sec    = securities.find(s => s.security_id === h.security_id);
-        const ticker = sec?.ticker_symbol || '—';
-        const qty    = parseFloat(h.quantity || 0);
-        const value  = parseFloat(h.institution_value || 0);
-        const q      = quoteMap ? quoteMap[ticker] : null;
-        const est    = q?.price != null ? qty * q.price : null;
-        totalEst += est !== null ? est : value;
-      });
       const totalRow = `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">
         <span style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--kash-muted);">Total</span>
-        <div style="display:flex;gap:10px;">
-          <span style="font-family:'Space Mono',monospace;font-size:0.95rem;color:var(--white);font-weight:700;">${fmt(totalValue)}</span>
-          <span style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-gold);">${quoteMap ? fmt(totalEst) : '—'}</span>
-        </div>
+        <span style="font-family:'Space Mono',monospace;font-size:0.95rem;color:var(--white);font-weight:700;">${fmt(totalValue)}</span>
       </div>`;
       sideAssetList.innerHTML = totalRow;
     };
 
-    renderAssetRows(null);
-
-    const tickersOv = holdings.map(h => {
-      const sec = securities.find(s => s.security_id === h.security_id);
-      return sec?.ticker_symbol || null;
-    }).filter(Boolean);
-
-    (async () => {
-      const quoteMapOv = {};
-      await Promise.all(tickersOv.map(async ticker => {
-        try {
-          const res = await fetch(PLAID_FUNCTION_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'get_quote', ticker })
-          });
-          quoteMapOv[ticker] = await res.json();
-        } catch(e) {
-          quoteMapOv[ticker] = null;
-        }
-      }));
-      renderAssetRows(quoteMapOv);
-    })();
+    renderAssetRows();
   } else {
     if (sideAssetList) sideAssetList.innerHTML = `<div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--kash-muted);">No holdings synced yet.</div>`;
   }
@@ -4181,22 +4146,28 @@ function shouldAutoSync() {
   if (!isBusinessDayToday()) return false;
   const now = new Date();
   const todayStr = now.toDateString();
-  const lastAutoSyncDate = localStorage.getItem('plaid_auto_sync_date') || '';
-  if (lastAutoSyncDate === todayStr) return false; // already synced today
+  const lastSuccessDate = localStorage.getItem('plaid_auto_sync_success_date') || '';
+  if (lastSuccessDate === todayStr) return false; // já sincronizou com sucesso hoje
   const pastSyncTime = (now.getHours() > AUTO_SYNC_HOUR) || (now.getHours() === AUTO_SYNC_HOUR && now.getMinutes() >= AUTO_SYNC_MINUTE);
-  return pastSyncTime;
+  if (!pastSyncTime) return false;
+  const lockTs = parseInt(localStorage.getItem('plaid_auto_sync_lock') || '0');
+  if (lockTs && (Date.now() - lockTs) < 30000) return false; // sync já em andamento
+  return true;
 }
 
 async function runAutoSyncIfDue() {
   if (!shouldAutoSync()) return;
   const todayStr = new Date().toDateString();
+  localStorage.setItem('plaid_auto_sync_lock', String(Date.now())); // trava curta, evita disparo duplicado durante o sync
+  let holdingsOk = false, statementOk = false;
   try {
-    await syncPlaid();
-    await fetchStatement();
+    holdingsOk = await syncPlaid();
+    statementOk = await fetchStatement();
   } catch (e) {
     console.error('Auto-sync error:', e);
   } finally {
-    localStorage.setItem('plaid_auto_sync_date', todayStr);
+    if (holdingsOk && statementOk) localStorage.setItem('plaid_auto_sync_success_date', todayStr);
+    localStorage.removeItem('plaid_auto_sync_lock');
     checkClosingEligibility();
   }
 }
@@ -4246,12 +4217,16 @@ async function initPlaid() {
   await loadLatestClosure(); checkClosingEligibility();
 }
 
+function setPlaidStatusText(text, isError) {
+  const statusEl = document.getElementById('plaidStatus');
+  if (statusEl) { statusEl.textContent = text; statusEl.style.color = isError ? '#ef4444' : 'var(--silver)'; }
+}
+
 function updatePlaidStatus() {
   const lastSync = parseInt(localStorage.getItem('plaid_last_sync') || '0');
   const lastSyncStr = lastSync ? new Date(lastSync).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'}) : 'Never';
-  const statusEl = document.getElementById('plaidStatus');
   const infoEl = document.getElementById('plaidSyncInfo');
-  if (statusEl) statusEl.textContent = 'Connected · Last sync: ' + lastSyncStr;
+  setPlaidStatusText('Connected · Last sync: ' + lastSyncStr, false);
   if (infoEl) {
     infoEl.style.display = 'block';
     infoEl.textContent = 'Auto-synced daily at 6:10 PM';
@@ -4313,7 +4288,7 @@ async function connectPlaid() {
 
 async function syncPlaid() {
   const access_token = localStorage.getItem('plaid_access_token');
-  if (!access_token) { console.warn('Plaid not connected — skipping auto-sync.'); return; }
+  if (!access_token) { console.warn('Plaid not connected — skipping auto-sync.'); return false; }
   try {
     const res = await fetch(PLAID_FUNCTION_URL, {
       method: 'POST',
@@ -4336,14 +4311,18 @@ async function syncPlaid() {
     }, { onConflict: 'user_id' });
     if (upsertError) {
       console.error('PLAID: Supabase upsert error:', upsertError);
-      return;
+      setPlaidStatusText('⚠️ Sync failed: could not save data', true);
+      return false;
     }
     console.log('PLAID: holdings saved to Supabase successfully');
     window._lastPlaidData = { holdings: data.holdings, securities: data.securities };
     renderPlaidHoldings(data);
     updatePlaidStatus();
+    return true;
   } catch (e) {
     console.error('Auto-sync (Plaid holdings) error:', e.message);
+    setPlaidStatusText('⚠️ Sync failed: ' + e.message, true);
+    return false;
   }
 }
 
@@ -4707,14 +4686,14 @@ function renderStatementFromCache() {
 
 async function fetchStatement(useCacheOnly) {
   const container = document.getElementById('statementContent');
-  if (!container) return;
+  if (!container) return false;
 
   updateStatementLabels();
 
   const access_token = localStorage.getItem('plaid_access_token');
   if (!access_token) {
     container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your Acorns account in the Portfolio tab first.</div>';
-    return;
+    return false;
   }
 
   container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">⏳ Loading statement...</div>';
@@ -4734,13 +4713,13 @@ async function fetchStatement(useCacheOnly) {
 
     if (data.error_code || data.error) {
       container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error loading statement: ' + (data.error_message || data.error) + '</div>';
-      return;
+      return false;
     }
 
     const txns = data.investment_transactions || [];
     if (txns.length === 0) {
       container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">No transactions found in the last 60 days.</div>';
-      return;
+      return true;
     }
 
     const sorted = [...txns].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -4802,11 +4781,13 @@ async function fetchStatement(useCacheOnly) {
         statement_data: data,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' });
-      if (stmtUpsertError) console.error('Statement: Supabase upsert error:', stmtUpsertError);
+      if (stmtUpsertError) { console.error('Statement: Supabase upsert error:', stmtUpsertError); return false; }
     }
+    return true;
 
   } catch (e) {
     container.innerHTML = '<div style="font-size:0.8rem;color:#ef4444;text-align:center;padding:20px;">Error: ' + e.message + '</div>';
+    return false;
   }
 }
 </script>
