@@ -4431,20 +4431,6 @@ async function renderPlaidHoldings(data) {
           <div style="margin-top:2px;">${changeRow}</div>
         </div>
       </div>
-      <div style="display:flex;gap:12px;border-top:1px solid rgba(15,46,46,0.08);padding-top:8px;flex-wrap:wrap;">
-        <div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-muted);letter-spacing:0.5px;margin-bottom:2px;">SHARES</div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--white);">${qty.toFixed(4)}</div>
-        </div>
-        <div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-muted);letter-spacing:0.5px;margin-bottom:2px;">LAST SYNC</div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--green-neon);">$${value.toFixed(2)}</div>
-        </div>
-        <div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--kash-gold);letter-spacing:0.5px;margin-bottom:2px;">EST. REAL-TIME</div>
-          <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--kash-gold);font-weight:700;">${estRealTime !== null ? '$' + estRealTime.toFixed(2) : '—'}</div>
-        </div>
-      </div>
     </div>`;
   }).join('');
 
@@ -4502,18 +4488,10 @@ async function renderPlaidHoldings(data) {
 
   const assetCard = `<div style="background:rgba(0,0,0,0.3);border:1px solid rgba(57,255,20,0.2);border-radius:10px;padding:16px;margin:20px 0;">
     <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--green-neon);margin-bottom:12px;">📊 Asset Portfolio</div>
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;">
-      <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
-        <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Total Deposited</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--white);">$${_totalDeposited.toFixed(2)}</div>
-      </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">Last Sync</div>
         <div style="font-size:1rem;font-weight:700;color:${_returnColor};">$${_totalCurrent.toFixed(2)}</div>
-      </div>
-      <div style="text-align:center;background:var(--black);border:1px solid var(--kash-gold);border-radius:8px;padding:10px;">
-        <div style="font-size:0.7rem;color:var(--kash-gold);margin-bottom:4px;">Est. Real-Time</div>
-        <div style="font-size:1rem;font-weight:700;color:var(--kash-gold);">$${_totalEstRealTime.toFixed(2)}</div>
       </div>
       <div style="text-align:center;background:var(--black);border:1px solid var(--green-dark);border-radius:8px;padding:10px;">
         <div style="font-size:0.7rem;color:var(--silver);margin-bottom:4px;">YTD</div>
