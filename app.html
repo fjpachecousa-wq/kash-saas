@@ -4141,13 +4141,32 @@ function computeNextSyncLabel() {
   return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
-// Decides if today's auto-sync should run: once per business day, only after 6:10 PM has passed.
-function shouldAutoSync() {
+// Decides if o sync de ATIVOS (holdings) deve rodar hoje. Usa o last_sync REAL do banco
+// (plaid_last_sync, carregado do Supabase no initPlaid) - reconhece um sync feito pelo
+// cron do servidor, nao so pelo navegador. Evita duplicar a chamada cara (get_holdings).
+function shouldSyncHoldings() {
   if (!isBusinessDayToday()) return false;
   const now = new Date();
   const todayStr = now.toDateString();
-  const lastSuccessDate = localStorage.getItem('plaid_auto_sync_success_date') || '';
-  if (lastSuccessDate === todayStr) return false; // já sincronizou com sucesso hoje
+  const lastSyncTs = parseInt(localStorage.getItem('plaid_last_sync') || '0');
+  if (lastSyncTs && new Date(lastSyncTs).toDateString() === todayStr) return false; // já sincronizado hoje (banco confirma, cron ou navegador)
+  const pastSyncTime = (now.getHours() > AUTO_SYNC_HOUR) || (now.getHours() === AUTO_SYNC_HOUR && now.getMinutes() >= AUTO_SYNC_MINUTE);
+  if (!pastSyncTime) return false;
+  const lockTs = parseInt(localStorage.getItem('plaid_auto_sync_lock') || '0');
+  if (lockTs && (Date.now() - lockTs) < 30000) return false; // sync já em andamento
+  return true;
+}
+
+// Decide se o sync de DEPOSITOS (statement/investment_transactions) deve rodar hoje.
+// O cron do servidor NUNCA chama get_investment_transactions, entao essa guarda usa
+// uma flag propria (plaid_statement_sync_date), que so o navegador seta - nunca fica
+// falso-positivo por causa do cron.
+function shouldSyncStatement() {
+  if (!isBusinessDayToday()) return false;
+  const now = new Date();
+  const todayStr = now.toDateString();
+  const lastStatementDate = localStorage.getItem('plaid_statement_sync_date') || '';
+  if (lastStatementDate === todayStr) return false; // já sincronizado hoje
   const pastSyncTime = (now.getHours() > AUTO_SYNC_HOUR) || (now.getHours() === AUTO_SYNC_HOUR && now.getMinutes() >= AUTO_SYNC_MINUTE);
   if (!pastSyncTime) return false;
   const lockTs = parseInt(localStorage.getItem('plaid_auto_sync_lock') || '0');
@@ -4156,17 +4175,20 @@ function shouldAutoSync() {
 }
 
 async function runAutoSyncIfDue() {
-  if (!shouldAutoSync()) return;
+  const needHoldings = shouldSyncHoldings();
+  const needStatement = shouldSyncStatement();
+  if (!needHoldings && !needStatement) return;
   const todayStr = new Date().toDateString();
   localStorage.setItem('plaid_auto_sync_lock', String(Date.now())); // trava curta, evita disparo duplicado durante o sync
-  let holdingsOk = false, statementOk = false;
+  let holdingsOk = true, statementOk = true;
   try {
-    holdingsOk = await syncPlaid();
-    statementOk = await fetchStatement();
+    if (needHoldings) holdingsOk = await syncPlaid();
+    if (needStatement) statementOk = await fetchStatement();
   } catch (e) {
     console.error('Auto-sync error:', e);
   } finally {
-    if (holdingsOk && statementOk) localStorage.setItem('plaid_auto_sync_success_date', todayStr);
+    if (needHoldings && holdingsOk) localStorage.setItem('plaid_auto_sync_success_date', todayStr);
+    if (needStatement && statementOk) localStorage.setItem('plaid_statement_sync_date', todayStr);
     localStorage.removeItem('plaid_auto_sync_lock');
     checkClosingEligibility();
   }
