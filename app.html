@@ -875,7 +875,7 @@
 
   .manifesto strong { color: var(--green-neon); }
 
-  /* ── ACORNS BOX ──────────────────────────────── */
+  /* ── STATEMENT BOX ──────────────────────────────── */
 
   /* ── LOGIN SCREEN ────────────────────────────── */
   #loginScreen {
@@ -1971,7 +1971,7 @@ tr:hover td {
       <div id="plaidSection" style="display:none;background:linear-gradient(135deg,rgba(57,255,20,0.04),rgba(0,0,0,0.4));border:1px solid rgba(57,255,20,0.2);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <div>
-            <div id="plaidInstitutionLabel" style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 ACORNS SYNC</div>
+            <div id="plaidInstitutionLabel" style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--green-neon);letter-spacing:2px;">🔗 BROKERAGE SYNC</div>
             <div id="plaidStatus" style="font-size:0.72rem;color:var(--silver);margin-top:2px;">Not connected</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
@@ -2133,9 +2133,8 @@ tr:hover td {
 <div class="tab-panel" id="panel-goal">
   <div id="goalPanelContent"><!-- injetado por renderGoalPanel() --></div>
 
-  <!-- ACORNS VIEW — movido do antigo painel STATEMENT (Passo 1). Ainda escondido;
-       o Passo 2 vai ligar a exibição às caixas de seleção GOAL/ACORNS do Card 1. -->
-  <div id="acornsView" style="display:none;">
+  <!-- STATEMENT VIEW — extrato da corretora conectada (agnóstico de qual corretora). -->
+  <div id="statementView" style="display:none;">
 
     <div id="statementDisclaimer" style="background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.3);border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:0.78rem;color:#ffc107;line-height:1.5;">
       ⚠️ This shows cash movements reported by Plaid (deposits, dividends, rebalances). Asset purchase details (which ETF each contribution bought) are not yet available through this connection.
@@ -3290,7 +3289,7 @@ function renderGoalPanel() {
 
   const goalRows = `
     <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
-    <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">${(localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase()} Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Remaining to Goal</span><strong style="${valStyle}color:#eab308;">${fmt(st.remaining)}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">📅 Scheduled</span><strong style="${valStyle}color:var(--silver);">${fmt(scheduledTotal)}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">⏳ Pending</span><strong style="${valStyle}color:#f59e0b;">${fmt(pendingDueTotal)}</strong></div>
@@ -3298,9 +3297,9 @@ function renderGoalPanel() {
     <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
   `;
 
-  const acornsRows = `
+  const statementRows = `
     <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
-    <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">${(localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase()} Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Dividends</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementDividends())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Brokerage')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'}) : '—'; })()}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">⏭️ Next Sync (${((localStorage.getItem('plaid_institution_name') || 'Brokerage')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${computeNextSyncLabel()}</strong></div>
@@ -3322,7 +3321,7 @@ function renderGoalPanel() {
   container.innerHTML = `<div>
     ${alertHtml}
     <div class="kpi" style="text-align:left;padding:18px 22px;margin-bottom:20px;">
-      ${view === 'goal' ? goalRows : acornsRows}
+      ${view === 'goal' ? goalRows : statementRows}
       <div style="margin-top:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <div style="font-family:'Inter',sans-serif;font-size:0.95rem;color:var(--white);font-weight:600;">📈 Progress — Goal ${fmt(g.target)}</div>
@@ -3411,8 +3410,8 @@ function renderGoalPanel() {
   </div>`;
   renderTypeOptions();
   document.getElementById('goalBottomSection').style.display = view === 'goal' ? '' : 'none';
-  const acornsEl = document.getElementById('acornsView');
-  if (acornsEl) acornsEl.style.display = view === 'statement' ? '' : 'none';
+  const statementEl = document.getElementById('statementView');
+  if (statementEl) statementEl.style.display = view === 'statement' ? '' : 'none';
 }
 
 // ══════════════════════════════════════════════════
@@ -3544,7 +3543,7 @@ function _cleanTxnName(name) {
 }
 
 // ══════════════════════════════════════════════════
-// PAGINAÇÃO — reaproveitada pelas tabelas My Goal e Acorns Statement.
+// PAGINAÇÃO — reaproveitada pelas tabelas My Goal e Statement.
 // Só corta a lista já pronta em pedaços; nenhuma lógica de data envolvida.
 // ══════════════════════════════════════════════════
 const PAGE_SIZE = 20;
@@ -3565,13 +3564,13 @@ function goToMyGoalPage(page) {
   renderGoalPanel();
 }
 
-function goToAcornsPage(page) {
-  window._acornsPage = page;
+function goToStatementPage(page) {
+  window._statementPage = page;
   renderStatementFromCache();
 }
 
-// Total real reportado pela Acorns (Contributions + Dividends, exclui Fees/Taxes) — usado para
-// comparar "pelos seus livros" (GOAL) vs "pelo banco" (ACORNS), no card BALANCE.
+// Total real reportado pela corretora conectada (Contributions + Dividends, exclui Fees/Taxes) — usado para
+// comparar "pelos seus livros" (GOAL) vs "pelo banco" (STATEMENT), no card BALANCE.
 function getStatementTotal() {
   const closure = window._lastClosureData;
   const closureBase = closure ? parseFloat(closure.total_deposited || 0) : 0;
@@ -3601,8 +3600,8 @@ function getStatementDividends() {
   return total;
 }
 
-// Alterna a visão dentro de TRANSACTIONS entre GOAL (My Goal — padrão) e ACORNS
-// (extrato real do Statement). Seleção única — nunca as duas ao mesmo tempo.
+// Alterna a visão dentro de TRANSACTIONS entre GOAL (My Goal — padrão) e STATEMENT
+// (extrato real da corretora conectada). Seleção única — nunca as duas ao mesmo tempo.
 function setTransactionsView(view) {
   window._transactionsView = view;
   renderGoalPanel();
@@ -4745,9 +4744,9 @@ async function fetchStatement(useCacheOnly) {
     }
 
     const sorted = [...txns].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const acornsTotalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-    window._acornsPage = Math.min(Math.max(1, window._acornsPage || 1), acornsTotalPages);
-    const pageTxns = sorted.slice((window._acornsPage - 1) * PAGE_SIZE, window._acornsPage * PAGE_SIZE);
+    const statementTotalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+    window._statementPage = Math.min(Math.max(1, window._statementPage || 1), statementTotalPages);
+    const pageTxns = sorted.slice((window._statementPage - 1) * PAGE_SIZE, window._statementPage * PAGE_SIZE);
 
     const rows = pageTxns.map(t => {
       const amount = parseFloat(t.amount || 0);
@@ -4790,7 +4789,7 @@ async function fetchStatement(useCacheOnly) {
         <tbody>${rows}</tbody>
       </table>
       </div>
-      ${paginationHtml(window._acornsPage || 1, acornsTotalPages, 'goToAcornsPage')}`;
+      ${paginationHtml(window._statementPage || 1, statementTotalPages, 'goToStatementPage')}`;
 
     window._lastStatementData = data; // cache for re-display without a new Plaid call
     runReconciliation();
