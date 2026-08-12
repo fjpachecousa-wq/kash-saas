@@ -1975,7 +1975,7 @@ tr:hover td {
             <div id="plaidStatus" style="font-size:0.72rem;color:var(--silver);margin-top:2px;">Not connected</div>
           </div>
           <div style="display:flex;gap:8px;align-items:center;">
-            <button id="plaidConnectBtn" class="btn btn-sm" onclick="connectPlaid()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔌 Connect Acorns</button>
+            <button id="plaidConnectBtn" class="btn btn-sm" onclick="connectPlaid()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔌 Connect</button>
             <span id="plaidSyncBtn" style="display:none;"></span>
           </div>
         </div>
@@ -3302,8 +3302,8 @@ function renderGoalPanel() {
     <div style="${rowStyle}"><span style="${labelStyle}">GOAL Balance</span><strong style="${valStyle}color:${Math.abs(st.totalInvested - getStatementTotal()) < 0.005 ? 'var(--green-neon)' : '#eab308'};">${fmt(st.totalInvested)}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">ACORNS Balance</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementTotal())}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Dividends</span><strong style="${valStyle}color:var(--green-neon);">${fmt(getStatementDividends())}</strong></div>
-    <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'}) : '—'; })()}</strong></div>
-    <div style="${rowStyle}"><span style="${labelStyle}">⏭️ Next Sync (${((localStorage.getItem('plaid_institution_name') || 'Acorns')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${computeNextSyncLabel()}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">🔗 Last Sync (${((localStorage.getItem('plaid_institution_name') || 'Brokerage')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${(() => { const ls = parseInt(localStorage.getItem('plaid_last_sync') || '0'); return ls ? new Date(ls).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit', second:'2-digit'}) : '—'; })()}</strong></div>
+    <div style="${rowStyle}"><span style="${labelStyle}">⏭️ Next Sync (${((localStorage.getItem('plaid_institution_name') || 'Brokerage')).toUpperCase()})</span><strong style="${valStyle}color:var(--silver);font-size:0.75rem;">${computeNextSyncLabel()}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Days Left</span><strong style="${valStyle}color:var(--green-neon);">${st.daysLeft}</strong></div>
     <div style="${rowStyle}"><span style="${labelStyle}">Recommended Daily</span><strong style="${valStyle}color:var(--green-neon);">${fmt(adjustedSuggestedDaily)}</strong></div>
   `;
@@ -3347,7 +3347,7 @@ function renderGoalPanel() {
     <div class="card">
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;align-items:center;">
         <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'goal' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">📋 My Goal</span>
-        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'acorns' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">🔗 Acorns Statement</span>
+        <span onclick="setTransactionsView('statement')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;${view === 'statement' ? 'color:var(--green-neon);font-weight:700;' : 'color:var(--kash-muted);'}">🔗 ${(localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase()} Statement</span>
       </div>
       ${view === 'goal' ? `
       <div class="no-print" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
@@ -3412,7 +3412,7 @@ function renderGoalPanel() {
   renderTypeOptions();
   document.getElementById('goalBottomSection').style.display = view === 'goal' ? '' : 'none';
   const acornsEl = document.getElementById('acornsView');
-  if (acornsEl) acornsEl.style.display = view === 'acorns' ? '' : 'none';
+  if (acornsEl) acornsEl.style.display = view === 'statement' ? '' : 'none';
 }
 
 // ══════════════════════════════════════════════════
@@ -4216,7 +4216,7 @@ async function initPlaid() {
       if (data.last_sync) localStorage.setItem('plaid_last_sync', String(new Date(data.last_sync).getTime()));
       if (data.institution_name) localStorage.setItem('plaid_institution_name', data.institution_name);
       const instEl = document.getElementById('plaidInstitutionLabel');
-      if (instEl) { const n = data.institution_name || 'Acorns'; instEl.textContent = '🔗 ' + n.toUpperCase() + ' SYNC'; }
+      if (instEl) { const n = data.institution_name || 'Brokerage'; instEl.textContent = '🔗 ' + n.toUpperCase() + ' SYNC'; }
       saved = token;
       console.log('PLAID: holdings=', data.holdings, 'securities=', data.securities);
       if (data.holdings && data.securities) {
@@ -4279,7 +4279,7 @@ async function connectPlaid() {
         if (!exchData.access_token) throw new Error('Failed to exchange token');
         localStorage.setItem('plaid_access_token', exchData.access_token);
         localStorage.setItem('plaid_item_id', exchData.item_id || '');
-        const realInstitutionName = metadata?.institution?.name || 'Acorns';
+        const realInstitutionName = metadata?.institution?.name || 'Brokerage';
         localStorage.setItem('plaid_institution_name', realInstitutionName);
         // Salva no Supabase
         await _supabase.from('plaid_connections').upsert({
@@ -4294,7 +4294,7 @@ async function connectPlaid() {
         await syncPlaid();
       },
       onExit: (err) => {
-        connectBtn.textContent = '🔌 Connect Acorns';
+        connectBtn.textContent = '🔌 Connect';
         connectBtn.disabled = false;
         if (err) console.error('Plaid exit:', err);
       }
@@ -4302,7 +4302,7 @@ async function connectPlaid() {
     handler.open();
   } catch (e) {
     const connectBtn = document.getElementById('plaidConnectBtn');
-    connectBtn.textContent = '🔌 Connect Acorns';
+    connectBtn.textContent = '🔌 Connect';
     connectBtn.disabled = false;
     alert('Connection error: ' + e.message);
   }
@@ -4353,12 +4353,12 @@ async function renderPlaidHoldings(data) {
   const container = document.getElementById('plaidHoldings');
   if (!container) return;
   if (!data.holdings || data.holdings.length === 0) {
-    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:12px;">No holdings found in Acorns.</div>';
+    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:12px;">No holdings found.</div>';
     return;
   }
 
   // Label header
-  const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
+  const instName = (localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase();
   container.innerHTML = '<div style="font-family:\'Space Mono\',monospace;font-size:0.65rem;color:rgba(192,192,192,0.4);padding:8px 0;">⏳ Fetching quotes...</div>';
 
   // Buscar cotações em paralelo via Edge Function
@@ -4667,7 +4667,7 @@ function updateStatementLabels() {
   const periodLabel = document.getElementById('statementPeriodLabel');
   const syncLabel = document.getElementById('statementSyncLabel');
   if (originLabel) {
-    const instName = (localStorage.getItem('plaid_institution_name') || 'Acorns').toUpperCase();
+    const instName = (localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase();
     originLabel.textContent = '🔗 ' + instName + ' SYNC';
   }
   if (periodLabel) {
@@ -4714,7 +4714,7 @@ async function fetchStatement(useCacheOnly) {
 
   const access_token = localStorage.getItem('plaid_access_token');
   if (!access_token) {
-    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your Acorns account in the Portfolio tab first.</div>';
+    container.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your brokerage account in the Portfolio tab first.</div>';
     return false;
   }
 
@@ -4781,7 +4781,7 @@ async function fetchStatement(useCacheOnly) {
     container.innerHTML = `
       <div class="btn-row no-print" style="margin-bottom:14px;gap:24px;">
         <span onclick="setTransactionsView('goal')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--kash-muted);">📋 My Goal</span>
-        <span onclick="setTransactionsView('acorns')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--green-neon);font-weight:700;">🔗 Acorns Statement</span>
+        <span onclick="setTransactionsView('statement')" style="cursor:pointer;font-family:'Orbitron',sans-serif;letter-spacing:1px;font-size:1.05rem;color:var(--green-neon);font-weight:700;">🔗 ${(localStorage.getItem('plaid_institution_name') || 'Brokerage').toUpperCase()} Statement</span>
       </div>
       <div style="font-family:'Space Mono',monospace;font-size:0.6rem;color:var(--kash-muted);letter-spacing:1px;margin-bottom:14px;">${sorted.length} TRANSACTIONS — LAST 60 DAYS</div>
       <div class="table-wrap">
