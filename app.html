@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KA$H – Microinvest. Macroresults. v3</title>
+<title>KASH – Microinvest. Macroresults. v3</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1817,7 +1817,7 @@ tr:hover td {
     <div class="login-logo">
       <span style="color:var(--green-neon);">KA</span><img src="https://wqrtviggoletikvtuvmp.supabase.co/storage/v1/object/public/assets/kash-logo.png" alt="" style="height:0.85em;width:auto;vertical-align:-0.1em;margin:0 -2px;"><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
     </div>
-    <div class="login-tagline" style="margin-bottom:24px;" id="paywallTagline">Pro · $15.00/mo</div>
+    <div class="login-tagline" style="margin-bottom:24px;" id="paywallTagline">Pro · $9.99/mo</div>
     <div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--silver);letter-spacing:1px;line-height:2;margin-bottom:28px;text-align:left;" id="paywallFeatures">
       ✅ Unlimited projects<br>
       ✅ Cloud data sync<br>
@@ -1855,7 +1855,7 @@ tr:hover td {
 
 <!-- PRINT HEADER -->
 <div class="print-header">
-  <h1>KA$H – INVESTMENT STATEMENT</h1>
+  <h1>KASH – INVESTMENT STATEMENT</h1>
   <p>Microinvest. Macroresults. | <span id="printDate"></span></p>
 </div>
 
@@ -2458,9 +2458,9 @@ const i18n = {
     signInLink:     'Sign In',
     forgotPassword: 'Forgot my password',
     loginFooter:    'Your data is saved in the cloud · Secure',
-    paywallTagline: 'Pro · $15.00/mo',
+    paywallTagline: 'Pro · $9.99/mo',
     paywallFeatures:'✅ Unlimited projects<br>✅ Cloud data sync<br>✅ ETF portfolio tracker<br>✅ Contribution history<br>✅ Daily contribution tip',
-    paywallBtn:     '💳 Subscribe KA$H Pro — $15.00/mo',
+    paywallBtn:     '💳 Subscribe KASH Pro — $9.99/mo',
     paywallNote:    'Cancel anytime · Secure payment via Stripe',
     paywallLogout:  'Sign Out',
     logoutBtn:      'Sign Out',
@@ -4534,7 +4534,7 @@ async function handleMacroCsvUpload(event) {
     const text = await file.text();
     const rows = parseMacroCsvText(text);
     if (rows.length === 0) {
-      alert('No valid rows found in this CSV. Check it matches the KA$H import model.');
+      alert('No valid rows found in this CSV. Check it matches the KASH import model.');
       return;
     }
     state.etfMacroImport = { importedAt: new Date().toISOString(), rows };
@@ -4827,9 +4827,9 @@ async function fetchStatement(useCacheOnly) {
 
     <!-- Module 01 -->
     <div class="help-panel active" id="helpPanel0">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access KA$H</strong><br>Open your browser and go to <em>kashsolutions.us</em> — no installation needed. Works on desktop, tablet and mobile.</div></div>
+      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access KASH</strong><br>Open your browser and go to <em>kashsolutions.us</em> — no installation needed. Works on desktop, tablet and mobile.</div></div>
       <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Sign In</strong><br>Option A: Click <em>"Sign in with Google"</em>.<br>Option B: Enter email and password — click <em>"Create free account"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KA$H Pro</strong><br>Click <em>"Subscribe KA$H Pro"</em> — $15.00/month. Secure payment via Stripe. Cancel anytime.</div></div>
+      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KASH Pro</strong><br>Click <em>"Subscribe KASH Pro"</em> — $9.99/month. Secure payment via Stripe. Cancel anytime.</div></div>
       <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Set Up Your Profile</strong><br>Click the <em>👤 Profile</em> button in the top right. Fill in: First Name, Last Name and Date of Birth. Email and client number are generated automatically. Click <em>"Save Profile"</em>.</div></div>
       <div class="help-note">📌 <strong>Your Client Number</strong> is unique and permanent. Format: MMYYXXXXX (e.g. 0526 00247 = May/2026). Use it when contacting support.</div>
     </div>
@@ -4856,7 +4856,7 @@ async function fetchStatement(useCacheOnly) {
       <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Entry Date:</em> actual purchase date.<br><em>Ticker:</em> e.g. VOO, QQQ, IJH, IJR.<br><em>Shares:</em> quantity — e.g. 0.0102.<br><em>Price/Share ($):</em> price paid per share on purchase date.</div></div>
       <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Track Performance</strong><br>Click <em>"Save Entry"</em>. Use <em>"🔄 Refresh"</em> to update quotes. The app shows: current value, gain/loss in $ and %, and today's variation.</div></div>
       <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adding More Shares</strong><br>When you buy more shares, use <em>"+ Add Shares"</em> on the ETF card. The app calculates the difference and updates automatically.</div></div>
-      <div class="help-note">📌 Portfolio data is saved in the cloud — accessible from any device where you log into KA$H.</div>
+      <div class="help-note">📌 Portfolio data is saved in the cloud — accessible from any device where you log into KASH.</div>
     </div>
 
     <!-- Module 05 -->
@@ -4870,7 +4870,7 @@ async function fetchStatement(useCacheOnly) {
 
     <div class="legal-footer" style="margin-top:24px;flex-direction:column;gap:10px;">
       <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.5);line-height:1.7;border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 14px;background:rgba(251,191,36,0.03);">
-        ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KA$H. Each browser stores its own session independently.
+        ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KASH. Each browser stores its own session independently.
       </div>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
         <a href="/privacy" target="_blank">Privacy Policy</a>
