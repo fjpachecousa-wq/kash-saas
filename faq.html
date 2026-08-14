@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — KASH</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kash-bg: #F5F2E8;
+    --kash-text: #102A25;
+    --kash-muted: #5E6A63;
+    --kash-green: #0F3D2E;
+    --kash-green-deep: #0F2E2E;
+    --kash-green-bright: #166A3A;
+    --kash-gold: #C8A24A;
+    --kash-border: rgba(15,46,46,0.12);
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body { background: var(--kash-bg); color: var(--kash-text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+  nav { display:flex; align-items:center; justify-content:space-between; padding: 16px 48px; position:sticky; top:0; z-index:100; background: rgba(245,242,232,0.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--kash-border); }
+  .nav-logo { font-family:'Orbitron',sans-serif; font-weight:700; font-size:1.4rem; color:var(--kash-green-deep); letter-spacing:1px; text-decoration:none; }
+  .nav-cta { background: linear-gradient(135deg,var(--kash-green-bright),var(--kash-green-deep)); color:#F5F2E8; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.82rem; text-decoration:none; }
+
+  .hero { max-width:760px; margin:0 auto; padding:64px 48px 16px; }
+  .kicker { font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:3px; color:var(--kash-gold); text-transform:uppercase; margin-bottom:14px; }
+  .hero h1 { font-family:'Orbitron',sans-serif; font-size:2.1rem; color:var(--kash-green-deep); }
+
+  .content { max-width:760px; margin:0 auto; padding: 24px 48px 60px; }
+
+  .group-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; color:var(--kash-green-bright); letter-spacing:0.5px; margin: 32px 0 14px; border-left:3px solid var(--kash-gold); padding-left:12px; }
+  .group-title:first-child { margin-top:0; }
+
+  details { background:#fff; border:1px solid var(--kash-border); border-radius:10px; margin-bottom:10px; overflow:hidden; }
+  summary { list-style:none; cursor:pointer; padding:16px 20px; font-weight:600; font-size:0.95rem; color:var(--kash-text); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  summary::-webkit-details-marker { display:none; }
+  summary::after { content:'+'; font-family:'Orbitron',sans-serif; color:var(--kash-gold); font-size:1.1rem; flex-shrink:0; }
+  details[open] summary::after { content:'–'; }
+  details p { padding: 0 20px 18px; font-size:0.92rem; color:var(--kash-muted); }
+  details p a { color:var(--kash-green-bright); }
+
+  footer { padding: 32px 48px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; align-items:center; border-top:1px solid var(--kash-border); font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--kash-muted); }
+  footer a { color: var(--kash-green-bright); text-decoration:none; }
+
+  @media (max-width: 700px) {
+    nav, .hero, .content, footer { padding-left:20px; padding-right:20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KASH</a>
+  <a href="/app" class="nav-cta">Get Started</a>
+</nav>
+
+<div class="hero">
+  <div class="kicker">FAQ</div>
+  <h1>Frequently Asked Questions</h1>
+</div>
+
+<div class="content">
+
+  <div class="group-title">The Basics</div>
+
+  <details>
+    <summary>What is KASH?</summary>
+    <p>KASH is a financial projection and goal-tracking tool. You set a savings goal — an amount and a deadline — and KASH tracks your real progress toward it by syncing with the external account where your money is actually being deposited.</p>
+  </details>
+
+  <details>
+    <summary>Is KASH a bank or a brokerage?</summary>
+    <p>No. KASH does not open accounts, hold your money, or execute trades. It's not a bank, broker-dealer, or credit union, and it never will be. Your money stays in your own bank or brokerage account — KASH just tracks it against your goal.</p>
+  </details>
+
+  <details>
+    <summary>Does KASH give investment advice?</summary>
+    <p>No. KASH is not a registered investment advisor and never recommends specific assets. All projections are estimates based on your own inputs, for reference only. See our <a href="/disclaimer">Financial Disclaimer</a>.</p>
+  </details>
+
+  <details>
+    <summary>What is "My Goal" / Sync?</summary>
+    <p>My Goal is the core of KASH: a savings target you define, at a pace you choose (daily, weekly, or monthly). Sync is what confronts that plan against the real money actually moving in your connected account, day by day — that's what makes the goal feel real and trackable.</p>
+  </details>
+
+  <div class="group-title">Account &amp; Eligibility</div>
+
+  <details>
+    <summary>Do I need a brokerage account to use KASH?</summary>
+    <p>You need some external account where your savings already live — a bank, brokerage, or credit union account. It can be a simple savings account; you don't need to hold any investments. If it happens to be a brokerage account, KASH can also show your actual holdings, but that's optional.</p>
+  </details>
+
+  <details>
+    <summary>Who can use KASH?</summary>
+    <p>KASH is available to users aged 16 and older. Users between 16 and 17 should have the involvement and consent of a parent or legal guardian. See our <a href="/terms">Terms of Service</a> for full eligibility details.</p>
+  </details>
+
+  <div class="group-title">Pricing &amp; Billing</div>
+
+  <details>
+    <summary>How much does KASH cost?</summary>
+    <p>KASH Pro is $9.99/month. New subscribers may be offered an introductory rate of $6.99/month for the first 3 months via a promotional code, after which billing continues at the standard $9.99/month.</p>
+  </details>
+
+  <details>
+    <summary>Can I cancel anytime?</summary>
+    <p>Yes. You can cancel at any time from your account settings. Access continues until the end of your current billing cycle — no partial-period refunds are issued. Payment is processed exclusively through Stripe; KASH never sees or stores your card details.</p>
+  </details>
+
+  <div class="group-title">Connections &amp; Data</div>
+
+  <details>
+    <summary>How does KASH connect to my bank or brokerage?</summary>
+    <p>Through Plaid, a widely used connection service. KASH receives read-only access to your positions and balances for display and comparison only — it cannot move money, execute trades, or access your login credentials.</p>
+  </details>
+
+  <details>
+    <summary>Can I disconnect my account?</summary>
+    <p>Yes — contact us at <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a> and we'll disconnect it for you. A self-service disconnect option is planned for a future release.</p>
+  </details>
+
+  <details>
+    <summary>Is my data safe?</summary>
+    <p>Your data is encrypted in transit and at rest via Supabase, and payments are handled exclusively by Stripe — KASH never stores your card details. See our <a href="/privacy">Privacy Policy</a> for full details.</p>
+  </details>
+
+  <details>
+    <summary>Where can I read the full legal terms?</summary>
+    <p>All policies — Privacy, Terms of Service, Financial Disclaimer, Acceptable Use, and Cookies — are available at <a href="/privacy">kashsolutions.us/privacy</a> and its related pages.</p>
+  </details>
+
+</div>
+
+<footer>
+  <span>© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+  <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a>
+  <span>Not financial advice.</span>
+</footer>
+
+</body>
+</html>

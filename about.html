@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — KASH</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kash-bg: #F5F2E8;
+    --kash-text: #102A25;
+    --kash-muted: #5E6A63;
+    --kash-green: #0F3D2E;
+    --kash-green-deep: #0F2E2E;
+    --kash-green-bright: #166A3A;
+    --kash-gold: #C8A24A;
+    --kash-border: rgba(15,46,46,0.12);
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body { background: var(--kash-bg); color: var(--kash-text); font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+  nav { display:flex; align-items:center; justify-content:space-between; padding: 16px 48px; position:sticky; top:0; z-index:100; background: rgba(245,242,232,0.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--kash-border); }
+  .nav-logo { font-family:'Orbitron',sans-serif; font-weight:700; font-size:1.4rem; color:var(--kash-green-deep); letter-spacing:1px; text-decoration:none; }
+  .nav-cta { background: linear-gradient(135deg,var(--kash-green-bright),var(--kash-green-deep)); color:#F5F2E8; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.82rem; text-decoration:none; }
+
+  .hero { max-width:760px; margin:0 auto; padding:64px 48px 24px; }
+  .kicker { font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:3px; color:var(--kash-gold); text-transform:uppercase; margin-bottom:14px; }
+  .hero h1 { font-family:'Orbitron',sans-serif; font-size:2.1rem; color:var(--kash-green-deep); line-height:1.35; margin-bottom:8px; }
+
+  .content { max-width:760px; margin:0 auto; padding: 8px 48px 40px; }
+  .content p { font-size:1rem; color:var(--kash-text); margin-bottom:20px; }
+  .content h2 { font-family:'Orbitron',sans-serif; font-size:1.1rem; color:var(--kash-green-bright); margin: 36px 0 12px; }
+  .content ul { padding-left:20px; margin-bottom:20px; }
+  .content li { margin-bottom:8px; }
+  .content li::marker { color:var(--kash-gold); }
+
+  .callout { background:#fff; border:1px solid var(--kash-border); border-left:3px solid var(--kash-gold); border-radius:8px; padding:20px 24px; margin: 28px 0; font-size:0.92rem; color:var(--kash-muted); }
+
+  .values { display:flex; gap:40px; flex-wrap:wrap; background: var(--kash-green-deep); padding: 44px 48px; margin-top:20px; }
+  .value-item { text-align:center; color:#F5F2E8; max-width:180px; }
+  .value-icon { width:48px; height:48px; border:1.5px solid var(--kash-gold); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:1.2rem; }
+  .value-item h4 { font-family:'Orbitron',sans-serif; font-size:0.82rem; margin-bottom:6px; }
+  .value-item p { font-size:0.7rem; color: rgba(245,242,232,0.75); }
+
+  footer { padding: 32px 48px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; align-items:center; border-top:1px solid var(--kash-border); font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--kash-muted); }
+  footer a { color: var(--kash-green-bright); text-decoration:none; }
+
+  @media (max-width: 700px) {
+    nav, .hero, .content, footer { padding-left:20px; padding-right:20px; }
+    .values { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KASH</a>
+  <a href="/app" class="nav-cta">Get Started</a>
+</nav>
+
+<div class="hero">
+  <div class="kicker">About</div>
+  <h1>Why KASH exists</h1>
+</div>
+
+<div class="content">
+  <p>Most people who don't invest today don't lack the ability — they lack the belief that it's for them. They feel like what they earn barely covers the bills, let alone leaves room to invest. They feel like they don't understand the space. They feel like they don't have the patience to follow it.</p>
+
+  <p>KASH exists to change that belief, one small, concrete step at a time.</p>
+
+  <h2>What we do</h2>
+  <p>KASH doesn't teach investing and doesn't recommend where to put your money — it never suggests specific assets. Instead, it reduces the whole idea to one simple goal that you define yourself: an amount and a deadline, at whatever pace works for you — daily, weekly, or monthly — always sized so it doesn't get in the way of what you already need to pay day to day. That's <strong>My Goal</strong>, and it's the center of the product.</p>
+
+  <h2>What we are not</h2>
+  <p>KASH does not open accounts anywhere. It is not a bank, not a brokerage, not a credit union — and it never will be. That's not our role. Keeping your money somewhere that earns a return and is trackable is a real requirement, but it happens outside of KASH, in an account you already have or open on your own.</p>
+
+  <h2>How the sync works</h2>
+  <p>What KASH actually does is connect the goal you set with the place where that money is already being deposited — a bank, a brokerage, a credit union, whatever it is — and show you the distance between the two. Confronting your plan against the real money moving in that account, day after day, is what makes the goal feel real. Without that external account already in place, KASH has nothing to track against; it loses its purpose.</p>
+
+  <p>When that account is a brokerage account, KASH can also show the assets you've bought — but that's secondary. The product works completely even with a simple interest-bearing savings account, with no portfolio involved at all.</p>
+
+  <div class="callout">
+    KASH is a financial projection and goal-tracking tool. It is not a registered investment advisor, broker-dealer, or financial institution, and nothing in the product constitutes financial advice. See our <a href="/disclaimer" style="color:var(--kash-green-bright);">Financial Disclaimer</a> for details.
+  </div>
+
+  <h2>Where we are today</h2>
+  <p>KASH is still in active testing and refinement. There's no single finish line to "launch" — it's an ongoing build, shaped by real use.</p>
+</div>
+
+<div class="values">
+  <div class="value-item">
+    <div class="value-icon">🎋</div>
+    <h4>Wisdom</h4>
+    <p>Decisions grounded in knowledge and data.</p>
+  </div>
+  <div class="value-item">
+    <div class="value-icon">🌱</div>
+    <h4>Resilience</h4>
+    <p>Solid strategies for any scenario.</p>
+  </div>
+  <div class="value-item">
+    <div class="value-icon">🎯</div>
+    <h4>Growth</h4>
+    <p>Continuous evolution of your wealth.</p>
+  </div>
+  <div class="value-item">
+    <div class="value-icon">✅</div>
+    <h4>Results</h4>
+    <p>Real achievements through discipline.</p>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+  <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a>
+  <span>Not financial advice.</span>
+</footer>
+
+</body>
+</html>

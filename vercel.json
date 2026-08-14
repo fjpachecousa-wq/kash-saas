@@ -9,6 +9,8 @@
     { "source": "/terms", "destination": "/policies.html" },
     { "source": "/disclaimer", "destination": "/policies.html" },
     { "source": "/acceptable-use", "destination": "/policies.html" },
-    { "source": "/cookies", "destination": "/policies.html" }
+    { "source": "/cookies", "destination": "/policies.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/faq", "destination": "/faq.html" }
   ]
 }
