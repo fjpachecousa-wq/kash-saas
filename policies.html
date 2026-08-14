@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legal &amp; Policies — KASH</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --kash-bg: #F5F2E8;
+    --kash-text: #102A25;
+    --kash-muted: #5E6A63;
+    --kash-green: #0F3D2E;
+    --kash-green-deep: #0F2E2E;
+    --kash-green-bright: #166A3A;
+    --kash-gold: #C8A24A;
+    --kash-border: rgba(15,46,46,0.12);
+  }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body { background: var(--kash-bg); color: var(--kash-text); font-family: 'Inter', sans-serif; line-height: 1.5; min-height:100vh; display:flex; flex-direction:column; }
+
+  nav { display:flex; align-items:center; justify-content:space-between; padding: 16px 48px; position:sticky; top:0; z-index:100; background: rgba(245,242,232,0.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--kash-border); }
+  .nav-logo { font-family:'Orbitron',sans-serif; font-weight:700; font-size:1.4rem; color:var(--kash-green-deep); letter-spacing:1px; text-decoration:none; }
+  .nav-back { font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--kash-green-bright); text-decoration:none; letter-spacing:0.5px; border:1px solid var(--kash-border); padding:8px 16px; border-radius:8px; }
+  .nav-back:hover { background: rgba(15,61,46,0.06); }
+
+  .doc-header { padding: 48px 48px 0; max-width:900px; margin:0 auto; width:100%; }
+  .doc-kicker { font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:3px; color:var(--kash-gold); text-transform:uppercase; margin-bottom:10px; }
+  .doc-header h1 { font-family:'Orbitron',sans-serif; font-size:1.9rem; color:var(--kash-green-deep); margin-bottom:8px; }
+
+  .tabs { display:flex; gap:6px; flex-wrap:wrap; max-width:900px; margin:24px auto 0; padding:0 48px; }
+  .tab-btn { font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.5px; color:var(--kash-muted); background:#fff; border:1px solid var(--kash-border); padding:10px 16px; border-radius:8px 8px 0 0; cursor:pointer; }
+  .tab-btn.active { color:var(--kash-green-deep); background:var(--kash-bg); border-bottom-color:var(--kash-bg); font-weight:700; }
+  .tab-btn:hover:not(.active) { color:var(--kash-green-deep); }
+
+  .content { flex:1; max-width:900px; margin:0 auto; padding:32px 48px 80px; width:100%; border-top:1px solid var(--kash-border); }
+  .panel { display:none; }
+  .panel.active { display:block; }
+
+  .doc-title { font-family:'Orbitron',sans-serif; font-size:1.5rem; color:var(--kash-green-deep); margin-bottom:6px; }
+  .doc-meta { font-family:'Space Mono',monospace; font-size:0.68rem; color: var(--kash-muted); letter-spacing:0.5px; margin-bottom:36px; }
+
+  .doc-section { margin-bottom:28px; }
+  .doc-section-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; color:var(--kash-green-bright); letter-spacing:0.5px; margin-bottom:10px; border-left:3px solid var(--kash-gold); padding-left:12px; }
+  .doc-text { font-size:0.95rem; color:var(--kash-text); line-height:1.75; }
+  .doc-text + .doc-text { margin-top:10px; }
+  .doc-list { font-size:0.95rem; color:var(--kash-text); line-height:1.75; padding-left:20px; }
+  .doc-list li { margin-bottom:4px; }
+  .doc-list li::marker { color:var(--kash-gold); }
+  .doc-text a, .doc-list a { color:var(--kash-green-bright); }
+  .note-inline { font-size:0.8rem; color:var(--kash-muted); font-style:italic; }
+
+  footer { padding: 32px 48px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:16px; align-items:center; border-top:1px solid var(--kash-border); font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--kash-muted); }
+  footer a { color: var(--kash-green-bright); text-decoration:none; }
+
+  @media (max-width: 700px) {
+    nav, .doc-header, .tabs, .content, footer { padding-left:20px; padding-right:20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">KASH</a>
+  <a href="/app" class="nav-back">← Back to app</a>
+</nav>
+
+<div class="doc-header">
+  <div class="doc-kicker">Legal &amp; Policies</div>
+  <h1>KASH Corporate Solutions LLC</h1>
+</div>
+
+<div class="tabs" role="tablist">
+  <button class="tab-btn" data-tab="privacy" onclick="showTab('privacy')">Privacy Policy</button>
+  <button class="tab-btn" data-tab="terms" onclick="showTab('terms')">Terms of Service</button>
+  <button class="tab-btn" data-tab="disclaimer" onclick="showTab('disclaimer')">Financial Disclaimer</button>
+  <button class="tab-btn" data-tab="acceptable-use" onclick="showTab('acceptable-use')">Acceptable Use</button>
+  <button class="tab-btn" data-tab="cookies" onclick="showTab('cookies')">Cookie Policy</button>
+</div>
+
+<div class="content">
+
+  <!-- ===================== PRIVACY ===================== -->
+  <div class="panel" id="panel-privacy">
+    <div class="doc-title">Privacy Policy</div>
+    <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: AUGUST 13, 2026</div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">1. Who We Are</div>
+      <p class="doc-text">KASH is a financial projection and goal-tracking platform operated by KASH Corporate Solutions LLC ("KASH", "we", "our", "us"), accessible at kashsolutions.us. We are not a registered investment advisor, broker-dealer, or financial institution.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">2. Information We Collect</div>
+      <ul class="doc-list">
+        <li><strong>Account data:</strong> first name, last name, date of birth, email address</li>
+        <li><strong>Profile data:</strong> street address, city, state, ZIP code, tax declaration status</li>
+        <li><strong>Financial projection data:</strong> goals, contribution history, ETF tracking entries</li>
+        <li><strong>Payment data:</strong> processed exclusively by Stripe — KASH does not store card numbers or sensitive payment information</li>
+        <li><strong>Technical data:</strong> IP address, browser type, device type, cookies, local storage, usage logs</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">3. How We Use Your Information</div>
+      <ul class="doc-list">
+        <li>To provide and maintain the KASH platform</li>
+        <li>To calculate and display financial projections</li>
+        <li>To process subscription payments via Stripe</li>
+        <li>To sync your data across devices via Supabase</li>
+        <li>To communicate service updates and support responses</li>
+        <li>To comply with legal obligations</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">4. Third-Party Services</div>
+      <p class="doc-text">KASH uses the following third-party services that may process your data:</p>
+      <ul class="doc-list">
+        <li><strong>Supabase</strong> — secure cloud database and authentication</li>
+        <li><strong>Stripe</strong> — payment processing (subject to Stripe's Privacy Policy)</li>
+        <li><strong>Plaid</strong> — bank/brokerage connection for portfolio sync (subject to Plaid's Privacy Policy at plaid.com/legal)</li>
+        <li><strong>Yahoo Finance</strong> — market data reference (public data only)</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">5. Plaid Integration</div>
+      <p class="doc-text">If you choose to connect a brokerage account via Plaid, you authorize KASH to receive read-only access to your investment positions for display and comparison purposes only. KASH does not execute trades, transfer funds, or store your banking credentials. Your connection is subject to Plaid's Privacy Policy. Plaid integration requires a valid US financial account. International users with an SSN or ITIN may also connect eligible US accounts.</p>
+      <p class="doc-text">To revoke Plaid access, contact us at <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a> and we will disconnect your linked account. A self-service disconnect option is planned for a future release.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">6. Minor Users</div>
+      <p class="doc-text">KASH permits users aged 16 and older. Users between the ages of 16 and 17 should have the involvement and consent of a parent or legal guardian. We do not knowingly collect personal information from users under the age of 16.</p>
+      <p class="doc-text note-inline">Age and guardian consent are not independently verified by KASH at this time; by creating an account, you represent that you meet these requirements.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">7. California Residents — CCPA/CPRA Rights</div>
+      <p class="doc-text">If you are a California resident, you have the right to:</p>
+      <ul class="doc-list">
+        <li>Know what personal data we collect and how it is used</li>
+        <li>Request deletion of your personal data</li>
+        <li>Opt out of the sale or sharing of your personal data</li>
+        <li>Non-discrimination for exercising your rights</li>
+      </ul>
+      <p class="doc-text" style="margin-top:10px;">KASH does not sell your personal data to third parties. To exercise your rights, contact us at kash@kashsolutions.us.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">8. International Users — GDPR</div>
+      <p class="doc-text">If you are located in the European Economic Area (EEA), you have rights under the General Data Protection Regulation (GDPR), including the right to access, correct, and delete your personal data. Our legal basis for processing your data is contractual necessity and legitimate interest. To exercise your rights, contact us at kash@kashsolutions.us.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">9. Data Retention</div>
+      <p class="doc-text">We retain your data for as long as your account is active. If you request account deletion by contacting kash@kashsolutions.us, we will delete your data within 90 days, except where retention is required by law.</p>
+      <p class="doc-text note-inline">This process is currently handled manually upon request; a self-service deletion option is planned for a future release.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">10. Data Security</div>
+      <p class="doc-text">Your data is encrypted in transit and at rest via Supabase. KASH applies industry-standard security practices. No system is 100% secure — you use the platform at your own risk.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">11. Cookies &amp; Local Storage</div>
+      <p class="doc-text">KASH uses cookies and browser local storage for authentication and session management. For full details see our <a href="javascript:void(0)" onclick="showTab('cookies')">Cookie Policy</a>.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">12. Changes to This Policy</div>
+      <p class="doc-text">We may update this Privacy Policy periodically. Significant changes will be communicated via email or in-app notice. Continued use of the platform after changes constitutes acceptance.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">13. Contact</div>
+      <p class="doc-text">Privacy questions or requests: <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a></p>
+      <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+    </div>
+  </div>
+
+  <!-- ===================== TERMS ===================== -->
+  <div class="panel" id="panel-terms">
+    <div class="doc-title">Terms of Service</div>
+    <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: AUGUST 13, 2026</div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">1. Acceptance of Terms</div>
+      <p class="doc-text">By accessing or using KASH at kashsolutions.us you agree to be bound by these Terms of Service. If you do not agree, do not use the platform.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">2. Description of Service</div>
+      <p class="doc-text">KASH is a financial projection and goal-tracking tool. The platform allows users to create savings goals, track contributions, monitor ETF portfolio positions, and view market reference data. KASH does not manage funds, execute trades, or provide personalized financial advice.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">3. Eligibility</div>
+      <ul class="doc-list">
+        <li>You must be at least 16 years of age to use KASH</li>
+        <li>Users aged 16–17 should have the involvement and consent of a parent or legal guardian</li>
+        <li>By creating an account you represent that you meet these requirements; age and guardian consent are not independently verified by KASH at this time</li>
+        <li>International users acknowledge that Plaid integration and US brokerage sync require a valid US financial account with SSN or ITIN</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">4. Subscription and Payment</div>
+      <ul class="doc-list">
+        <li>KASH Pro subscription: $9.99/month standard price</li>
+        <li>New subscribers may be offered an introductory rate of $6.99/month for the first 3 months via a promotional code; the subscription then automatically continues at the standard $9.99/month rate unless cancelled</li>
+        <li>Payment is processed exclusively via Stripe</li>
+        <li>KASH does not accept cash, checks, wire transfers, cryptocurrency, or any other form of payment</li>
+        <li>Subscription renews automatically each month unless cancelled</li>
+        <li>You may cancel at any time through your account settings</li>
+        <li>Upon cancellation, access continues until the end of the current billing cycle</li>
+        <li>No refunds are issued for partial billing periods</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">5. Prohibited Uses</div>
+      <p class="doc-text">You agree not to:</p>
+      <ul class="doc-list">
+        <li>Use KASH for any unlawful purpose</li>
+        <li>Misrepresent financial data within the platform</li>
+        <li>Attempt to reverse-engineer, hack, or compromise the platform</li>
+        <li>Use KASH data to mislead, defraud, or harm third parties</li>
+        <li>Share your account credentials with unauthorized users</li>
+      </ul>
+      <p class="doc-text" style="margin-top:10px;">Violation of these terms may result in immediate account termination and legal action under applicable US law.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">6. User Responsibility</div>
+      <p class="doc-text">All financial decisions made based on KASH projections are solely your responsibility. KASH provides tools and reference data — not advice. The platform does not guarantee any financial outcome.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">7. Misuse and Legal Action</div>
+      <p class="doc-text">KASH reserves the right to pursue legal action against users who misuse the platform, generate or distribute false or misleading financial information derived from platform data, or engage in any conduct that damages the platform, its users, or KASH Corporate Solutions LLC.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">8. Intellectual Property</div>
+      <p class="doc-text">All content, design, code, and branding within KASH are the exclusive property of KASH Corporate Solutions LLC. Unauthorized reproduction or distribution is prohibited.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">9. Limitation of Liability</div>
+      <p class="doc-text">KASH is provided "as is." KASH Corporate Solutions LLC is not liable for any financial loss, data loss, or damages arising from use of the platform. Our total liability is limited to the amount paid by the user in the 30 days preceding the claim.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">10. Governing Law</div>
+      <p class="doc-text">These Terms are governed by the laws of the State of Florida, United States. Any disputes shall be resolved in the courts of Orange County, Florida.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">11. Changes to Terms</div>
+      <p class="doc-text">We reserve the right to modify these Terms at any time. Continued use after changes constitutes acceptance. Significant changes will be communicated via email.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">12. Contact</div>
+      <p class="doc-text">Questions about these Terms: <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a></p>
+      <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+    </div>
+  </div>
+
+  <!-- ===================== DISCLAIMER ===================== -->
+  <div class="panel" id="panel-disclaimer">
+    <div class="doc-title">Financial Disclaimer</div>
+    <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: AUGUST 13, 2026</div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">1. Not Financial Advice</div>
+      <p class="doc-text">KASH is a financial projection and goal-tracking tool. Nothing on this platform constitutes financial advice, investment advice, trading advice, or any other form of professional financial guidance.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">2. Not a Registered Advisor</div>
+      <p class="doc-text">KASH Corporate Solutions LLC is not a registered investment advisor (RIA), broker-dealer, financial planner, or fiduciary. KASH is not registered with the Securities and Exchange Commission (SEC) or the Financial Industry Regulatory Authority (FINRA).</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">3. No Trades Executed</div>
+      <p class="doc-text">KASH does not execute, facilitate, or recommend specific investment transactions. The platform does not buy or sell securities on your behalf.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">4. ETF Data and Suggestions</div>
+      <p class="doc-text">ETF information displayed within KASH — including suggested funds, dividend yields, expense ratios, and performance data — is provided for reference and educational purposes only. ETF suggestions are generated based on general risk profile parameters and do not constitute personalized investment recommendations. Past performance does not guarantee future results.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">5. Market Data</div>
+      <p class="doc-text">Market data displayed within KASH may be delayed, incomplete, or inaccurate. KASH sources data from third-party providers including Yahoo Finance. We do not warrant the accuracy, completeness, or timeliness of any market data displayed.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">6. Projections Are Estimates</div>
+      <p class="doc-text">All financial projections generated by KASH are mathematical estimates based on user-defined inputs. They do not account for market volatility, inflation, taxes, fees, or other real-world variables. Actual results will vary.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">7. No Tax Reporting</div>
+      <p class="doc-text">KASH does not generate, provide, or certify tax reports, gain/loss statements, or any documentation for use in US federal, state, or international tax filings. Users are solely responsible for their own tax obligations. KASH data should not be used as a basis for tax reporting.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">8. User Responsibility</div>
+      <p class="doc-text">All investment and financial decisions are made solely by the user. KASH bears no responsibility for outcomes resulting from decisions made based on platform data or projections.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">9. Consult a Professional</div>
+      <p class="doc-text">Users are encouraged to consult a licensed financial advisor, tax professional, or attorney before making investment decisions.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">10. Contact</div>
+      <p class="doc-text">Questions: <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a></p>
+      <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+    </div>
+  </div>
+
+  <!-- ===================== ACCEPTABLE USE ===================== -->
+  <div class="panel" id="panel-acceptable-use">
+    <div class="doc-title">Acceptable Use Policy</div>
+    <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: AUGUST 13, 2026</div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">1. Purpose</div>
+      <p class="doc-text">This Acceptable Use Policy defines the standards of conduct expected from all KASH users. Violation of this policy may result in account suspension, termination, and/or legal action.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">2. Permitted Uses</div>
+      <p class="doc-text">KASH is intended solely for:</p>
+      <ul class="doc-list">
+        <li>Personal financial goal tracking and projection</li>
+        <li>ETF portfolio monitoring and reference</li>
+        <li>Educational exploration of savings and investment concepts</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">3. Prohibited Conduct</div>
+      <p class="doc-text">Users may not:</p>
+      <ul class="doc-list">
+        <li>Use KASH data to create or distribute false, misleading, or fraudulent financial representations</li>
+        <li>Misrepresent KASH projections as guaranteed financial outcomes</li>
+        <li>Use the platform to facilitate money laundering, fraud, or any illegal financial activity</li>
+        <li>Share, publish, or commercialize KASH data without written authorization from KASH Corporate Solutions LLC</li>
+        <li>Attempt to access other users' data or compromise platform security</li>
+        <li>Use automated scripts, bots, or scrapers on the platform</li>
+        <li>Impersonate KASH, its staff, or other users</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">4. Content Responsibility</div>
+      <p class="doc-text">Users are solely responsible for all data entered into the platform. KASH does not verify the accuracy of user-entered financial data. Misuse of platform-generated content — including presenting projections as investment advice or guaranteed returns to third parties — is strictly prohibited.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">5. Enforcement</div>
+      <p class="doc-text">KASH reserves the right to:</p>
+      <ul class="doc-list">
+        <li>Suspend or terminate accounts in violation of this policy without prior notice</li>
+        <li>Report illegal activity to appropriate law enforcement authorities</li>
+        <li>Pursue civil legal action for damages caused by policy violations</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">6. Legal Action</div>
+      <p class="doc-text">Misuse of the KASH platform or its data that results in financial harm to third parties, damage to KASH Corporate Solutions LLC's reputation, or violation of applicable US law may be prosecuted to the full extent of the law.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">7. Contact</div>
+      <p class="doc-text">To report misuse or policy violations: <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a></p>
+      <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+    </div>
+  </div>
+
+  <!-- ===================== COOKIES ===================== -->
+  <div class="panel" id="panel-cookies">
+    <div class="doc-title">Cookie Policy</div>
+    <div class="doc-meta">KASH CORPORATE SOLUTIONS LLC &nbsp;·&nbsp; EFFECTIVE DATE: JUNE 1, 2026 &nbsp;·&nbsp; LAST UPDATED: AUGUST 13, 2026</div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">1. What Are Cookies</div>
+      <p class="doc-text">Cookies are small text files stored on your device when you visit a website. KASH also uses browser local storage, a similar technology, to help the platform function correctly and remember your session and preferences.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">2. What We Use</div>
+      <ul class="doc-list">
+        <li><strong>Local storage (Supabase authentication):</strong> KASH primarily uses browser local storage — not cookies — to keep you logged in via Supabase and to store your session across visits. This is required for the platform to function.</li>
+        <li><strong>Local storage (app state):</strong> used to store sync status, cached market data, and display preferences.</li>
+        <li><strong>Plaid Link:</strong> when you connect a brokerage account, Plaid's widget (loaded from cdn.plaid.com) may set its own cookies during the connection flow, governed by Plaid's Privacy Policy.</li>
+        <li><strong>Payment cookies:</strong> once in-app checkout is available, Stripe may set cookies during the subscription and payment process, governed by Stripe's Privacy Policy. <span class="note-inline">(This feature is not yet active on KASH.)</span></li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">3. What We Do Not Use</div>
+      <p class="doc-text">KASH does not use:</p>
+      <ul class="doc-list">
+        <li>Advertising or tracking cookies</li>
+        <li>Third-party behavioral profiling cookies</li>
+        <li>Cross-site tracking cookies</li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">4. Managing Cookies &amp; Local Storage</div>
+      <p class="doc-text">You may disable cookies and clear local storage through your browser settings. Note that clearing local storage or disabling essential cookies will sign you out and prevent you from using the KASH platform.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">5. Third-Party Services</div>
+      <p class="doc-text">Supabase, Stripe, and Plaid may set their own cookies or use similar technologies as part of their services. These are governed by their respective privacy policies:</p>
+      <ul class="doc-list">
+        <li>Supabase: <a href="https://supabase.com/privacy" target="_blank">supabase.com/privacy</a></li>
+        <li>Stripe: <a href="https://stripe.com/privacy" target="_blank">stripe.com/privacy</a></li>
+        <li>Plaid: <a href="https://plaid.com/legal" target="_blank">plaid.com/legal</a></li>
+      </ul>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">6. Changes to This Policy</div>
+      <p class="doc-text">We may update this Cookie Policy periodically. Continued use of the platform constitutes acceptance of any changes.</p>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">7. Contact</div>
+      <p class="doc-text">Cookie questions: <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a></p>
+      <p class="doc-text">KASH Corporate Solutions LLC — kashsolutions.us</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 KASH Corporate Solutions LLC. All Rights Reserved.</span>
+  <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a>
+  <span>Not financial advice.</span>
+</footer>
+
+<script>
+  var TABS = ['privacy','terms','disclaimer','acceptable-use','cookies'];
+  var ROUTE_MAP = { '/privacy':'privacy', '/terms':'terms', '/disclaimer':'disclaimer', '/acceptable-use':'acceptable-use', '/cookies':'cookies' };
+
+  function showTab(name) {
+    if (TABS.indexOf(name) === -1) name = 'privacy';
+    TABS.forEach(function(t) {
+      document.getElementById('panel-' + t).classList.toggle('active', t === name);
+      document.querySelector('.tab-btn[data-tab="' + t + '"]').classList.toggle('active', t === name);
+    });
+    window.location.hash = name;
+    window.scrollTo({ top: document.querySelector('.doc-header').offsetTop, behavior: 'instant' });
+  }
+
+  (function init() {
+    var initial = ROUTE_MAP[window.location.pathname] || (window.location.hash ? window.location.hash.replace('#','') : 'privacy');
+    showTab(initial);
+  })();
+</script>
+
+</body>
+</html>
