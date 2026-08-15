@@ -1871,7 +1871,6 @@ tr:hover td {
       <span id="headerDate"></span>
     </div>
     <button class="btn btn-sm no-print" onclick="toggleProfileCard()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Investor Profile">👤 Profile</button>
-    <button class="btn btn-sm no-print" onclick="openHelpModal()" style="font-size:0.75rem;padding:6px 14px;border-color:rgba(57,255,20,0.3);color:#000;background:#fff;" title="Help">❓ Help</button>
     <button class="btn-logout no-print" id="appLogoutBtn" onclick="logoutUser()">Sign Out</button>
   </div>
 </header>
@@ -4047,16 +4046,8 @@ function exportCSV() {
 // ══════════════════════════════════════════════════
 // HELP / TERMS / PRIVACY MODALS
 // ══════════════════════════════════════════════════
-function openHelpModal() {
-  document.getElementById('helpModal').classList.add('open');
-  showHelpTab(0, document.querySelector('.help-tab'));
-}
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
-}
-function showHelpTab(idx, btn) {
-  document.querySelectorAll('.help-panel').forEach((p,i) => p.classList.toggle('active', i === idx));
-  document.querySelectorAll('.help-tab').forEach((b,i) => b.classList.toggle('active', i === idx));
 }
 
 
@@ -4812,79 +4803,6 @@ async function fetchStatement(useCacheOnly) {
   }
 }
 </script>
-<!-- ══ HELP MODAL ══════════════════════════════════ -->
-<div class="modal-overlay" id="helpModal">
-  <div class="modal-lg">
-    <button class="modal-close" onclick="closeModal('helpModal')">✕</button>
-    <div class="modal-title">❓ USER GUIDE</div>
-    <div class="help-tabs">
-      <button class="help-tab active" onclick="showHelpTab(0,this)">01 · Getting Started</button>
-      <button class="help-tab" onclick="showHelpTab(1,this)">02 · Projects</button>
-      <button class="help-tab" onclick="showHelpTab(2,this)">03 · Contributions</button>
-      <button class="help-tab" onclick="showHelpTab(3,this)">04 · Portfolio</button>
-      <button class="help-tab" onclick="showHelpTab(4,this)">05 · Closing & Transfer</button>
-    </div>
-
-    <!-- Module 01 -->
-    <div class="help-panel active" id="helpPanel0">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access KASH</strong><br>Open your browser and go to <em>kashsolutions.us</em> — no installation needed. Works on desktop, tablet and mobile.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Sign In</strong><br>Option A: Click <em>"Sign in with Google"</em>.<br>Option B: Enter email and password — click <em>"Create free account"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Subscribe to KASH Pro</strong><br>Click <em>"Subscribe KASH Pro"</em> — $9.99/month. Secure payment via Stripe. Cancel anytime.</div></div>
-      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Set Up Your Profile</strong><br>Click the <em>👤 Profile</em> button in the top right. Fill in: First Name, Last Name and Date of Birth. Email and client number are generated automatically. Click <em>"Save Profile"</em>.</div></div>
-      <div class="help-note">📌 <strong>Your Client Number</strong> is unique and permanent. Format: MMYYXXXXX (e.g. 0526 00247 = May/2026). Use it when contacting support.</div>
-    </div>
-
-    <!-- Module 02 -->
-    <div class="help-panel" id="helpPanel1">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Open the Form</strong><br>In the <em>Overview</em> tab, click <em>"+ New Project"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Fields</strong><br><em>Name:</em> e.g. "Emergency Fund"<br><em>Goal ($):</em> total amount — e.g. $1,000<br><em>Start Date / End Date:</em> define the timeline<br><em>Risk Profile:</em> Conservative, Moderate or Aggressive.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Create the Project</strong><br>Click <em>"Create Project"</em>. The recommended daily contribution is calculated automatically based on your goal and remaining days.</div></div>
-      <div class="help-note">📌 You can create multiple projects — each with its own goal and timeline.</div>
-    </div>
-
-    <!-- Module 03 -->
-    <div class="help-panel" id="helpPanel2">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Select the Project</strong><br>Click the project tab in the navigation bar. Scroll down to <em>"Add Contribution"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Amount ($):</em> e.g. $5.00<br><em>Date:</em> the actual contribution date (can be backdated).<br><em>Note (optional):</em> e.g. "Coffee savings", "Paycheck".</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Confirm</strong><br>Click <em>"Add Contribution"</em>. History is updated immediately with the running accumulated balance.</div></div>
-      <div class="help-note">⚠️ Deleted contributions cannot be recovered. Closed projects have contributions locked.</div>
-    </div>
-
-    <!-- Module 04 -->
-    <div class="help-panel" id="helpPanel3">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access the Portfolio Tab</strong><br>Click <em>"Portfolio"</em> in the navigation bar. Click <em>"+ New Entry"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Fill in the Date</strong><br><em>Entry Date:</em> actual purchase date.<br><em>Ticker:</em> e.g. VOO, QQQ, IJH, IJR.<br><em>Shares:</em> quantity — e.g. 0.0102.<br><em>Price/Share ($):</em> price paid per share on purchase date.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Track Performance</strong><br>Click <em>"Save Entry"</em>. Use <em>"🔄 Refresh"</em> to update quotes. The app shows: current value, gain/loss in $ and %, and today's variation.</div></div>
-      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adding More Shares</strong><br>When you buy more shares, use <em>"+ Add Shares"</em> on the ETF card. The app calculates the difference and updates automatically.</div></div>
-      <div class="help-note">📌 Portfolio data is saved in the cloud — accessible from any device where you log into KASH.</div>
-    </div>
-
-    <!-- Module 05 -->
-    <div class="help-panel" id="helpPanel4">
-      <div class="help-step"><div class="help-step-num">1</div><div class="help-step-content"><strong>Access the Project</strong><br>Click the project tab. Scroll to the bottom — click <em>"🔒 Close Project"</em>.</div></div>
-      <div class="help-step"><div class="help-step-num">2</div><div class="help-step-content"><strong>Define the Balance Source</strong><br><em>YES →</em> uses the current Portfolio ETF balance.<br><em>NO →</em> uses the estimated balance with interest calculated by the app.</div></div>
-      <div class="help-step"><div class="help-step-num">3</div><div class="help-step-content"><strong>Choose the Action</strong><br><em>Transfer:</em> balance goes as a contribution to the destination project.<br><em>Withdraw:</em> documents that the amount was withdrawn.<br><em>Pending:</em> decide later — waits for bank consolidation.</div></div>
-      <div class="help-step"><div class="help-step-num">4</div><div class="help-step-content"><strong>Adjust Transferred Balance</strong><br>In the destination project, the contribution is marked with a <em>TRANSFER</em> badge. Click <em>✏️</em> to adjust the value when the balance consolidates in your account.</div></div>
-      <div class="help-note">📌 Closed projects remain in history and cannot be deleted. Their data is preserved permanently.</div>
-    </div>
-
-    <div class="legal-footer" style="margin-top:24px;flex-direction:column;gap:10px;">
-      <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:rgba(192,192,192,0.5);line-height:1.7;border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 14px;background:rgba(251,191,36,0.03);">
-        ⚠️ <strong style="color:#fbbf24;">Multiple accounts tip:</strong> If you use multiple Google accounts or different browsers, make sure you're signed into the correct account before accessing KASH. Each browser stores its own session independently.
-      </div>
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
-        <a href="/privacy" target="_blank">Privacy Policy</a>
-        <a href="/terms" target="_blank">Terms of Service</a>
-        <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
-        <a href="/acceptable-use" target="_blank">Acceptable Use</a>
-        <a href="/cookies" target="_blank">Cookie Policy</a>
-        <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
-        <span style="margin-left:auto;">kash@kashsolutions.us</span>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ══ INACTIVITY WARNING POPUP ══════════════════ -->
 <div id="inactivityPopup" style="display:none;position:fixed;inset:0;background:rgba(245,242,232,0.92);z-index:9999;align-items:center;justify-content:center;">
   <div style="background:rgba(255,255,255,0.96);backdrop-filter:blur(14px);border:1px solid rgba(15,46,46,0.15);box-shadow:0 18px 45px rgba(15,46,46,0.18);border-radius:20px;padding:36px;width:min(90vw,400px);text-align:center;">
@@ -4897,6 +4815,19 @@ async function fetchStatement(useCacheOnly) {
       <button onclick="logoutUser()" style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;padding:10px 28px;border-radius:10px;border:1px solid rgba(239,68,68,0.4);background:transparent;color:#dc2626;cursor:pointer;">Sign Out</button>
     </div>
   </div>
+</div>
+
+<!-- ══ APP FOOTER ══════════════════════════════════ -->
+<div class="legal-footer no-print" style="max-width:1100px;margin:32px auto 0;padding:20px 30px 24px;border-top:1px solid var(--kash-border);flex-wrap:wrap;align-items:center;">
+  <a href="/about" target="_blank">About</a>
+  <a href="/faq" target="_blank">FAQ</a>
+  <a href="/privacy" target="_blank">Privacy Policy</a>
+  <a href="/terms" target="_blank">Terms of Service</a>
+  <a href="/disclaimer" target="_blank">Financial Disclaimer</a>
+  <a href="/acceptable-use" target="_blank">Acceptable Use</a>
+  <a href="/cookies" target="_blank">Cookie Policy</a>
+  <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="color:#ef4444;">Cancel Subscription</a>
+  <span style="margin-left:auto;">kash@kashsolutions.us</span>
 </div>
 
 </body>
