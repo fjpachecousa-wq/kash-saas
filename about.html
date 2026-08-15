@@ -59,7 +59,7 @@
 
 <nav>
   <a href="/" class="nav-logo">KASH</a>
-  <a href="/app" class="nav-cta" id="navCta">Get Started</a>
+  <a href="/" class="nav-back" onclick="goBack(); return false;">← Back</a>
 </nav>
 
 <div class="hero">
@@ -121,16 +121,12 @@
 </footer>
 
 <script>
-  if (window.opener) {
-    var cta = document.getElementById('navCta');
-    cta.textContent = '← Back to app';
-    cta.classList.remove('nav-cta');
-    cta.classList.add('nav-back');
-    cta.addEventListener('click', function (e) {
-      e.preventDefault();
-      window.opener.focus();
-      window.close();
-    });
+  function goBack() {
+    if (document.referrer && document.referrer.indexOf(location.hostname) !== -1) {
+      history.back();
+    } else {
+      location.href = '/';
+    }
   }
 </script>
 
