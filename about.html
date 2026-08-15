@@ -24,6 +24,8 @@
   nav { display:flex; align-items:center; justify-content:space-between; padding: 16px 48px; position:sticky; top:0; z-index:100; background: rgba(245,242,232,0.92); backdrop-filter: blur(14px); border-bottom: 1px solid var(--kash-border); }
   .nav-logo { font-family:'Orbitron',sans-serif; font-weight:700; font-size:1.4rem; color:var(--kash-green-deep); letter-spacing:1px; text-decoration:none; }
   .nav-cta { background: linear-gradient(135deg,var(--kash-green-bright),var(--kash-green-deep)); color:#F5F2E8; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.82rem; text-decoration:none; }
+  .nav-back { font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--kash-green-bright); text-decoration:none; letter-spacing:0.5px; border:1px solid var(--kash-border); padding:8px 16px; border-radius:8px; cursor:pointer; }
+  .nav-back:hover { background: rgba(15,61,46,0.06); }
 
   .hero { max-width:760px; margin:0 auto; padding:64px 48px 24px; }
   .kicker { font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:3px; color:var(--kash-gold); text-transform:uppercase; margin-bottom:14px; }
@@ -57,7 +59,7 @@
 
 <nav>
   <a href="/" class="nav-logo">KASH</a>
-  <a href="/app" class="nav-cta">Get Started</a>
+  <a href="/app" class="nav-cta" id="navCta">Get Started</a>
 </nav>
 
 <div class="hero">
@@ -117,6 +119,20 @@
   <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a>
   <span>Not financial advice.</span>
 </footer>
+
+<script>
+  if (window.opener) {
+    var cta = document.getElementById('navCta');
+    cta.textContent = '← Back to app';
+    cta.classList.remove('nav-cta');
+    cta.classList.add('nav-back');
+    cta.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.opener.focus();
+      window.close();
+    });
+  }
+</script>
 
 </body>
 </html>
