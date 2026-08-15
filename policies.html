@@ -465,7 +465,7 @@
       document.getElementById('panel-' + t).classList.toggle('active', t === name);
       document.querySelector('.tab-btn[data-tab="' + t + '"]').classList.toggle('active', t === name);
     });
-    window.location.hash = name;
+    history.replaceState(null, '', location.pathname + '#' + name);
     window.scrollTo({ top: document.querySelector('.doc-header').offsetTop, behavior: 'instant' });
   }
 
