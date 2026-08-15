@@ -64,7 +64,7 @@
 
 <nav>
   <a href="/" class="nav-logo">KASH</a>
-  <a href="/app" class="nav-back">← Back to app</a>
+  <a href="/" class="nav-back" onclick="goBack(); return false;">← Back</a>
 </nav>
 
 <div class="doc-header">
@@ -473,6 +473,14 @@
     var initial = ROUTE_MAP[window.location.pathname] || (window.location.hash ? window.location.hash.replace('#','') : 'privacy');
     showTab(initial);
   })();
+
+  function goBack() {
+    if (document.referrer && document.referrer.indexOf(location.hostname) !== -1) {
+      history.back();
+    } else {
+      location.href = '/';
+    }
+  }
 </script>
 
 </body>
