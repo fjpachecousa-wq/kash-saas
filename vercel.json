@@ -2,9 +2,7 @@
   "buildCommand": null,
   "outputDirectory": null,
   "rewrites": [
-    { "source": "/", "destination": "/landing.html" },
     { "source": "/app", "destination": "/app.html" },
-    { "source": "/landing", "destination": "/landing.html" },
     { "source": "/privacy", "destination": "/policies.html" },
     { "source": "/terms", "destination": "/policies.html" },
     { "source": "/disclaimer", "destination": "/policies.html" },
