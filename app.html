@@ -4262,29 +4262,35 @@ async function connectPlaid() {
     const handler = Plaid.create({
       token: data.link_token,
       onSuccess: async (public_token, metadata) => {
-        const exchRes = await fetch(PLAID_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'exchange_token', public_token })
-        });
-        const exchData = await exchRes.json();
-        if (!exchData.access_token) throw new Error('Failed to exchange token');
-        localStorage.setItem('plaid_access_token', exchData.access_token);
-        localStorage.setItem('plaid_item_id', exchData.item_id || '');
-        const realInstitutionName = metadata?.institution?.name || 'Brokerage';
-        localStorage.setItem('plaid_institution_name', realInstitutionName);
-        // Salva no Supabase
-        await _supabase.from('plaid_connections').upsert({
-          user_id: currentUser.id,
-          access_token: exchData.access_token,
-          item_id: exchData.item_id || '',
-          institution_name: realInstitutionName,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-        document.getElementById('plaidConnectBtn').style.display = 'none';
-        document.getElementById('plaidDisconnectBtn').style.display = '';
-        updatePlaidStatus();
-        await syncPlaid();
+        try {
+          const exchRes = await fetch(PLAID_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'exchange_token', public_token })
+          });
+          const exchData = await exchRes.json();
+          if (!exchData.access_token) throw new Error('Failed to exchange token');
+          localStorage.setItem('plaid_access_token', exchData.access_token);
+          localStorage.setItem('plaid_item_id', exchData.item_id || '');
+          const realInstitutionName = metadata?.institution?.name || 'Brokerage';
+          localStorage.setItem('plaid_institution_name', realInstitutionName);
+          // Salva no Supabase
+          await _supabase.from('plaid_connections').upsert({
+            user_id: currentUser.id,
+            access_token: exchData.access_token,
+            item_id: exchData.item_id || '',
+            institution_name: realInstitutionName,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' });
+          document.getElementById('plaidConnectBtn').style.display = 'none';
+          document.getElementById('plaidDisconnectBtn').style.display = '';
+          updatePlaidStatus();
+          await syncPlaid();
+        } catch (e) {
+          connectBtn.textContent = '🔌 Connect';
+          connectBtn.disabled = false;
+          alert('Connection error: ' + e.message);
+        }
       },
       onExit: (err) => {
         connectBtn.textContent = '🔌 Connect';
@@ -4322,7 +4328,11 @@ async function disconnectPlaid() {
       throw new Error(data.error_message || data.error || 'Failed to disconnect');
     }
 
-    await _supabase.from('plaid_connections').delete().eq('user_id', currentUser.id);
+    const { error: deleteError } = await _supabase.from('plaid_connections').delete().eq('user_id', currentUser.id);
+    if (deleteError) {
+      console.error('PLAID: failed to clear connection record:', deleteError);
+      alert('Brokerage disconnected from Plaid, but we could not fully clear the local record (' + deleteError.message + '). Contact support to confirm cleanup.');
+    }
 
     localStorage.removeItem('plaid_access_token');
     localStorage.removeItem('plaid_item_id');
@@ -4341,6 +4351,8 @@ async function disconnectPlaid() {
     if (infoEl) infoEl.style.display = 'none';
     const holdingsEl = document.getElementById('plaidHoldings');
     if (holdingsEl) holdingsEl.innerHTML = '';
+    const statementEl = document.getElementById('statementContent');
+    if (statementEl) statementEl.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your brokerage account in the Portfolio tab first.</div>';
 
     alert('Brokerage disconnected.');
   } catch (e) {
