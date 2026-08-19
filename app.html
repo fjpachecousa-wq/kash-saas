@@ -4287,6 +4287,7 @@ async function connectPlaid() {
           updatePlaidStatus();
           await syncPlaid();
           await fetchStatement(); // busca o Statement junto (Conexao e Reconexao) - nao depende do sync diario
+          renderMacroAnalysis(); // recalcula selos "Watch only" contra o portfolio novo
         } catch (e) {
           connectBtn.textContent = '🔌 Connect';
           connectBtn.disabled = false;
@@ -4355,6 +4356,7 @@ async function disconnectPlaid() {
     const statementEl = document.getElementById('statementContent');
     if (statementEl) statementEl.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your brokerage account in the Portfolio tab first.</div>';
     renderGoalPanel(); // atualiza Balance/Dividends do "My Goal" na hora, sem deixar valor antigo da corretora
+    renderMacroAnalysis(); // marca todos os tickers importados como "Watch only" - nao ha mais portfolio sincronizado
 
     alert('Brokerage disconnected.');
   } catch (e) {
