@@ -961,7 +961,7 @@
     background: rgba(239,68,68,0.08);
   }
   #appContent { display: none; }
-  #paywallScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
+  #paywallScreen, #accountClosedScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; }
 
   /* ── AUTH EMAIL FORM ─────────────────────────── */
   .auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
@@ -1598,7 +1598,8 @@ tr:hover td {
 /* Login / Paywall / Loading */
 #loadingScreen,
 #loginScreen,
-#paywallScreen {
+#paywallScreen,
+#accountClosedScreen {
   background:
     radial-gradient(circle at 50% 18%, rgba(200,162,74,0.12), transparent 28%),
     linear-gradient(180deg, #F8F6EF, #F5F2E8) !important;
@@ -1847,6 +1848,20 @@ tr:hover td {
     <div style="text-align:center;margin-top:12px;">
       <a href="https://billing.stripe.com/p/login/00wfZhefi6OQ3Ck92Qbsc00" target="_blank" style="font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.4);letter-spacing:1px;text-decoration:underline;">Manage or cancel subscription</a>
     </div>
+  </div>
+</div>
+
+<!-- ACCOUNT CLOSED SCREEN — assinatura ja existiu e nao esta mais ativa (qualquer motivo) -->
+<div id="accountClosedScreen" style="display:none;">
+  <div class="login-box" style="max-width:480px;">
+    <div class="login-logo">
+      <span style="color:var(--green-neon);">KA</span><img src="https://wqrtviggoletikvtuvmp.supabase.co/storage/v1/object/public/assets/kash-logo.png" alt="S" style="height:0.85em;width:auto;vertical-align:-0.1em;margin:0 -2px;"><span style="background:linear-gradient(180deg,#e8e8e8 0%,#c0c0c0 50%,#888 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">H</span>
+    </div>
+    <div class="login-tagline" style="margin-bottom:20px;color:#ef4444;">Account Closed</div>
+    <div style="font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--silver);letter-spacing:0.5px;line-height:1.8;margin-bottom:24px;">
+      This account's subscription has ended and is no longer active. To use KASH again, please sign up with a different e-mail address, or contact <span style="color:var(--green-neon);">kash@kashsolutions.us</span>.
+    </div>
+    <button class="btn-logout" style="width:100%;" onclick="logoutUser()">Sign Out</button>
   </div>
 </div>
 
@@ -2165,10 +2180,20 @@ tr:hover td {
         <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Visible only to KASH Administration — not part of the regular user experience.</div>
       </div>
 
-      <!-- ══ ADMIN: EXCLUSAO DE CONTA ══ -->
+      <!-- ══ ADMIN: ASSINATURAS ENCERRADAS (self-service, revisao) ══ -->
+      <div id="adminCancellationsSection" style="display:none;background:linear-gradient(135deg,rgba(234,179,8,0.04),rgba(0,0,0,0.4));border:1px solid rgba(234,179,8,0.25);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#eab308;letter-spacing:2px;">📋 SUBSCRIPTION CANCELLATIONS</div>
+          <button class="btn btn-sm" onclick="adminLoadCancellations()" style="border-color:rgba(234,179,8,0.4);color:#eab308;">🔄 Refresh</button>
+        </div>
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Cancellation is self-service only (the customer's own Stripe link). This list is a live read from Stripe — nothing here happens automatically.</div>
+        <div id="adminCancellationsResult"><div style="font-size:0.75rem;color:var(--silver);">Click Refresh to load.</div></div>
+      </div>
+
+      <!-- ══ ADMIN: EXCLUSAO DE CONTA (busca manual, avulsa) ══ -->
       <div id="adminDeleteSection" style="display:none;background:linear-gradient(135deg,rgba(239,68,68,0.04),rgba(0,0,0,0.4));border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:20px;margin-bottom:24px;">
-        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#ef4444;letter-spacing:2px;margin-bottom:4px;">🗑️ ACCOUNT DELETION</div>
-        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Permanently delete a user's account after a verified request by e-mail. If they have an active Stripe subscription, cancel it here first — the tool schedules automatic deletion for the end of the current billing cycle.</div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#ef4444;letter-spacing:2px;margin-bottom:4px;">🗑️ ACCOUNT DELETION (manual lookup)</div>
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">For ad-hoc deletion requests by e-mail, unrelated to the list above. Won't delete an account with an active Stripe subscription — cancellation only happens through the customer's own Stripe link.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <input type="email" id="adminDeleteEmail" placeholder="user@email.com" style="flex:1;min-width:220px;">
           <button class="btn btn-sm" onclick="adminLookupAccount()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔍 Look up</button>
@@ -2295,11 +2320,14 @@ const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ══════════════════════════════════════════════════
 // STRIPE
 // ══════════════════════════════════════════════════
+// Retorna { active, everSubscribed }. "everSubscribed" distingue quem nunca assinou (mostra a
+// tela normal de assinatura) de quem ja assinou e a assinatura nao esta mais ativa, seja qual
+// for o motivo (mostra a tela de Conta Encerrada, sem opcao de reativar pelo mesmo e-mail).
 async function checkSubscription() {
-  if (!currentUser) return false;
+  if (!currentUser) return { active: false, everSubscribed: false };
   // Cache to avoid paywall flash on tab switch
   const cached = sessionStorage.getItem('kash_sub_' + currentUser.id);
-  if (cached === 'active') return true;
+  if (cached === 'active') return { active: true, everSubscribed: true };
   try {
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
     const query = _supabase
@@ -2310,16 +2338,16 @@ async function checkSubscription() {
     const { data, error } = await Promise.race([query, timeout]);
     if (error && error.code !== 'PGRST116') {
       // If RLS error or network issue and app was already loaded, keep access
-      if (document.getElementById('appContent').style.display === 'block') return true;
-      return false;
+      if (document.getElementById('appContent').style.display === 'block') return { active: true, everSubscribed: true };
+      return { active: false, everSubscribed: false };
     }
     const isActive = data?.status === 'active';
     if (isActive) sessionStorage.setItem('kash_sub_' + currentUser.id, 'active');
-    return isActive;
+    return { active: isActive, everSubscribed: !!data };
   } catch (e) {
     console.warn('Subscription check failed:', e);
-    if (document.getElementById('appContent').style.display === 'block') return true;
-    return false;
+    if (document.getElementById('appContent').style.display === 'block') return { active: true, everSubscribed: true };
+    return { active: false, everSubscribed: false };
   }
 }
 
@@ -2389,6 +2417,7 @@ async function logoutUser() {
   clearInterval(_countdownInterval);
   const popup = document.getElementById('inactivityPopup');
   if (popup) popup.style.display = 'none';
+  if (currentUser) sessionStorage.removeItem('kash_sub_' + currentUser.id);
   await _supabase.auth.signOut();
   currentUser = null;
   state = { name: '', interestRate: 7, projects: [] };
@@ -2663,6 +2692,8 @@ async function boot() {
 async function initApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('paywallScreen').style.display = 'none';
+  const closedScreen = document.getElementById('accountClosedScreen');
+  if (closedScreen) closedScreen.style.display = 'none';
   document.getElementById('appContent').style.display = 'none';
 
   const params = new URLSearchParams(window.location.search);
@@ -2670,14 +2701,20 @@ async function initApp() {
     setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 2000);
   }
 
-  let hasSub = false;
+  let sub = { active: false, everSubscribed: false };
   try {
-    hasSub = await checkSubscription();
+    sub = await checkSubscription();
   } catch(e) {
     console.error('Subscription check error:', e);
   }
 
-  if (!hasSub) {
+  if (!sub.active) {
+    if (sub.everSubscribed) {
+      // Ja teve assinatura, nao esta mais ativa (qualquer motivo) - conta encerrada,
+      // sem opcao de reativar pelo mesmo e-mail.
+      if (closedScreen) closedScreen.style.display = 'flex';
+      return;
+    }
     document.getElementById('paywallScreen').style.display = 'flex';
     const cb = document.getElementById('termsCheckbox');
     const btn = document.getElementById('paywallBtn');
@@ -3053,6 +3090,10 @@ function switchTab(tabId) {
       if (checkbox) checkbox.checked = true;
     }
     renderGoalPanel();
+  }
+
+  if (tabId === 'admin') {
+    adminLoadCancellations();
   }
 }
 
@@ -4216,6 +4257,8 @@ async function initPlaid() {
   if (section) section.style.display = 'block';
   const adminDeleteSection = document.getElementById('adminDeleteSection');
   if (adminDeleteSection) adminDeleteSection.style.display = 'block';
+  const adminCancellationsSection = document.getElementById('adminCancellationsSection');
+  if (adminCancellationsSection) adminCancellationsSection.style.display = 'block';
   const adminTabBtn = document.getElementById('tab-admin');
   if (adminTabBtn) adminTabBtn.style.display = 'inline-block';
   let saved = localStorage.getItem('plaid_access_token');
@@ -4395,6 +4438,69 @@ async function disconnectPlaid() {
 }
 
 // ══════════════════════════════════════════════════
+// ADMIN: ASSINATURAS ENCERRADAS (owner only)
+// Consulta o Stripe ao vivo e separa em 3 grupos: aguardando o fim do ciclo, prontas pra
+// exclusao (pedido de verdade), e encerradas por outro motivo (ex: cartao recusado - so
+// informativo, nao entra na fila de exclusao).
+// ══════════════════════════════════════════════════
+function adminFmtDate(iso) {
+  return iso ? new Date(iso).toLocaleDateString('en-US') : '—';
+}
+
+async function adminLoadCancellations() {
+  const resultEl = document.getElementById('adminCancellationsResult');
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Loading from Stripe...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'list_cancellations' })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + (data.error || 'failed to load') + '</div>'; return; }
+
+    const sections = [];
+
+    if (data.aguardando?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem;color:#eab308;margin-bottom:6px;">⏳ Waiting for cycle to end (${data.aguardando.length})</div>
+        ${data.aguardando.map(r => `
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(234,179,8,0.2);border-radius:8px;padding:10px 12px;font-size:0.75rem;color:var(--silver);margin-bottom:6px;">
+            <strong style="color:var(--white);">${r.email}</strong> — requested ${adminFmtDate(r.requested_at)}, ends ${adminFmtDate(r.ends_at)}
+          </div>`).join('')}
+      </div>`);
+    }
+
+    if (data.prontaParaExclusao?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem;color:#ef4444;margin-bottom:6px;">🗑️ Ready for deletion — formal request (${data.prontaParaExclusao.length})</div>
+        ${data.prontaParaExclusao.map(r => `
+          <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 12px;font-size:0.75rem;color:var(--silver);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span><strong style="color:var(--white);">${r.email}</strong> — requested ${adminFmtDate(r.requested_at)}, ended ${adminFmtDate(r.ended_at)}</span>
+            <button class="btn btn-sm btn-danger" onclick="adminConfirmDelete('${r.user_id}', '${r.email.replace(/'/g, "\\'")}')">Delete now</button>
+          </div>`).join('')}
+      </div>`);
+    }
+
+    if (data.encerradaOutroMotivo?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div style="font-size:0.75rem;color:var(--silver);margin-bottom:6px;">ℹ️ Ended for another reason — not a deletion request (${data.encerradaOutroMotivo.length})</div>
+        ${data.encerradaOutroMotivo.map(r => `
+          <div style="background:rgba(0,0,0,0.2);border:1px solid rgba(192,192,192,0.15);border-radius:8px;padding:10px 12px;font-size:0.75rem;color:var(--silver);margin-bottom:6px;">
+            <strong style="color:var(--white);">${r.email}</strong> — reason: ${r.reason}, ended ${adminFmtDate(r.ended_at)}
+          </div>`).join('')}
+      </div>`);
+    }
+
+    resultEl.innerHTML = sections.length ? sections.join('') : '<div style="font-size:0.75rem;color:var(--silver);">Nothing to review right now.</div>';
+  } catch (e) {
+    resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + e.message + '</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════
 // ADMIN: EXCLUSAO DE CONTA (owner only)
 // Busca uma conta pelo e-mail e mostra um resumo antes de apagar. O cancelamento de
 // assinatura no Stripe NAO acontece aqui - precisa ser feito antes, direto no Stripe.
@@ -4418,13 +4524,8 @@ async function adminLookupAccount() {
 
     const safeEmail = data.email.replace(/'/g, "\\'");
     let actionHtml;
-    if (data.deletionRequested) {
-      actionHtml = '<div style="color:#eab308;font-size:0.78rem;margin-top:10px;">⏳ Already scheduled — subscription cancelled, account will be deleted automatically when the current billing cycle ends. No action needed.</div>';
-    } else if (data.subscriptionStatus === 'active') {
-      actionHtml = `
-        <div style="color:#eab308;font-size:0.75rem;margin:8px 0;">⚠️ Active Stripe subscription (customer ${data.stripeCustomerId || '—'}).</div>
-        <button class="btn btn-sm btn-danger" style="margin-top:6px;" onclick="adminCancelAndSchedule('${data.user_id}', '${safeEmail}')">🗓️ Cancel subscription &amp; schedule deletion</button>
-        <div style="font-size:0.68rem;color:var(--silver);margin-top:6px;">Keeps access until the paid cycle ends, then deletes everything automatically. No manual Stripe step needed.</div>`;
+    if (data.subscriptionStatus === 'active') {
+      actionHtml = '<div style="color:#eab308;font-size:0.75rem;margin-top:10px;">⚠️ Active Stripe subscription. Cancellation is self-service only (the customer uses their own "Cancel Subscription" link) — this account cannot be deleted while the subscription is active.</div>';
     } else {
       actionHtml = `<button class="btn btn-sm btn-danger" style="margin-top:10px;" onclick="adminConfirmDelete('${data.user_id}', '${safeEmail}')">🗑️ Permanently delete this account now</button>`;
     }
@@ -4439,32 +4540,6 @@ async function adminLookupAccount() {
       </div>`;
   } catch (e) {
     resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + e.message + '</div>';
-  }
-}
-
-async function adminCancelAndSchedule(user_id, email) {
-  const ok = confirm('Cancel the subscription for ' + email + '?\n\nThey keep access until the current paid cycle ends. No renewal after that. Once the cycle truly ends, their brokerage connection, data, and login will be deleted automatically — no further action from you needed.');
-  if (!ok) return;
-  const resultEl = document.getElementById('adminDeleteResult');
-  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Cancelling in Stripe...</div>';
-  try {
-    const { data: sessionData } = await _supabase.auth.getSession();
-    const token = sessionData?.session?.access_token;
-    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-      body: JSON.stringify({ action: 'cancel_and_schedule', user_id })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + (data.error || 'cancellation failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
-      return;
-    }
-    const endDate = data.currentPeriodEnd ? new Date(data.currentPeriodEnd).toLocaleDateString('en-US') : 'end of current cycle';
-    resultEl.innerHTML = '<div style="color:var(--green-neon);font-size:0.8rem;">✅ Cancelled. Access continues until ' + endDate + '. Deletion will happen automatically after that — nothing else to do.</div>';
-    document.getElementById('adminDeleteEmail').value = '';
-  } catch (e) {
-    resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + e.message + '</div>';
   }
 }
 
