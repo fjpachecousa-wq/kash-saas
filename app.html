@@ -1880,6 +1880,7 @@ tr:hover td {
   <button class="tab-btn active" onclick="switchTab('overview')" id="tab-overview">📊 OVERVIEW</button>
   <button class="tab-btn" onclick="switchTab('portfolio')" id="tab-portfolio">📈 PORTFOLIO</button>
   <button class="tab-btn" onclick="switchTab('goal')" id="tab-goal">📑 MY GOAL</button>
+  <button class="tab-btn" onclick="switchTab('admin')" id="tab-admin" style="display:none;">🔧 ADMIN</button>
 </nav>
 
 <div class="container">
@@ -1981,17 +1982,6 @@ tr:hover td {
         </div>
         <div id="plaidSyncInfo" style="display:none;margin-top:12px;font-family:'Space Mono',monospace;font-size:0.6rem;color:rgba(192,192,192,0.75);letter-spacing:0.5px;"></div>
         <div id="plaidHoldings" style="margin-top:16px;"></div>
-      </div>
-
-      <!-- ══ ADMIN: EXCLUSAO DE CONTA (owner only) ══ -->
-      <div id="adminDeleteSection" style="display:none;background:linear-gradient(135deg,rgba(239,68,68,0.04),rgba(0,0,0,0.4));border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:20px;margin-bottom:24px;">
-        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#ef4444;letter-spacing:2px;margin-bottom:4px;">🗑️ ACCOUNT DELETION (ADMIN)</div>
-        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Permanently delete a user's account after a verified request by e-mail. If they have an active Stripe subscription, cancel it in the Stripe dashboard FIRST — this tool does not touch billing.</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <input type="email" id="adminDeleteEmail" placeholder="user@email.com" style="flex:1;min-width:220px;">
-          <button class="btn btn-sm" onclick="adminLookupAccount()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔍 Look up</button>
-        </div>
-        <div id="adminDeleteResult" style="margin-top:14px;"></div>
       </div>
 
       <!-- PORTFOLIO SUMMARY (Plaid) — injetado na Fase 3 -->
@@ -2165,6 +2155,29 @@ tr:hover td {
 
   </div>
 </div>
+
+  <!-- ══ ADMIN TAB (owner only) ══════════════════════════════ -->
+  <div class="tab-panel" id="panel-admin">
+    <div style="padding:24px 0;">
+
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1.6rem;color:#ef4444;letter-spacing:2px;">🔧 KASH ADMIN</div>
+        <div style="font-size:0.82rem;color:var(--silver);margin-top:2px;">Visible only to KASH Administration — not part of the regular user experience.</div>
+      </div>
+
+      <!-- ══ ADMIN: EXCLUSAO DE CONTA ══ -->
+      <div id="adminDeleteSection" style="display:none;background:linear-gradient(135deg,rgba(239,68,68,0.04),rgba(0,0,0,0.4));border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#ef4444;letter-spacing:2px;margin-bottom:4px;">🗑️ ACCOUNT DELETION</div>
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Permanently delete a user's account after a verified request by e-mail. If they have an active Stripe subscription, cancel it here first — the tool schedules automatic deletion for the end of the current billing cycle.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="email" id="adminDeleteEmail" placeholder="user@email.com" style="flex:1;min-width:220px;">
+          <button class="btn btn-sm" onclick="adminLookupAccount()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔍 Look up</button>
+        </div>
+        <div id="adminDeleteResult" style="margin-top:14px;"></div>
+      </div>
+
+    </div>
+  </div>
 
 </div><!-- /container -->
 
@@ -4203,6 +4216,8 @@ async function initPlaid() {
   if (section) section.style.display = 'block';
   const adminDeleteSection = document.getElementById('adminDeleteSection');
   if (adminDeleteSection) adminDeleteSection.style.display = 'block';
+  const adminTabBtn = document.getElementById('tab-admin');
+  if (adminTabBtn) adminTabBtn.style.display = 'inline-block';
   let saved = localStorage.getItem('plaid_access_token');
   console.log('PLAID: fetching from Supabase...');
   const { data, error } = await _supabase
