@@ -1983,6 +1983,17 @@ tr:hover td {
         <div id="plaidHoldings" style="margin-top:16px;"></div>
       </div>
 
+      <!-- ══ ADMIN: EXCLUSAO DE CONTA (owner only) ══ -->
+      <div id="adminDeleteSection" style="display:none;background:linear-gradient(135deg,rgba(239,68,68,0.04),rgba(0,0,0,0.4));border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:20px;margin-bottom:24px;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:1rem;color:#ef4444;letter-spacing:2px;margin-bottom:4px;">🗑️ ACCOUNT DELETION (ADMIN)</div>
+        <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Permanently delete a user's account after a verified request by e-mail. If they have an active Stripe subscription, cancel it in the Stripe dashboard FIRST — this tool does not touch billing.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input type="email" id="adminDeleteEmail" placeholder="user@email.com" style="flex:1;min-width:220px;">
+          <button class="btn btn-sm" onclick="adminLookupAccount()" style="border-color:rgba(57,255,20,0.4);color:var(--green-neon);">🔍 Look up</button>
+        </div>
+        <div id="adminDeleteResult" style="margin-top:14px;"></div>
+      </div>
+
       <!-- PORTFOLIO SUMMARY (Plaid) — injetado na Fase 3 -->
 
       <!-- ══ MACRO ANALYSIS (CSV import — user-provided, informational only) ══ -->
@@ -4059,6 +4070,7 @@ boot();
 // ══════════════════════════════════════════════════
 const PLAID_OWNER_ID = '9d772432-7f2a-4c31-b940-928dc7c07ed7';
 const PLAID_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/plaid-link';
+const DELETE_ACCOUNT_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/delete-account';
 const AUTO_SYNC_HOUR   = 18; // 6:10 PM, browser local time (same reference as the rest of the app)
 const AUTO_SYNC_MINUTE = 10;
 
@@ -4189,6 +4201,8 @@ async function initPlaid() {
   if (!currentUser || currentUser.id !== PLAID_OWNER_ID) { console.log('PLAID: user check failed'); return; }
   const section = document.getElementById('plaidSection');
   if (section) section.style.display = 'block';
+  const adminDeleteSection = document.getElementById('adminDeleteSection');
+  if (adminDeleteSection) adminDeleteSection.style.display = 'block';
   let saved = localStorage.getItem('plaid_access_token');
   console.log('PLAID: fetching from Supabase...');
   const { data, error } = await _supabase
@@ -4362,6 +4376,105 @@ async function disconnectPlaid() {
   } catch (e) {
     if (disconnectBtn) { disconnectBtn.textContent = 'Disconnect'; disconnectBtn.disabled = false; }
     alert('Disconnect error: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN: EXCLUSAO DE CONTA (owner only)
+// Busca uma conta pelo e-mail e mostra um resumo antes de apagar. O cancelamento de
+// assinatura no Stripe NAO acontece aqui - precisa ser feito antes, direto no Stripe.
+// ══════════════════════════════════════════════════
+async function adminLookupAccount() {
+  const email = document.getElementById('adminDeleteEmail').value.trim().toLowerCase();
+  const resultEl = document.getElementById('adminDeleteResult');
+  if (!email) { resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Enter an email first.</div>'; return; }
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Looking up...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'lookup', email })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + (data.error || 'lookup failed') + '</div>'; return; }
+    if (!data.found) { resultEl.innerHTML = '<div style="color:var(--silver);font-size:0.75rem;">No account found with that email.</div>'; return; }
+
+    const safeEmail = data.email.replace(/'/g, "\\'");
+    let actionHtml;
+    if (data.deletionRequested) {
+      actionHtml = '<div style="color:#eab308;font-size:0.78rem;margin-top:10px;">⏳ Already scheduled — subscription cancelled, account will be deleted automatically when the current billing cycle ends. No action needed.</div>';
+    } else if (data.subscriptionStatus === 'active') {
+      actionHtml = `
+        <div style="color:#eab308;font-size:0.75rem;margin:8px 0;">⚠️ Active Stripe subscription (customer ${data.stripeCustomerId || '—'}).</div>
+        <button class="btn btn-sm btn-danger" style="margin-top:6px;" onclick="adminCancelAndSchedule('${data.user_id}', '${safeEmail}')">🗓️ Cancel subscription &amp; schedule deletion</button>
+        <div style="font-size:0.68rem;color:var(--silver);margin-top:6px;">Keeps access until the paid cycle ends, then deletes everything automatically. No manual Stripe step needed.</div>`;
+    } else {
+      actionHtml = `<button class="btn btn-sm btn-danger" style="margin-top:10px;" onclick="adminConfirmDelete('${data.user_id}', '${safeEmail}')">🗑️ Permanently delete this account now</button>`;
+    }
+
+    resultEl.innerHTML = `
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:14px;font-size:0.78rem;color:var(--silver);">
+        <div><strong style="color:var(--white);">${data.email}</strong></div>
+        <div style="margin-top:4px;">Account created: ${new Date(data.created_at).toLocaleDateString('en-US')}</div>
+        <div>Brokerage connected: ${data.hasPlaidConnection ? '✅ ' + (data.institutionName || 'yes') : 'No'}</div>
+        <div>Subscription status: ${data.subscriptionStatus || 'none'}</div>
+        ${actionHtml}
+      </div>`;
+  } catch (e) {
+    resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + e.message + '</div>';
+  }
+}
+
+async function adminCancelAndSchedule(user_id, email) {
+  const ok = confirm('Cancel the subscription for ' + email + '?\n\nThey keep access until the current paid cycle ends. No renewal after that. Once the cycle truly ends, their brokerage connection, data, and login will be deleted automatically — no further action from you needed.');
+  if (!ok) return;
+  const resultEl = document.getElementById('adminDeleteResult');
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Cancelling in Stripe...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'cancel_and_schedule', user_id })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + (data.error || 'cancellation failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
+      return;
+    }
+    const endDate = data.currentPeriodEnd ? new Date(data.currentPeriodEnd).toLocaleDateString('en-US') : 'end of current cycle';
+    resultEl.innerHTML = '<div style="color:var(--green-neon);font-size:0.8rem;">✅ Cancelled. Access continues until ' + endDate + '. Deletion will happen automatically after that — nothing else to do.</div>';
+    document.getElementById('adminDeleteEmail').value = '';
+  } catch (e) {
+    resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + e.message + '</div>';
+  }
+}
+
+async function adminConfirmDelete(user_id, email) {
+  const ok = confirm('Permanently delete the account for ' + email + '?\n\nThis disconnects their brokerage, deletes all their data, and deletes their login. This CANNOT be undone.');
+  if (!ok) return;
+  const resultEl = document.getElementById('adminDeleteResult');
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Deleting...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'delete', user_id })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + (data.error || 'delete failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
+      return;
+    }
+    resultEl.innerHTML = '<div style="color:var(--green-neon);font-size:0.8rem;">✅ Account deleted. Steps: ' + data.steps.join(', ') + '</div>';
+    document.getElementById('adminDeleteEmail').value = '';
+  } catch (e) {
+    resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;">Error: ' + e.message + '</div>';
   }
 }
 
