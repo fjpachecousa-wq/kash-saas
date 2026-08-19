@@ -2187,6 +2187,7 @@ tr:hover td {
           <button class="btn btn-sm" onclick="adminLoadCancellations()" style="border-color:rgba(234,179,8,0.4);color:#eab308;">🔄 Refresh</button>
         </div>
         <div style="font-size:0.72rem;color:var(--silver);margin-bottom:14px;">Cancellation is self-service only (the customer's own Stripe link). This list is a live read from Stripe — nothing here happens automatically.</div>
+        <div id="adminCancellationsStatus"></div>
         <div id="adminCancellationsResult"><div style="font-size:0.75rem;color:var(--silver);">Click Refresh to load.</div></div>
       </div>
 
@@ -4479,7 +4480,7 @@ async function adminLoadCancellations() {
         ${data.prontaParaExclusao.map(r => `
           <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(239,68,68,0.25);border-radius:8px;padding:10px 12px;font-size:0.75rem;color:var(--silver);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
             <span><strong style="color:var(--white);">${r.email}</strong> — requested ${adminFmtDate(r.requested_at)}, ended ${adminFmtDate(r.ended_at)}</span>
-            <button class="btn btn-sm btn-danger" onclick="adminConfirmDelete('${r.user_id}', '${r.email.replace(/'/g, "\\'")}')">Delete now</button>
+            <button class="btn btn-sm btn-danger" onclick="adminDeleteFromCancellationsList('${r.user_id}', '${r.email.replace(/'/g, "\\'")}')">Delete now</button>
           </div>`).join('')}
       </div>`);
     }
@@ -4497,6 +4498,34 @@ async function adminLoadCancellations() {
     resultEl.innerHTML = sections.length ? sections.join('') : '<div style="font-size:0.75rem;color:var(--silver);">Nothing to review right now.</div>';
   } catch (e) {
     resultEl.innerHTML = '<div style="color:#ef4444;font-size:0.75rem;">Error: ' + e.message + '</div>';
+  }
+}
+
+// Apaga uma conta a partir da lista de cancelamentos (nao da busca manual por e-mail).
+// Mostra o resultado logo acima da propria lista (adminCancellationsStatus) e recarrega
+// a lista sozinha depois - antes disso o resultado caia sem querer no card de baixo.
+async function adminDeleteFromCancellationsList(user_id, email) {
+  const ok = confirm('Permanently delete the account for ' + email + '?\n\nThis disconnects their brokerage, deletes all their data, and deletes their login. This CANNOT be undone.');
+  if (!ok) return;
+  const statusEl = document.getElementById('adminCancellationsStatus');
+  statusEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);margin-bottom:10px;">⏳ Deleting ' + email + '...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'delete', user_id })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;margin-bottom:10px;">Error deleting ' + email + ': ' + (data.error || 'delete failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
+      return;
+    }
+    statusEl.innerHTML = '<div style="color:var(--green-neon);font-size:0.8rem;margin-bottom:10px;">✅ ' + email + ' deleted.</div>';
+    await adminLoadCancellations();
+  } catch (e) {
+    statusEl.innerHTML = '<div style="color:#ef4444;font-size:0.8rem;margin-bottom:10px;">Error: ' + e.message + '</div>';
   }
 }
 
