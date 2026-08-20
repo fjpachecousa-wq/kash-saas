@@ -1016,14 +1016,6 @@
     100% { transform: translateX(-50%); }
   }
 
-  /* ── CLIENT NUMBER ────────────────────────────── */
-  .client-number {
-    font-family: 'Space Mono', monospace; font-size: 0.7rem;
-    color: rgba(192,192,192,0.5); letter-spacing: 2px;
-    margin-top: 4px;
-  }
-  .client-number span { color: var(--green-neon); font-weight: 700; }
-
   /* ── LARGE MODAL (Help / Terms / Privacy) ─────── */
   .modal-lg {
     background: linear-gradient(135deg, #0d1a0d, #111811);
@@ -1388,7 +1380,6 @@ label,
 .auth-toggle,
 .help-step-content,
 .legal-footer,
-.client-number,
 .ticker-item {
   color: var(--kash-muted) !important;
   text-shadow: none !important;
@@ -1905,7 +1896,6 @@ tr:hover td {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div>
         <div class="card-title" style="margin-bottom:2px;">👤 Investor Profile</div>
-        <div class="client-number">Client <span id="clientNumber">—</span></div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-sm" id="editProfileBtn" onclick="toggleEditProfile()" style="font-size:0.75rem;padding:4px 12px;">✏️ Edit</button>
@@ -2699,7 +2689,7 @@ async function initApp() {
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
-    setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 2000);
+    setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 5000);
   }
 
   let sub = { active: false, everSubscribed: false };
@@ -2937,25 +2927,6 @@ function saveGoal() {
   save();
   closeEditGoalModal();
   renderAll();
-}
-
-// ══════════════════════════════════════════════════
-// CLIENT NUMBER
-// ══════════════════════════════════════════════════
-function generateClientNumber(user) {
-  if (!user) return '——';
-  // MM + AA from created_at
-  const created = new Date(user.created_at);
-  const mm = String(created.getUTCMonth() + 1).padStart(2, '0');
-  const aa = String(created.getUTCFullYear()).slice(-2);
-  // 5-digit hash from user id
-  const idStr = user.id.replace(/-/g, '');
-  let hash = 0;
-  for (let i = 0; i < idStr.length; i++) {
-    hash = (hash * 31 + idStr.charCodeAt(i)) % 99999;
-  }
-  const seq = String(hash + 1).padStart(5, '0');
-  return `${mm}${aa}${seq}`;
 }
 
 // ══════════════════════════════════════════════════
@@ -4067,9 +4038,6 @@ function renderAll() {
   }
 
   if (currentUser) {
-    const clientNum = generateClientNumber(currentUser);
-    const cnEl = document.getElementById('clientNumber');
-    if (cnEl) cnEl.textContent = clientNum;
     const emailEl = document.getElementById('profileEmail');
     if (emailEl) emailEl.value = currentUser.email || '';
   }
