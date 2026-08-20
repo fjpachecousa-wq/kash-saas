@@ -32,20 +32,18 @@
   .nav-links a, .nav-links span { color: var(--kash-text); text-decoration:none; }
   .nav-cta { background: linear-gradient(135deg,var(--kash-green-bright),var(--kash-green-deep)); color:#F5F2E8; padding:10px 20px; border-radius:8px; font-weight:700; font-size:0.82rem; text-decoration:none; }
   .nav-cta-frozen, .hero-cta-frozen { opacity:0.5; cursor:not-allowed; pointer-events:none; }
-  .nav-login { color:var(--kash-text); text-decoration:none; font-weight:600; font-size:0.85rem; padding:8px 10px; }
-  .nav-login:hover { text-decoration:underline; }
+  .nav-ctas { display:flex; gap:10px; align-items:center; }
 
   .hero { display:flex; align-items:center; gap:40px; padding: 60px 48px; max-width:1200px; margin:0 auto; }
   .hero-left { flex:1; }
   .hero h1 { font-family:'Orbitron',sans-serif; font-size:2.4rem; font-weight:700; color:var(--kash-green-deep); line-height:1.3; margin-bottom:18px; }
   .hero h1 .accent { color: var(--kash-gold); }
   .hero p { font-size:1rem; color:var(--kash-muted); margin-bottom:24px; max-width:480px; }
-  .hero-price { font-family:'Orbitron',sans-serif; font-size:1.1rem; color:var(--kash-green-deep); margin-bottom:14px; }
-  .hero-price span { font-size:0.7rem; color:var(--kash-muted); font-family:'Inter',sans-serif; }
-  .hero-price .promo { color:var(--kash-gold); font-weight:700; }
+  .hero-price { font-family:'Orbitron',sans-serif; font-size:1.7rem; font-weight:700; color:var(--kash-gold); margin-bottom:16px; }
+  .hero-price .period { font-size:0.5em; color:var(--kash-muted); font-family:'Inter',sans-serif; font-weight:600; }
+  .hero-price .full-price { font-size:0.45em; color:var(--kash-muted); font-family:'Inter',sans-serif; font-weight:500; margin-left:6px; }
   .hero-cta { display:inline-flex; align-items:center; gap:8px; background: linear-gradient(135deg,var(--kash-green-bright),var(--kash-green-deep)); color:#F5F2E8; padding:14px 28px; border-radius:10px; font-weight:700; font-family:'Orbitron',sans-serif; letter-spacing:1px; text-decoration:none; font-size:0.88rem; }
   .hero-sub { font-size:0.78rem; color: var(--kash-muted); margin-top:12px; }
-  .hero-sub-link { display:block; margin-top:10px; font-size:0.78rem; color:var(--kash-muted); text-decoration:underline; }
   .hero-right { flex:1; display:flex; justify-content:center; }
   .hero-right img { width:100%; max-width:340px; }
 
@@ -117,17 +115,18 @@
     <a href="/about">About</a>
     <a href="/faq">FAQ</a>
   </div>
-  <span class="nav-cta nav-cta-frozen" title="Coming soon">Subscribe — $9.99/mo</span>
-  <a href="https://kashsolutions.us/app.html" class="nav-login">Login</a>
+  <div class="nav-ctas">
+    <span class="nav-cta nav-cta-frozen" title="Coming soon">Subscribe</span>
+    <a href="https://kashsolutions.us/app.html" class="nav-cta">Login</a>
+  </div>
 </nav>
 
 <div class="hero">
   <div class="hero-left">
     <h1>Invest with a <span class="accent">purpose.</span><br>Build your future with intelligence.</h1>
     <p>KASH turns your financial goal into a simple plan you can actually follow.</p>
-    <div class="hero-price">US$9.99<span>/mo</span> — <span class="promo">US$6.99/mo for your first 3 months</span></div>
+    <div class="hero-price">US$6.99<span class="period">/mo for your first 3 months</span> <span class="full-price">(US$9.99/mo)</span></div>
     <span class="hero-cta hero-cta-frozen" title="Coming soon">Subscribe — $9.99/mo</span>
-    <a href="https://kashsolutions.us/app.html" class="hero-sub-link">Already a subscriber? Login →</a>
   </div>
   <div class="hero-right">
     <img src="/hero-bonsai.png" alt="Ilustracao bonsai KASH">
