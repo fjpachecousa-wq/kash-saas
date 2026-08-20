@@ -2660,7 +2660,7 @@ async function boot() {
       currentUser = session.user;
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      const ALLOWED_EMAILS = ['fj.pacheco.usa@gmail.com', 'kash.test.checkout.0820@example.com'];
+      const ALLOWED_EMAILS = ['fj.pacheco.usa@gmail.com'];
       if (!ALLOWED_EMAILS.includes(currentUser.email)) {
         await _supabase.auth.signOut();
         currentUser = null;
