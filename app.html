@@ -2574,7 +2574,7 @@ function applyAuthMode() {
     if (forgot) forgot.style.display = 'none';
   } else {
     if (submitText) submitText.textContent = t.signIn;
-    if (toggle) toggle.innerHTML = `${t.noAccount} <a onclick="toggleAuthMode()">${t.createFree}</a>`;
+    if (toggle) toggle.innerHTML = '';
     if (nameField) nameField.style.display = 'none';
     if (forgot) forgot.innerHTML = `<a onclick="handleForgotPassword()">${t.forgotPassword}</a>`;
     if (forgot) forgot.style.display = 'block';
