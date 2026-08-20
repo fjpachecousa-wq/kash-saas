@@ -1781,10 +1781,10 @@ tr:hover td {
     </button>
 
     <!-- Divider -->
-    <div class="auth-divider" style="display:none;"><span id="orText">or</span></div>
+    <div class="auth-divider"><span id="orText">or</span></div>
 
     <!-- Email/Password -->
-    <div id="authEmailForm" style="display:none;">
+    <div id="authEmailForm">
       <input class="auth-input" type="email" id="authEmail" autocomplete="email">
       <input class="auth-input" type="password" id="authPassword" autocomplete="current-password">
       <div id="authNameField" style="display:none;">
@@ -2659,8 +2659,8 @@ async function boot() {
       currentUser = session.user;
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      const ALLOWED_EMAIL = 'fj.pacheco.usa@gmail.com';
-      if (currentUser.email !== ALLOWED_EMAIL) {
+      const ALLOWED_EMAILS = ['fj.pacheco.usa@gmail.com', 'kash.test.checkout.0820@example.com'];
+      if (!ALLOWED_EMAILS.includes(currentUser.email)) {
         await _supabase.auth.signOut();
         currentUser = null;
         document.getElementById('loginScreen').style.display = 'flex';
