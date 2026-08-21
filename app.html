@@ -4052,9 +4052,8 @@ function closeModal(id) {
 boot();
 
 // ══════════════════════════════════════════════════
-// PLAID INTEGRATION (owner only)
+// PLAID INTEGRATION
 // ══════════════════════════════════════════════════
-const PLAID_OWNER_ID = '9d772432-7f2a-4c31-b940-928dc7c07ed7';
 const PLAID_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/plaid-link';
 const DELETE_ACCOUNT_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/delete-account';
 const CREATE_CHECKOUT_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/create-checkout-session';
@@ -4212,7 +4211,7 @@ async function runAutoSyncIfDue() {
 }
 
 async function initPlaid() {
-  if (!currentUser || currentUser.id !== PLAID_OWNER_ID) { console.log('PLAID: user check failed'); return; }
+  if (!currentUser) { console.log('PLAID: user check failed'); return; }
   const section = document.getElementById('plaidSection');
   if (section) section.style.display = 'block';
   let saved = localStorage.getItem('plaid_access_token');
@@ -4281,7 +4280,7 @@ async function connectPlaid() {
     const res = await fetch(PLAID_FUNCTION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'create_link_token' })
+      body: JSON.stringify({ action: 'create_link_token', user_id: currentUser.id })
     });
     const data = await res.json();
     if (!data.link_token) throw new Error('Failed to get link token');
