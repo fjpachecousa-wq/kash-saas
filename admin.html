@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>KASH Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --green-mid: #166A3A;
+    --green-dark: #0F3D2E;
+    --silver: #6B746E;
+    --gold: #C8A24A;
+    --white: #102A25;
+    --red: #B45145;
+    --bg: #F5F2E8;
+    --card-bg: #FFFFFF;
+    --border: #E9E4D8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 40px 20px; }
+  .title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.5rem;
+    color: var(--red);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .subtitle { font-size: 0.82rem; color: var(--silver); margin-bottom: 28px; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+  }
+  .card-note { font-size: 0.72rem; color: var(--silver); margin-bottom: 14px; }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--white);
+    outline: none;
+    margin-bottom: 10px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 7px;
+    border: 1px solid var(--green-mid);
+    background: transparent;
+    color: var(--green-mid);
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .btn:hover { background: rgba(22,106,58,0.08); }
+  .btn-danger { border-color: var(--red); color: var(--red); }
+  .btn-danger:hover { background: rgba(180,81,69,0.08); }
+  .btn-primary { background: var(--green-mid); color: #fff; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .msg { font-size: 0.78rem; margin-top: 10px; }
+  .msg.error { color: var(--red); }
+  .msg.success { color: var(--green-mid); }
+  .item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.75rem;
+    color: var(--silver);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .item strong { color: var(--white); }
+  .group-label { font-size: 0.75rem; margin-bottom: 6px; font-weight: 600; }
+  #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  #adminScreen { display: none; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="wrap" style="max-width:340px;">
+    <div class="title">🔧 KASH ADMIN</div>
+    <div class="subtitle">Restricted access.</div>
+    <div class="card">
+      <input type="email" id="loginEmail" placeholder="email">
+      <input type="password" id="loginPassword" placeholder="password">
+      <button class="btn btn-primary" style="width:100%;" onclick="doLogin()">Sign in</button>
+      <div style="text-align:center;margin-top:10px;">
+        <a href="#" onclick="doForgotPassword();return false;" style="font-size:0.75rem;color:var(--silver);">Forgot my password</a>
+      </div>
+      <div id="loginMsg" class="msg"></div>
+    </div>
+  </div>
+</div>
+
+<div id="adminScreen">
+  <div class="wrap">
+    <div class="title">🔧 KASH ADMIN</div>
+    <div class="subtitle">Visible only to KASH Administration — not part of the regular user experience.</div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+        <div class="card-title" style="color:#eab308;">📋 SUBSCRIPTION CANCELLATIONS</div>
+        <button class="btn" style="border-color:rgba(234,179,8,0.4);color:#eab308;" onclick="adminLoadCancellations()">🔄 Refresh</button>
+      </div>
+      <div class="card-note">Cancellation is self-service only (the customer's own Stripe link). This list is a live read from Stripe — nothing here happens automatically.</div>
+      <div id="adminCancellationsStatus"></div>
+      <div id="adminCancellationsResult"><div style="font-size:0.75rem;color:var(--silver);">Click Refresh to load.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="color:var(--red);">🗑️ ACCOUNT DELETION (manual lookup)</div>
+      <div class="card-note">For ad-hoc deletion requests by e-mail, unrelated to the list above. Won't delete an account with an active Stripe subscription — cancellation only happens through the customer's own Stripe link.</div>
+      <div class="row">
+        <input type="email" id="adminDeleteEmail" placeholder="user@email.com" style="flex:1;min-width:220px;margin-bottom:0;">
+        <button class="btn" style="border-color:rgba(22,106,58,0.4);" onclick="adminLookupAccount()">🔍 Look up</button>
+      </div>
+      <div id="adminDeleteResult" style="margin-top:14px;"></div>
+    </div>
+
+    <div style="text-align:center;">
+      <a href="#" onclick="doLogout();return false;" style="font-size:0.75rem;color:var(--silver);">Sign out</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://wqrtviggoletikvtuvmp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcnR2aWdnb2xldGlrdnR1dm1wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk2MzM1MDEsImV4cCI6MjA5NTIwOTUwMX0.G7ueAvVA6C38wy0levKIm470j2BgvfSHlGU0dcXSUyk';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const DELETE_ACCOUNT_FUNCTION_URL = 'https://wqrtviggoletikvtuvmp.supabase.co/functions/v1/delete-account';
+const ADMIN_EMAIL = 'fj.pacheco.usa@gmail.com';
+
+function showLoginMsg(msg, type) {
+  const el = document.getElementById('loginMsg');
+  if (!msg) { el.style.display = 'none'; return; }
+  el.textContent = msg;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) { showLoginMsg('Fill in both fields.', 'error'); return; }
+  showLoginMsg('', '');
+  const { error } = await _supabase.auth.signInWithPassword({ email, password });
+  if (error) { showLoginMsg(error.message === 'Invalid login credentials' ? 'Invalid email or password.' : error.message, 'error'); return; }
+  await boot();
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) { showLoginMsg('Enter your email first.', 'error'); return; }
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/app' });
+  if (error) showLoginMsg(error.message, 'error');
+  else showLoginMsg('Password reset email sent to ' + email, 'success');
+}
+
+async function doLogout() {
+  await _supabase.auth.signOut();
+  document.getElementById('adminScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginPassword').value = '';
+}
+
+async function boot() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (!session || session.user.email !== ADMIN_EMAIL) {
+    if (session) await _supabase.auth.signOut();
+    document.getElementById('adminScreen').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    if (session) showLoginMsg('🔒 Access Denied', 'error');
+    return;
+  }
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminScreen').style.display = 'block';
+  adminLoadCancellations();
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN: CANCELAMENTOS (mesma logica que existia no app.html)
+// ══════════════════════════════════════════════════
+function adminFmtDate(iso) {
+  return iso ? new Date(iso).toLocaleDateString('en-US') : '—';
+}
+
+async function adminLoadCancellations() {
+  const resultEl = document.getElementById('adminCancellationsResult');
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Loading from Stripe...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'list_cancellations' })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.innerHTML = '<div class="msg error">Error: ' + (data.error || 'failed to load') + '</div>'; return; }
+
+    const sections = [];
+
+    if (data.aguardando?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div class="group-label" style="color:#eab308;">⏳ Waiting for cycle to end (${data.aguardando.length})</div>
+        ${data.aguardando.map(r => `
+          <div class="item"><strong>${r.email}</strong> — requested ${adminFmtDate(r.requested_at)}, ends ${adminFmtDate(r.ends_at)}</div>`).join('')}
+      </div>`);
+    }
+
+    if (data.prontaParaExclusao?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div class="group-label" style="color:var(--red);">🗑️ Ready for deletion — formal request (${data.prontaParaExclusao.length})</div>
+        ${data.prontaParaExclusao.map(r => `
+          <div class="item"><span><strong>${r.email}</strong> — requested ${adminFmtDate(r.requested_at)}, ended ${adminFmtDate(r.ended_at)}</span>
+            <button class="btn btn-danger" onclick="adminDeleteFromCancellationsList('${r.user_id}', '${r.email.replace(/'/g, "\\'")}')">Delete now</button>
+          </div>`).join('')}
+      </div>`);
+    }
+
+    if (data.encerradaOutroMotivo?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div class="group-label" style="color:var(--silver);">ℹ️ Ended for another reason — not a deletion request (${data.encerradaOutroMotivo.length})</div>
+        ${data.encerradaOutroMotivo.map(r => `
+          <div class="item"><strong>${r.email}</strong> — reason: ${r.reason}, ended ${adminFmtDate(r.ended_at)}</div>`).join('')}
+      </div>`);
+    }
+
+    resultEl.innerHTML = sections.length ? sections.join('') : '<div style="font-size:0.75rem;color:var(--silver);">Nothing to review right now.</div>';
+  } catch (e) {
+    resultEl.innerHTML = '<div class="msg error">Error: ' + e.message + '</div>';
+  }
+}
+
+async function adminDeleteFromCancellationsList(user_id, email) {
+  const ok = confirm('Permanently delete the account for ' + email + '?\n\nThis disconnects their brokerage, deletes all their data, and deletes their login. This CANNOT be undone.');
+  if (!ok) return;
+  const statusEl = document.getElementById('adminCancellationsStatus');
+  statusEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);margin-bottom:10px;">⏳ Deleting ' + email + '...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'delete', user_id })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusEl.innerHTML = '<div class="msg error" style="margin-bottom:10px;">Error deleting ' + email + ': ' + (data.error || 'delete failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
+      return;
+    }
+    statusEl.innerHTML = '<div class="msg success" style="margin-bottom:10px;">✅ ' + email + ' deleted.</div>';
+    await adminLoadCancellations();
+  } catch (e) {
+    statusEl.innerHTML = '<div class="msg error" style="margin-bottom:10px;">Error: ' + e.message + '</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════
+// ADMIN: EXCLUSAO DE CONTA (busca manual, avulsa)
+// ══════════════════════════════════════════════════
+async function adminLookupAccount() {
+  const email = document.getElementById('adminDeleteEmail').value.trim().toLowerCase();
+  const resultEl = document.getElementById('adminDeleteResult');
+  if (!email) { resultEl.innerHTML = '<div class="msg error">Enter an email first.</div>'; return; }
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Looking up...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'lookup', email })
+    });
+    const data = await res.json();
+    if (!res.ok) { resultEl.innerHTML = '<div class="msg error">Error: ' + (data.error || 'lookup failed') + '</div>'; return; }
+    if (!data.found) { resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">No account found with that email.</div>'; return; }
+
+    const safeEmail = data.email.replace(/'/g, "\\'");
+    let actionHtml;
+    if (data.subscriptionStatus === 'active') {
+      actionHtml = '<div style="color:#eab308;font-size:0.75rem;margin-top:10px;">⚠️ Active Stripe subscription. Cancellation is self-service only (the customer uses their own "Cancel Subscription" link) — this account cannot be deleted while the subscription is active.</div>';
+    } else {
+      actionHtml = `<button class="btn btn-danger" style="margin-top:10px;" onclick="adminConfirmDelete('${data.user_id}', '${safeEmail}')">🗑️ Permanently delete this account now</button>`;
+    }
+
+    resultEl.innerHTML = `
+      <div class="item" style="display:block;">
+        <div><strong>${data.email}</strong></div>
+        <div style="margin-top:4px;">Account created: ${new Date(data.created_at).toLocaleDateString('en-US')}</div>
+        <div>Brokerage connected: ${data.hasPlaidConnection ? '✅ ' + (data.institutionName || 'yes') : 'No'}</div>
+        <div>Subscription status: ${data.subscriptionStatus || 'none'}</div>
+        ${actionHtml}
+      </div>`;
+  } catch (e) {
+    resultEl.innerHTML = '<div class="msg error">Error: ' + e.message + '</div>';
+  }
+}
+
+async function adminConfirmDelete(user_id, email) {
+  const ok = confirm('Permanently delete the account for ' + email + '?\n\nThis disconnects their brokerage, deletes all their data, and deletes their login. This CANNOT be undone.');
+  if (!ok) return;
+  const resultEl = document.getElementById('adminDeleteResult');
+  resultEl.innerHTML = '<div style="font-size:0.75rem;color:var(--silver);">⏳ Deleting...</div>';
+  try {
+    const { data: sessionData } = await _supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await fetch(DELETE_ACCOUNT_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ action: 'delete', user_id })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      resultEl.innerHTML = '<div class="msg error">Error: ' + (data.error || 'delete failed') + (data.details ? ' — ' + JSON.stringify(data.details) : '') + '</div>';
+      return;
+    }
+    resultEl.innerHTML = '<div class="msg success">✅ Account deleted. Steps: ' + data.steps.join(', ') + '</div>';
+    document.getElementById('adminDeleteEmail').value = '';
+  } catch (e) {
+    resultEl.innerHTML = '<div class="msg error">Error: ' + e.message + '</div>';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
