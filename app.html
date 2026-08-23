@@ -2233,7 +2233,7 @@ tr:hover td {
     <div class="modal-title">➕ Add Transaction</div>
     <div class="form-group" style="margin-bottom:14px;">
       <label>Amount ($)</label>
-      <input type="number" id="amt-goal" placeholder="ex: 50.00 or -3.00" step="0.01">
+      <input type="number" id="amt-goal" placeholder="ex: 50.00" step="0.01">
     </div>
     <div class="form-group" style="margin-bottom:14px;">
       <label>Start Date</label>
@@ -2963,7 +2963,7 @@ function addContribution() {
   const startDt = parseDateInput(startRaw);
   const endDt = parseDateInput(endRaw);
   const note = document.getElementById('note-goal').value;
-  if (isNaN(amt) || amt === 0) return alert('Please enter a valid contribution amount.');
+  if (isNaN(amt) || amt <= 0) return alert('Please enter a valid contribution amount.');
   if (!note) return alert('Please select a Type.');
   if (new Date(endDt) < new Date(startDt)) return alert('End Date cannot be before Start Date.');
 
@@ -3375,10 +3375,13 @@ function renderGoalPanel() {
             ${(window._reconciliationSuggestions || []).map(s => `
               <tr style="background:rgba(57,255,20,0.03);border-bottom:1px dashed rgba(57,255,20,0.15);">
                 <td>${new Date(s.date+'T12:00:00').toLocaleDateString('en-US')}</td>
-                <td class="amount-cell">${fmt(s.amount)}</td>
+                <td class="amount-cell" style="${s.isDebit ? 'color:#ef4444;' : ''}">${s.isDebit ? '-' : ''}${fmt(s.amount)}</td>
                 <td class="running-cell" style="color:rgba(192,192,192,0.3);">—</td>
                 <td style="color:#888;">${s.name}</td>
-                <td class="no-print"><button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button></td>
+                <td class="no-print">
+                  <button class="btn btn-primary btn-sm" onclick="importStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">➕ Add</button>
+                  <button class="btn btn-secondary btn-sm" onclick="rejectStatementTransaction('${s.key}')" style="padding:3px 10px;font-size:0.65rem;">❌ Reject</button>
+                </td>
               </tr>`).join('')}
             ${(() => {
               const allRows = myGoalFilteredRows;
@@ -3645,6 +3648,7 @@ function runReconciliation() {
 
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
+  g.rejectedTxnKeys = g.rejectedTxnKeys || [];
 
   const sameNameAmount = (t, c) => {
     const tAmt = Math.abs(parseFloat(t.amount || 0));
@@ -3682,14 +3686,18 @@ function runReconciliation() {
   if (changed) save();
 
   // Sugestões: transações reais sem lançamento correspondente e não importadas antes.
+  const DEBIT_KEYWORDS = ['fee', 'tax', 'withdrawal'];
   const suggestions = [];
   txns.forEach(t => {
     const amt = Math.abs(parseFloat(t.amount || 0));
     if (amt === 0) return;
     const key = _txnKey(t);
     if (g.importedTxnKeys.includes(key)) return;
+    if (g.rejectedTxnKeys.includes(key)) return;
     if (reservedKeys.has(key)) return;
-    suggestions.push({ key, date: t.date, amount: amt, name: _cleanTxnName(t.name) || t.type || '—' });
+    const typeKey = ((t.subtype || t.type || '') + '').toLowerCase();
+    const isDebit = DEBIT_KEYWORDS.some(k => typeKey.includes(k));
+    suggestions.push({ key, date: t.date, amount: amt, name: _cleanTxnName(t.name) || t.type || '—', isDebit });
   });
 
   window._reconciliationSuggestions = suggestions;
@@ -3806,7 +3814,11 @@ function importStatementTransaction(key) {
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
 
-  const amt = Math.abs(parseFloat(txn.amount || 0));
+  const DEBIT_KEYWORDS = ['fee', 'tax', 'withdrawal'];
+  const typeKey = ((txn.subtype || txn.type || '') + '').toLowerCase();
+  const isDebit = DEBIT_KEYWORDS.some(k => typeKey.includes(k));
+  const rawAmt = Math.abs(parseFloat(txn.amount || 0));
+  const amt = isDebit ? -rawAmt : rawAmt;
   g.contributions.push({
     id: Date.now().toString(),
     date: txn.date,
@@ -3817,6 +3829,7 @@ function importStatementTransaction(key) {
     pending: false,
     matched: true,
     fromPlaid: true,
+    isDebit,
     txnKey: key
   });
   g.contributions.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -3825,6 +3838,16 @@ function importStatementTransaction(key) {
   save();
   renderGoalPanel();
   renderOverview();
+}
+
+function rejectStatementTransaction(key) {
+  const g = state.goal;
+  if (!g) return;
+  g.rejectedTxnKeys = g.rejectedTxnKeys || [];
+  if (!g.rejectedTxnKeys.includes(key)) g.rejectedTxnKeys.push(key);
+  window._reconciliationSuggestions = (window._reconciliationSuggestions || []).filter(s => s.key !== key);
+  save();
+  renderGoalPanel();
 }
 
 // ══════════════════════════════════════════════════
