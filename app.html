@@ -4677,19 +4677,15 @@ function renderMacroAnalysis() {
   if (lastImportEl) {
     lastImportEl.textContent = 'Last import: ' + new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
   }
-  const pct = v => { const n = parseFloat(v); return isNaN(n) ? '—' : (n >= 0 ? '+' : '') + (n * 100).toFixed(2) + '%'; };
-  const pctColor = v => { const n = parseFloat(v); return isNaN(n) ? 'var(--kash-muted)' : n >= 0 ? 'var(--kash-green-bright)' : '#B45145'; };
+  const numFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : n.toFixed(3); };
+  const moneyFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : '$' + n.toFixed(2); };
   const portfolioTickers = new Set(
     (window._lastPlaidData?.securities || []).map(s => (s.ticker_symbol || '').toUpperCase()).filter(Boolean)
   );
   let hasWatchOnly = false;
   const rowsHtml = imp.rows.map(r => {
-    const classe = (r['Asset Class'] || '').trim();
-    const isFixedIncome = classe.toLowerCase().indexOf('fixed') !== -1;
-    const reliability = isFixedIncome
-      ? '<span style="background:var(--kash-cream-2);color:#27500A;border:1px solid #639922;border-radius:6px;padding:2px 7px;">High, yield-anchored</span>'
-      : '<span style="background:var(--kash-cream-2);color:#8A6A1F;border:1px solid var(--kash-gold);border-radius:6px;padding:2px 7px;">Low, contextual</span>';
     const ticker = (r['Ticker'] || '').trim();
+    const classe = (r['Class'] || '').trim();
     const isWatchOnly = ticker && !portfolioTickers.has(ticker.toUpperCase());
     if (isWatchOnly) hasWatchOnly = true;
     const watchBadge = isWatchOnly
@@ -4698,9 +4694,9 @@ function renderMacroAnalysis() {
     return `<tr style="border-bottom:1px solid var(--kash-border);">
       <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${ticker || '—'}${watchBadge}</td>
       <td style="padding:7px 10px;color:var(--kash-muted);">${classe || '—'}</td>
-      <td style="padding:7px 10px;text-align:right;color:${pctColor(r['ROI 1Y'])};">${pct(r['ROI 1Y'])}</td>
-      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${pct(r['Dividend Yield'])}</td>
-      <td style="padding:7px 10px;">${reliability}</td>
+      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${numFmt(r['Shares Start'])}</td>
+      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${numFmt(r['Shares End'])}</td>
+      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${moneyFmt(r['Avg Price Paid'])}</td>
     </tr>`;
   }).join('');
   const watchLegend = hasWatchOnly
@@ -4714,9 +4710,9 @@ function renderMacroAnalysis() {
           <tr style="background:var(--kash-green);">
             <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Ticker</th>
             <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Class</th>
-            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">ROI 1Y</th>
-            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Yield</th>
-            <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Reliability</th>
+            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Shares Start</th>
+            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Shares End</th>
+            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Avg Price Paid</th>
           </tr>
         </thead>
         <tbody>${rowsHtml}</tbody>
