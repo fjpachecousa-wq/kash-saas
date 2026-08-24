@@ -129,7 +129,7 @@
     <div class="doc-section">
       <div class="doc-section-title">5. Plaid Integration</div>
       <p class="doc-text">If you choose to connect a brokerage account via Plaid, you authorize KASH to receive read-only access to your investment positions for display and comparison purposes only. KASH does not execute trades, transfer funds, or store your banking credentials. Your connection is subject to Plaid's Privacy Policy. Plaid integration requires a valid US financial account. International users with an SSN or ITIN may also connect eligible US accounts.</p>
-      <p class="doc-text">To revoke Plaid access, contact us at <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a> and we will disconnect your linked account. A self-service disconnect option is planned for a future release.</p>
+      <p class="doc-text">You may disconnect your linked brokerage account at any time directly within the KASH platform (self-service), or by contacting us at <a href="mailto:kash@kashsolutions.us">kash@kashsolutions.us</a>.</p>
     </div>
 
     <div class="doc-section">
@@ -406,7 +406,7 @@
         <li><strong>Local storage (Supabase authentication):</strong> KASH primarily uses browser local storage — not cookies — to keep you logged in via Supabase and to store your session across visits. This is required for the platform to function.</li>
         <li><strong>Local storage (app state):</strong> used to store sync status, cached market data, and display preferences.</li>
         <li><strong>Plaid Link:</strong> when you connect a brokerage account, Plaid's widget (loaded from cdn.plaid.com) may set its own cookies during the connection flow, governed by Plaid's Privacy Policy.</li>
-        <li><strong>Payment cookies:</strong> once in-app checkout is available, Stripe may set cookies during the subscription and payment process, governed by Stripe's Privacy Policy. <span class="note-inline">(This feature is not yet active on KASH.)</span></li>
+        <li><strong>Payment cookies:</strong> during checkout, Stripe may set cookies to process your subscription payment securely, governed by Stripe's Privacy Policy.</li>
       </ul>
     </div>
 
