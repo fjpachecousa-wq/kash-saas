@@ -4621,16 +4621,24 @@ async function renderPlaidHoldings(data) {
 // ══════════════════════════════════════════════════
 function parseMacroCsvText(text) {
   const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
-  if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map(h => h.trim());
+  if (lines.length < 2) return { meta: {}, rows: [] };
+  let idx = 0;
+  const firstHeaders = lines[0].split(',').map(h => h.trim());
+  let meta = {};
+  if (!firstHeaders.includes('Ticker')) {
+    const metaValues = (lines[1] || '').split(',').map(c => c.trim());
+    firstHeaders.forEach((h, i) => { meta[h] = metaValues[i] !== undefined ? metaValues[i] : ''; });
+    idx = 2;
+  }
+  const headers = (lines[idx] || '').split(',').map(h => h.trim());
   const rows = [];
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = idx + 1; i < lines.length; i++) {
     const cells = lines[i].split(',').map(c => c.trim());
     const row = {};
-    headers.forEach((h, idx) => { row[h] = cells[idx] !== undefined ? cells[idx] : ''; });
+    headers.forEach((h, j) => { row[h] = cells[j] !== undefined ? cells[j] : ''; });
     if (row['Ticker']) rows.push(row);
   }
-  return rows;
+  return { meta, rows };
 }
 
 async function handleMacroCsvUpload(event) {
@@ -4638,12 +4646,17 @@ async function handleMacroCsvUpload(event) {
   if (!file) return;
   try {
     const text = await file.text();
-    const rows = parseMacroCsvText(text);
-    if (rows.length === 0) {
+    const parsed = parseMacroCsvText(text);
+    if (parsed.rows.length === 0) {
       alert('No valid rows found in this CSV. Check it matches the KASH import model.');
       return;
     }
-    state.etfMacroImport = { importedAt: new Date().toISOString(), rows };
+    state.etfMacroImport = {
+      importedAt: new Date().toISOString(),
+      accountId: parsed.meta['Account ID'] || '',
+      statementPeriod: parsed.meta['Statement Period'] || '',
+      rows: parsed.rows
+    };
     await save();
     renderMacroAnalysis();
   } catch(e) {
@@ -4675,7 +4688,10 @@ function renderMacroAnalysis() {
     disclaimerEl.innerHTML = 'Informational only, based on the file you imported on ' + importedDateTime + '. Not a recommendation.' + staleBadge;
   }
   if (lastImportEl) {
-    lastImportEl.textContent = 'Last import: ' + new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    const importedShort = new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    lastImportEl.textContent = imp.statementPeriod
+      ? 'Statement: ' + imp.statementPeriod + (imp.accountId ? ' · Account ' + imp.accountId : '') + ' · imported ' + importedShort
+      : 'Last import: ' + importedShort;
   }
   const numFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : n.toFixed(3); };
   const moneyFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : '$' + n.toFixed(2); };
