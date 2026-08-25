@@ -1993,17 +1993,17 @@ tr:hover td {
       <!-- ══ MACRO ANALYSIS (CSV import — user-provided, informational only) ══ -->
       <div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
-          <div style="font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:600;color:var(--kash-text);">Macro analysis</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--kash-text);">Macro analysis</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <input type="file" id="macroCsvInput" accept=".csv" style="display:none;" onchange="handleMacroCsvUpload(event)">
             <button class="btn btn-sm" style="border-color:var(--kash-gold);color:var(--kash-text);" onclick="document.getElementById('macroCsvInput').click()">📥 Import CSV</button>
           </div>
         </div>
-        <div style="text-align:right;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <div id="macroDisclaimer" style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);">
+            Informational only, based on the file you imported. Not a recommendation.
+          </div>
           <span id="macroLastImport" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--kash-muted);">No file imported yet</span>
-        </div>
-        <div id="macroDisclaimer" style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);margin-bottom:14px;">
-          Informational only, based on the file you imported. Not a recommendation.
         </div>
         <div id="macroAnalysisTable"></div>
       </div>
