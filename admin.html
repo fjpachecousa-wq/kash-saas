@@ -252,6 +252,14 @@ async function adminLoadCancellations() {
       </div>`);
     }
 
+    if (data.naoVerificada?.length) {
+      sections.push(`<div style="margin-bottom:14px;">
+        <div class="group-label" style="color:var(--red);">⚠️ Could not verify with Stripe (${data.naoVerificada.length})</div>
+        ${data.naoVerificada.map(r => `
+          <div class="item"><strong>${r.email}</strong> — ${r.error}</div>`).join('')}
+      </div>`);
+    }
+
     resultEl.innerHTML = sections.length ? sections.join('') : '<div style="font-size:0.75rem;color:var(--silver);">Nothing to review right now.</div>';
   } catch (e) {
     resultEl.innerHTML = '<div class="msg error">Error: ' + e.message + '</div>';
