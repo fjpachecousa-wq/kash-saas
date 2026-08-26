@@ -2640,6 +2640,7 @@ async function boot() {
     document.getElementById('loadingScreen').style.display = 'none';
     if (session) {
       currentUser = session.user;
+      const justSubscribed = new URLSearchParams(window.location.search).get('subscribed') === 'true';
       window.history.replaceState({}, document.title, window.location.pathname);
 
       const ALLOWED_EMAILS = ['fj.pacheco.usa@gmail.com'];
@@ -2652,7 +2653,7 @@ async function boot() {
         return;
       }
 
-      await initApp();
+      await initApp(justSubscribed);
     } else {
       document.getElementById('loginScreen').style.display = 'flex';
     }
@@ -2663,16 +2664,14 @@ async function boot() {
   }
 }
 
-async function initApp() {
+async function initApp(justSubscribed) {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('paywallScreen').style.display = 'none';
   const closedScreen = document.getElementById('accountClosedScreen');
   if (closedScreen) closedScreen.style.display = 'none';
   document.getElementById('appContent').style.display = 'none';
 
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('subscribed') === 'true') {
-    setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 5000);
+  if (justSubscribed) {
     openWelcomeGuideModal();
   }
 
