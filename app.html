@@ -2185,6 +2185,20 @@ tr:hover td {
   </div>
 </div>
 
+<div class="modal-overlay" id="welcomeGuideModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeWelcomeGuideModal()">✕</button>
+    <div class="modal-title">🌱 Welcome to KASH!</div>
+    <p style="color:var(--kash-muted);font-size:0.9rem;margin-bottom:20px;line-height:1.5;">
+      Your subscription is active. Before you dive in, grab our quick Getting Started guide — it walks through connecting your brokerage, setting a goal, and tracking contributions.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="/KASH_Getting_Started_Guide.pdf" target="_blank" style="text-decoration:none;text-align:center;">📄 Download Getting Started Guide</a>
+      <button class="btn btn-secondary btn-sm" onclick="closeWelcomeGuideModal()">Start using KASH →</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ CHART OF ACCOUNTS MODAL ("Plano de Contas") ══ -->
 <div class="modal-overlay" id="chartOfAccountsModal" style="z-index:600;">
   <div class="modal">
@@ -2659,6 +2673,7 @@ async function initApp() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === 'true') {
     setTimeout(() => { window.location.href = 'https://kashsolutions.us/app'; }, 5000);
+    openWelcomeGuideModal();
   }
 
   let sub = { active: false, everSubscribed: false };
@@ -2873,6 +2888,12 @@ function openEditGoalModal() {
 }
 function closeEditGoalModal() {
   document.getElementById('editGoalModal').classList.remove('open');
+}
+function openWelcomeGuideModal() {
+  document.getElementById('welcomeGuideModal').classList.add('open');
+}
+function closeWelcomeGuideModal() {
+  document.getElementById('welcomeGuideModal').classList.remove('open');
 }
 
 function openAddTransactionModal() {
@@ -4948,6 +4969,7 @@ async function fetchStatement(useCacheOnly) {
 
 <!-- ══ APP FOOTER ══════════════════════════════════ -->
 <div class="legal-footer no-print" style="max-width:1100px;margin:32px auto 0;padding:20px 30px 24px;border-top:1px solid rgba(57,255,20,0.12);flex-wrap:wrap;align-items:center;">
+  <a href="/KASH_Getting_Started_Guide.pdf" target="_blank">Getting Started Guide</a>
   <a href="/about">About</a>
   <a href="/faq">FAQ</a>
   <a href="/privacy">Privacy Policy</a>
