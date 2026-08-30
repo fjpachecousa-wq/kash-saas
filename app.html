@@ -1990,22 +1990,16 @@ tr:hover td {
 
       <!-- PORTFOLIO SUMMARY (Plaid) — injetado na Fase 3 -->
 
-      <!-- ══ MACRO ANALYSIS (CSV import — user-provided, informational only) ══ -->
+      <!-- ══ PERFORMANCE BY HOLDING (automatic, no import needed) ══ -->
       <div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
-          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--kash-text);">Macro Analysis</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <input type="file" id="macroCsvInput" accept=".csv" style="display:none;" onchange="handleMacroCsvUpload(event)">
-            <button class="btn btn-sm" style="border-color:var(--kash-gold);color:var(--kash-text);" onclick="document.getElementById('macroCsvInput').click()">📥 Import CSV</button>
-          </div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--kash-text);">Performance by Holding</div>
+          <span style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--kash-muted);">Synced automatically</span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
-          <div id="macroDisclaimer" style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);">
-            Informational only, based on the file you imported. Not a recommendation.
-          </div>
-          <span id="macroLastImport" style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--kash-muted);">No file imported yet</span>
+        <div style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);margin-bottom:14px;">
+          Based on your connected brokerage holdings. Updated with each sync.
         </div>
-        <div id="macroAnalysisTable"></div>
+        <div id="performanceByHoldingTable"></div>
       </div>
 
     </div>
@@ -2734,7 +2728,6 @@ async function initApp(justSubscribed) {
     document.getElementById('lastName').value = parts.slice(1).join(' ') || '';
   }
   renderAll();
-  renderMacroAnalysis();
   // Show profile card on first access if name not set
   if (!state.name) {
     document.getElementById('userSetupCard').style.display = 'block';
@@ -4360,7 +4353,6 @@ async function connectPlaid() {
           updatePlaidStatus();
           await syncPlaid();
           await fetchStatement(); // busca o Statement junto (Conexao e Reconexao) - nao depende do sync diario
-          renderMacroAnalysis(); // recalcula selos "Watch only" contra o portfolio novo
         } catch (e) {
           connectBtn.textContent = '🔌 Connect';
           connectBtn.disabled = false;
@@ -4429,7 +4421,8 @@ async function disconnectPlaid() {
     const statementEl = document.getElementById('statementContent');
     if (statementEl) statementEl.innerHTML = '<div style="font-size:0.8rem;color:var(--silver);text-align:center;padding:20px;">Connect your brokerage account in the Portfolio tab first.</div>';
     renderGoalPanel(); // atualiza Balance/Dividends do "My Goal" na hora, sem deixar valor antigo da corretora
-    renderMacroAnalysis(); // marca todos os tickers importados como "Watch only" - nao ha mais portfolio sincronizado
+    const perfEl = document.getElementById('performanceByHoldingTable');
+    if (perfEl) perfEl.innerHTML = '';
 
     alert('Brokerage disconnected.');
   } catch (e) {
@@ -4585,6 +4578,37 @@ async function renderPlaidHoldings(data) {
   // Cards de desempenho — 2 por linha
   const cardsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;">${cards}</div>`;
 
+  // Performance by Holding — automatico, reaproveita quoteMap/perfMap ja buscados acima
+  const perfTableEl = document.getElementById('performanceByHoldingTable');
+  if (perfTableEl) {
+    const fmtPct2 = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
+    const pctColor2 = v => v == null ? 'var(--kash-muted)' : v >= 0 ? 'var(--kash-green-bright)' : '#B45145';
+    const perfRowsHtml = data.holdings.map(h => {
+      const sec = (data.securities || []).find(s => s.security_id === h.security_id);
+      const ticker = sec?.ticker_symbol || '—';
+      const q = quoteMap[ticker], p = perfMap[ticker];
+      return `<tr style="border-bottom:1px solid var(--kash-border);">
+        <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${ticker}</td>
+        <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${q?.price != null ? '$' + q.price.toFixed(2) : '—'}</td>
+        <td style="padding:7px 10px;text-align:right;color:${pctColor2(q?.changePercent)};">${fmtPct2(q?.changePercent)}</td>
+        <td style="padding:7px 10px;text-align:right;color:${pctColor2(p?.perfYtd)};">${fmtPct2(p?.perfYtd)}</td>
+        <td style="padding:7px 10px;text-align:right;color:${pctColor2(p?.perf1y)};">${fmtPct2(p?.perf1y)}</td>
+      </tr>`;
+    }).join('');
+    perfTableEl.innerHTML = `<div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.68rem;">
+        <thead><tr style="background:var(--kash-green);">
+          <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Ticker</th>
+          <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Price</th>
+          <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Today</th>
+          <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">YTD</th>
+          <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">1 Year</th>
+        </tr></thead>
+        <tbody>${perfRowsHtml}</tbody>
+      </table>
+    </div>`;
+  }
+
   const _totalCurrent  = data.holdings.reduce((sum, h) => sum + parseFloat(h.institution_value || 0), 0);
   const _totalDeposited = (state.goal && typeof calcProject === 'function') ? calcProject(state.goal).totalInvested : 0;
   const _totalEstRealTime = data.holdings.reduce((sum, h) => {
@@ -4639,126 +4663,6 @@ async function renderPlaidHoldings(data) {
 
   // Atualizar overview com dados Plaid frescos
   renderOverview();
-}
-
-// ══════════════════════════════════════════════════
-// MACRO ANALYSIS (CSV import — user-provided, informational only)
-// ══════════════════════════════════════════════════
-function parseMacroCsvText(text) {
-  const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim().length > 0);
-  if (lines.length < 2) return { meta: {}, rows: [] };
-  let idx = 0;
-  const firstHeaders = lines[0].split(',').map(h => h.trim());
-  let meta = {};
-  if (!firstHeaders.includes('Ticker')) {
-    const metaValues = (lines[1] || '').split(',').map(c => c.trim());
-    firstHeaders.forEach((h, i) => { meta[h] = metaValues[i] !== undefined ? metaValues[i] : ''; });
-    idx = 2;
-  }
-  const headers = (lines[idx] || '').split(',').map(h => h.trim());
-  const rows = [];
-  for (let i = idx + 1; i < lines.length; i++) {
-    const cells = lines[i].split(',').map(c => c.trim());
-    const row = {};
-    headers.forEach((h, j) => { row[h] = cells[j] !== undefined ? cells[j] : ''; });
-    if (row['Ticker']) rows.push(row);
-  }
-  return { meta, rows };
-}
-
-async function handleMacroCsvUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  try {
-    const text = await file.text();
-    const parsed = parseMacroCsvText(text);
-    if (parsed.rows.length === 0) {
-      alert('No valid rows found in this CSV. Check it matches the KASH import model.');
-      return;
-    }
-    state.etfMacroImport = {
-      importedAt: new Date().toISOString(),
-      accountId: parsed.meta['Account ID'] || '',
-      statementPeriod: parsed.meta['Statement Period'] || '',
-      rows: parsed.rows
-    };
-    await save();
-    renderMacroAnalysis();
-  } catch(e) {
-    console.error('CSV import error:', e);
-    alert('Could not read this file. Make sure it is a valid CSV.');
-  } finally {
-    event.target.value = '';
-  }
-}
-
-function renderMacroAnalysis() {
-  const container = document.getElementById('macroAnalysisTable');
-  const lastImportEl = document.getElementById('macroLastImport');
-  const disclaimerEl = document.getElementById('macroDisclaimer');
-  if (!container) return;
-  const imp = state.etfMacroImport;
-  if (!imp || !imp.rows || imp.rows.length === 0) {
-    container.innerHTML = '';
-    if (lastImportEl) lastImportEl.textContent = 'No file imported yet';
-    if (disclaimerEl) disclaimerEl.textContent = 'Informational only, based on the file you imported. Not a recommendation.';
-    return;
-  }
-  const importedDateTime = new Date(imp.importedAt).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
-  const daysSinceImport = Math.floor((Date.now() - new Date(imp.importedAt).getTime()) / (1000 * 60 * 60 * 24));
-  const staleBadge = daysSinceImport > 30
-    ? ` <span style="background:var(--kash-cream-2);color:#8A6A1F;border:1px solid var(--kash-gold);border-radius:6px;padding:2px 7px;font-family:'Space Mono',monospace;font-size:0.62rem;">${daysSinceImport} days old — consider updating</span>`
-    : '';
-  if (disclaimerEl) {
-    disclaimerEl.innerHTML = 'Informational only, based on the file you imported on ' + importedDateTime + '. Not a recommendation.' + staleBadge;
-  }
-  if (lastImportEl) {
-    const importedShort = new Date(imp.importedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-    lastImportEl.textContent = imp.statementPeriod
-      ? 'Statement: ' + imp.statementPeriod + (imp.accountId ? ' · Account ' + imp.accountId : '')
-      : 'Last import: ' + importedShort;
-  }
-  const numFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : n.toFixed(3); };
-  const moneyFmt = v => { const n = parseFloat(v); return isNaN(n) ? '—' : '$' + n.toFixed(2); };
-  const portfolioTickers = new Set(
-    (window._lastPlaidData?.securities || []).map(s => (s.ticker_symbol || '').toUpperCase()).filter(Boolean)
-  );
-  let hasWatchOnly = false;
-  const rowsHtml = imp.rows.map(r => {
-    const ticker = (r['Ticker'] || '').trim();
-    const classe = (r['Class'] || '').trim();
-    const isWatchOnly = ticker && !portfolioTickers.has(ticker.toUpperCase());
-    if (isWatchOnly) hasWatchOnly = true;
-    const watchBadge = isWatchOnly
-      ? ' <span style="font-family:\'Inter\',sans-serif;background:var(--kash-cream-2);color:var(--kash-muted);border:1px solid var(--kash-border-strong);border-radius:6px;padding:1px 6px;font-size:0.58rem;font-weight:600;">👁 Watch only</span>'
-      : '';
-    return `<tr style="border-bottom:1px solid var(--kash-border);">
-      <td style="padding:7px 10px;color:var(--kash-text);font-weight:700;">${ticker || '—'}${watchBadge}</td>
-      <td style="padding:7px 10px;color:var(--kash-muted);">${classe || '—'}</td>
-      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${numFmt(r['Shares Start'])}</td>
-      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${numFmt(r['Shares End'])}</td>
-      <td style="padding:7px 10px;text-align:right;color:var(--kash-text);">${moneyFmt(r['Avg Price Paid'])}</td>
-    </tr>`;
-  }).join('');
-  const watchLegend = hasWatchOnly
-    ? `<div style="font-family:'Inter',sans-serif;font-size:0.66rem;color:var(--kash-muted);margin-bottom:8px;">👁 Watch only — not part of your synced portfolio.</div>`
-    : '';
-  container.innerHTML = `
-    ${watchLegend}
-    <div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.68rem;">
-        <thead>
-          <tr style="background:var(--kash-green);">
-            <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Ticker</th>
-            <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Class</th>
-            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Shares Start</th>
-            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Shares End</th>
-            <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Avg Price Paid</th>
-          </tr>
-        </thead>
-        <tbody>${rowsHtml}</tbody>
-      </table>
-    </div>`;
 }
 
 // ══════════════════════════════════════════════════
