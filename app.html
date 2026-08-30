@@ -1994,10 +1994,9 @@ tr:hover td {
       <div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;padding:20px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
           <div style="font-family:'Orbitron',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--kash-text);">Performance by Holding</div>
-          <span style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--kash-muted);">Synced automatically</span>
         </div>
-        <div style="font-family:'Inter',sans-serif;font-size:0.72rem;color:var(--kash-muted);margin-bottom:14px;">
-          Based on your connected brokerage holdings. Updated with each sync.
+        <div style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--kash-muted);margin-bottom:14px;">
+          Based on your connected brokerage holdings. Updated with each sync. Synced automatically.
         </div>
         <div id="performanceByHoldingTable"></div>
       </div>
@@ -4596,7 +4595,7 @@ async function renderPlaidHoldings(data) {
       </tr>`;
     }).join('');
     perfTableEl.innerHTML = `<div style="background:#FFFDF8;border:1px solid var(--kash-border);border-radius:12px;overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.68rem;">
+      <table style="width:100%;border-collapse:collapse;font-family:'Space Mono',monospace;font-size:0.8rem;">
         <thead><tr style="background:var(--kash-green);">
           <th style="text-align:left;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Ticker</th>
           <th style="text-align:right;padding:8px 10px;color:var(--kash-cream);font-weight:700;">Price</th>
