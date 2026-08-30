@@ -3339,6 +3339,7 @@ function renderGoalPanel() {
     if (window._myGoalDateTo) rows = rows.filter(r => r.date <= window._myGoalDateTo);
     return rows;
   })();
+  const myGoalFilteredTotal = myGoalFilteredRows.reduce((s, r) => s + r.amount, 0);
 
   container.innerHTML = `<div>
     ${alertHtml}
@@ -3389,6 +3390,7 @@ function renderGoalPanel() {
           <input type="checkbox" id="hideScheduledCheckbox" onchange="toggleHideScheduled()" ${localStorage.getItem('kash_hide_scheduled') === '1' ? 'checked' : ''} style="accent-color:var(--green-neon);cursor:pointer;">
           Hide Scheduled
         </label>
+        <span style="margin-left:auto;font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--green-neon);font-weight:700;white-space:nowrap;">Total: ${fmt(myGoalFilteredTotal)}</span>
       </div>` : ''}
       <div class="table-wrap">
         <table>
