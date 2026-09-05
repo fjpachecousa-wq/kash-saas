@@ -2979,6 +2979,7 @@ function addContribution() {
   if (isNaN(amt) || amt <= 0) return alert('Please enter a valid contribution amount.');
   if (!note) return alert('Please select a Type.');
   if (new Date(endDt) < new Date(startDt)) return alert('End Date cannot be before Start Date.');
+  if (isDateClosed(startDt)) return alert('That date falls in a closed month and can no longer accept new entries.');
 
   g.contributions = g.contributions || [];
   let d = new Date(startDt + 'T12:00:00');
@@ -3004,8 +3005,9 @@ function addContribution() {
 // ══════════════════════════════════════════════════
 function deleteContribution(contribId) {
   if (!state.goal) return;
-  if (!confirm('Are you sure you want to delete this contribution? This cannot be undone.')) return;
   const target = (state.goal.contributions || []).find(c => String(c.id) === String(contribId));
+  if (target && isDateClosed(target.date)) { alert('This month is closed. Its transactions are locked.'); return; }
+  if (!confirm('Are you sure you want to delete this contribution? This cannot be undone.')) return;
   if (target && target.fromPlaid && target.txnKey && state.goal.importedTxnKeys) {
     state.goal.importedTxnKeys = state.goal.importedTxnKeys.filter(k => k !== target.txnKey);
   }
@@ -3412,7 +3414,10 @@ function renderGoalPanel() {
                   </td>
                   <td class="running-cell">${fmt(r.running)}</td>
                   <td style="color:#888;">${r.note||'—'}${r.fromPlaid?' <span title="Imported from Statement">🔗</span>':''}</td>
-                  <td class="no-print"><button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Transaction">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button></td>
+                  <td class="no-print">${isDateClosed(r.date)
+                    ? '<span class="icon-btn" title="Month closed — locked" style="cursor:default;opacity:0.5;">🔒</span>'
+                    : `<button class="icon-btn" onclick="openEditContributionTypeModal('${r.id}')" title="Edit Transaction">✏️</button><button class="icon-btn icon-btn-del" onclick="deleteContribution('${r.id}')" title="Delete">🗑</button>`
+                  }</td>
                 </tr>`).join('');
             })()}
           </tbody>
@@ -3520,6 +3525,7 @@ function closeEditContributionTypeModal() {
 function saveContributionType() {
   const c = (state.goal.contributions || []).find(c => String(c.id) === String(_editingContribId));
   if (!c) return closeEditContributionTypeModal();
+  if (isDateClosed(c.date)) { alert('This month is closed. This transaction is locked.'); return closeEditContributionTypeModal(); }
 
   const newType = document.getElementById('editContribTypeSelect').value;
   const newDateRaw = document.getElementById('editContribDate').value;
@@ -3530,6 +3536,7 @@ function saveContributionType() {
   if (isNaN(newAmount) || newAmount <= 0) { alert('Invalid amount.'); return; }
 
   const newDateStr = parseDateInput(newDateRaw);
+  if (isDateClosed(newDateStr)) { alert('That date falls in a closed month.'); return; }
 
   const somethingChanged = (newType !== c.note) || (newDateStr !== c.date) || (Math.abs(newAmount - c.amount) > 0.005);
 
@@ -3727,6 +3734,9 @@ function lastDayOfPrevMonth(dateStr) {
   lastOfPrev.setDate(lastOfPrev.getDate() - 1);
   return lastOfPrev.toISOString().slice(0, 10);
 }
+function isDateClosed(dateStr) {
+  return !!(window._lastClosureData && dateStr <= window._lastClosureData.period_end_date);
+}
 async function loadLatestClosure() {
   if (!currentUser) return null;
   const { data, error } = await _supabase
@@ -3826,6 +3836,7 @@ function importStatementTransaction(key) {
   const txns = window._lastStatementTxnsForImport || [];
   const txn = txns.find(t => _txnKey(t) === key);
   if (!txn) return;
+  if (isDateClosed(txn.date)) { alert('This transaction date falls in a closed month and can no longer be added.'); return; }
 
   g.contributions = g.contributions || [];
   g.importedTxnKeys = g.importedTxnKeys || [];
@@ -4293,6 +4304,7 @@ async function initPlaid() {
     updatePlaidStatus();
   }
   await loadLatestClosure(); checkClosingEligibility();
+  if (currentTab === 'goal') renderGoalPanel();
 }
 
 function setPlaidStatusText(text, isError) {
